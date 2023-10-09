@@ -52,7 +52,6 @@ import { classes } from "@automapper/classes";
     TransferProfile,
     TransfersRepository,
     TransferReportRepository,
-    TransferStateMap,
     {
       provide: "TRANSFER_STATE_FACTORY",
       useClass: TransferStateFactory,

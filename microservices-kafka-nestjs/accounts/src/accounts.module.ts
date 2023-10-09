@@ -8,6 +8,7 @@ import { AutomapperModule } from "@automapper/nestjs";
 import { classes } from "@automapper/classes";
 import { Account, AccountSchema } from "./schemas/account.schema";
 import { AccountsRepository } from "./accounts.repository";
+import { AccountProfile } from "./mapper/account.profile";
 
 @Module({
   imports: [
@@ -36,7 +37,7 @@ import { AccountsRepository } from "./accounts.repository";
     }),
     MongooseModule.forFeature([{ name: Account.name, schema: AccountSchema }]),
   ],
-  providers: [AccountService, AccountsRepository],
+  providers: [AccountService, AccountsRepository, AccountProfile],
   controllers: [AccountsController],
 })
 export class AccountsModule {}

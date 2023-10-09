@@ -2,11 +2,16 @@ import { Injectable, Logger } from "@nestjs/common";
 import { AccountsRepository } from "./accounts.repository";
 import { AccountDTO, CreateAccountDTO } from "./dtos/account.dtos";
 import { Account } from "./schemas/account.schema";
+import { InjectMapper } from "@automapper/nestjs";
+import { Mapper } from "@automapper/core";
 
 @Injectable()
 export class AccountService {
   private readonly logger = new Logger(AccountService.name);
-  constructor(private readonly accountsRepository: AccountsRepository) {}
+  constructor(
+    private readonly accountsRepository: AccountsRepository,
+    @InjectMapper() private readonly AccountsMapper: Mapper,
+  ) {}
 
   async getAccount({ accountId }: { accountId: string }): Promise<AccountDTO> {
     const { accountsRepository, logger } = this;
@@ -20,11 +25,15 @@ export class AccountService {
   }: {
     createAccountDTO: CreateAccountDTO;
   }): Promise<AccountDTO> {
-    const { accountsRepository, logger } = this;
+    const { accountsRepository, logger, AccountsMapper } = this;
     logger.debug("[AccountService getAccount]", { createAccountDTO });
     const createdAccount: Account = await accountsRepository.createAccount({
       createAccountDTO: createAccountDTO,
     });
-    return createdAccount;
+    return AccountsMapper.map<Account, AccountDTO>(
+      createdAccount,
+      Account,
+      AccountDTO,
+    );
   }
 }
