@@ -1,35 +1,35 @@
-import { Module } from '@nestjs/common';
-import { TransferProfile } from './mapper/transfer-profile';
-import { TransfersService } from './transfers.service';
-import { MongooseModule } from '@nestjs/mongoose';
-import { Transfer, TransferSchema } from './schemas/transfer.schema';
+import { Module } from "@nestjs/common";
+import { TransferProfile } from "./mapper/transfer-profile";
+import { TransfersService } from "./transfers.service";
+import { MongooseModule } from "@nestjs/mongoose";
+import { Transfer, TransferSchema } from "./schemas/transfer.schema";
 import {
   TransferReport,
   TransferReportSchema,
-} from './schemas/transfer-report.schema';
-import { TransferStateMap } from './states/transfer-state.map';
-import { TransferStateFactory } from './transfer-state.factory';
-import { TransferReportRepository } from './repositories/transfer-report.repository';
-import { TransfersRepository } from './repositories/transfers.repository';
-import { TransfersController } from './transfers.controller';
-import { ClientsModule, Transport } from '@nestjs/microservices';
-import { ConfigModule } from '@nestjs/config';
-import { AutomapperModule } from '@automapper/nestjs';
-import { classes } from '@automapper/classes';
+} from "./schemas/transfer-report.schema";
+import { TransferStateMap } from "./states/transfer-state.map";
+import { TransferStateFactory } from "./transfer-state.factory";
+import { TransferReportRepository } from "./repositories/transfer-report.repository";
+import { TransfersRepository } from "./repositories/transfers.repository";
+import { TransfersController } from "./transfers.controller";
+import { ClientsModule, Transport } from "@nestjs/microservices";
+import { ConfigModule } from "@nestjs/config";
+import { AutomapperModule } from "@automapper/nestjs";
+import { classes } from "@automapper/classes";
 
 @Module({
   imports: [
     ClientsModule.register([
       {
-        name: 'BANK_SERVICE',
+        name: "BANK_SERVICE",
         transport: Transport.KAFKA,
         options: {
           client: {
-            clientId: 'banks',
-            brokers: ['localhost:9092'],
+            clientId: "banks",
+            brokers: ["localhost:9092"],
           },
           consumer: {
-            groupId: 'banks-consumer',
+            groupId: "banks-consumer",
           },
         },
       },
@@ -54,7 +54,7 @@ import { classes } from '@automapper/classes';
     TransferReportRepository,
     TransferStateMap,
     {
-      provide: 'TRANSFER_STATE_FACTORY',
+      provide: "TRANSFER_STATE_FACTORY",
       useClass: TransferStateFactory,
     },
     TransfersService,
