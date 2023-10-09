@@ -1,10 +1,10 @@
-import { Schema as mSchema, Document, Types } from 'mongoose';
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Schema as mSchema, Document, Types } from "mongoose";
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import {
   CURRENCY_TYPES,
   TRANSFER_ACTIONS,
   TRANSFER_STATUSES,
-} from '../constants/transfer.constants';
+} from "../constants/transfer.constants";
 
 @Schema({
   _id: false,
@@ -54,13 +54,13 @@ export class Transfer {
   @Prop({ type: mSchema.Types.ObjectId, required: true })
   toAccount: string;
 
-  @Prop({ type: mSchema.Types.ObjectId, ref: 'TransferReport' })
+  @Prop({ type: mSchema.Types.ObjectId, ref: "TransferReport" })
   transferReport: string;
 
   @Prop({ type: Number, required: true })
   amount: number;
 
-  @Prop({ type: [{ type: ActionLogSchema, ref: 'ActionLog' }], default: [] })
+  @Prop({ type: [{ type: ActionLogSchema, ref: "ActionLog" }], default: [] })
   actionLogs: ActionLog[];
 
   @Prop({ type: Date })
