@@ -1,0 +1,37 @@
+# Dependency directories
+node_modules/
+dist/
+
+# IDE/Editor specific
+.vscode/
+.idea/
+
+# Compiled output
+build/
+dist/
+
+# Logs and runtime data
+logs/
+*.log
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Testing
+coverage/
+
+# Temporary files
+*.swp
+.DS_Store
+
+# Dependency lock files
+package-lock.json
+yarn.lock
+
+# MongoDB data directory
+data/
+
+# Compiled TypeScript
+*.tsbuildinfo
