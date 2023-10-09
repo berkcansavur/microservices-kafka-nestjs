@@ -26,6 +26,19 @@ import { ClientsModule, Transport } from "@nestjs/microservices";
           },
         },
       },
+      {
+        name: "TRANSFER_SERVICE",
+        transport: Transport.KAFKA,
+        options: {
+          client: {
+            clientId: "transfers",
+            brokers: ["localhost:9092"],
+          },
+          consumer: {
+            groupId: "transfers-consumer",
+          },
+        },
+      },
     ]),
     ConfigModule.forRoot({}),
     MongooseModule.forRoot(
