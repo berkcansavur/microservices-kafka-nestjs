@@ -1,26 +1,34 @@
 // src/transfers/transfers.service.ts
-import { Inject, Injectable, Logger } from "@nestjs/common";
+import { Inject, Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { TransfersRepository } from "./repositories/transfers.repository";
 import { CreateTransferDTO, TransferDTO } from "./dtos/transfer.dto";
 import { Transfer } from "./schemas/transfer.schema";
 import { InjectMapper } from "@automapper/nestjs";
 import { Mapper } from "@automapper/core";
-import { TransferIsNotFoundException } from "./exceptions";
+import {
+  TransferIsNotFoundException,
+  TransferNotApprovedException,
+} from "./exceptions";
 import { ClientKafka } from "@nestjs/microservices";
 import { TransferCouldNotCreatedException } from "./exceptions/index";
 import {
   TRANSFER_ACTIONS,
   TRANSFER_STATUSES,
 } from "./constants/transfer.constants";
+import { map } from "rxjs";
 
 @Injectable()
-export class TransfersService {
+export class TransfersService implements OnModuleInit {
   private readonly logger = new Logger(TransfersService.name);
   constructor(
     @Inject("BANK_SERVICE") private readonly bankClient: ClientKafka,
     private readonly transfersRepository: TransfersRepository,
     @InjectMapper() private readonly TransferMapper: Mapper,
   ) {}
+  async onModuleInit() {
+    this.bankClient.subscribeToResponseOf("transfer_approval");
+    await this.bankClient.connect();
+  }
 
   async getTransfer({
     transferId,
@@ -85,30 +93,40 @@ export class TransfersService {
         transferId: approveTransferEvent.id,
       });
     }
-
     logger.debug("[TransferService approveTransfer]", approveTransferEvent);
     const approvedTransferEventData = bankClient
-      .send("transfer_approval", { approveTransferEvent })
-      .subscribe(async (approval) => {
-        if (approval.status == "200") {
-          const approvedTransfer: Transfer =
-            await transfersRepository.updateTransferStatus({
-              transferId: approval.id,
-              status: TRANSFER_STATUSES.APPROVED,
-              action: TRANSFER_ACTIONS.APPROVED,
-              userId: approval.userId,
-            });
-          logger.debug(
-            `[TransferService] Transfer status updated: ${approval.status}`,
-          );
-          return approvedTransfer;
-        }
-      });
-    logger.debug(
-      `[TransfersService] Approve Transfer ${JSON.stringify(
+      .send("transfer_approval", {
         approveTransferEvent,
-      )}`,
-    );
-    return approvedTransferEventData;
+      })
+      .pipe(
+        map(async (result) => {
+          logger.debug(
+            `[TransferService] Transfer status updated on Bank: ${approvedTransferEventData}`,
+          );
+          console.log("Returned Observable Value: ", result);
+
+          if (result.status === 200) {
+            const approvedTransfer: Transfer =
+              await transfersRepository.updateTransferStatus({
+                transferId: approveTransferEvent.id,
+                status: TRANSFER_STATUSES.APPROVED,
+                action: TRANSFER_ACTIONS.APPROVED,
+                userId: approveTransferEvent.userId,
+              });
+            logger.debug(
+              `[TransfersService] Approve Transfer ${JSON.stringify(
+                approvedTransfer,
+              )}`,
+            );
+            return approvedTransfer;
+          }
+
+          throw new TransferNotApprovedException(
+            "Transfer status is not 'approved' ",
+          );
+        }),
+      )
+      .toPromise();
+    return await approvedTransferEventData;
   }
 }

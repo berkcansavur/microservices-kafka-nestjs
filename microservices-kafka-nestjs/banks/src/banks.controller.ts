@@ -7,8 +7,9 @@ export class BanksController {
   constructor(private readonly bankService: BanksService) {}
 
   @MessagePattern("transfer_approval")
-  approveTransfer(data: any) {
+  async approveTransfer(data: any) {
     console.log("Banks approveTransfer Incoming Data:", data);
-    return this.bankService.approveMoneyTransfer(data);
+    const transferApproval = await this.bankService.approveMoneyTransfer(data);
+    return JSON.stringify(transferApproval);
   }
 }

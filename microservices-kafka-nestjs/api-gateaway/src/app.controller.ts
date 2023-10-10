@@ -18,7 +18,7 @@ export class AppController {
   @Post("/createTransfer")
   createTransfer(@Body() createTransferRequestDTO: CreateTransferDTO) {
     const { appService } = this;
-    appService.createMoneyTransferRequest(createTransferRequestDTO);
+    return appService.createMoneyTransferRequest(createTransferRequestDTO);
   }
   @Post("/createAccount")
   createAccount(@Body() createAccountRequestDTO: CreateAccountDTO) {

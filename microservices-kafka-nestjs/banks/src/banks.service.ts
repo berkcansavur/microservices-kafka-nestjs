@@ -28,13 +28,13 @@ export class BanksService {
     };
 
     const mockTransfer = {
-      id: "6519fe2013b8c9f269d615c7",
-      currencyType: "USD",
-      status: "200",
+      _id: "652501b8c0045840027f98ae",
+      currencyType: "EURO",
+      status: 200,
       userId: "6519fe2013b8c9f269d615c6",
-      fromAccount: "Berkcan Denizbank",
-      toAccount: "Berkcan İş Bankası",
-      amount: "1500",
+      fromAccount: "6519fe2013b8c9f269d61510",
+      toAccount: "6519fe2013b8c9f269d615c9",
+      amount: 250,
     };
 
     if (moneyTransferResultFromAccounts.message === "success") {

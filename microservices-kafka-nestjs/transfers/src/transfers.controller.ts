@@ -6,7 +6,7 @@ import {
   UsePipes,
 } from "@nestjs/common";
 import { TransfersService } from "./transfers.service";
-import { ClientKafka, EventPattern } from "@nestjs/microservices";
+import { ClientKafka, MessagePattern } from "@nestjs/microservices";
 import { ParseIncomingRequest } from "pipes/serialize-request-data.pipe";
 import {
   CreateTransferDTO,
@@ -24,7 +24,7 @@ export class TransfersController implements OnModuleInit {
     @InjectMapper() private readonly TransferIncomingRequestMapper: Mapper,
   ) {}
 
-  @EventPattern("create-transfer-event")
+  @MessagePattern("create-transfer-event")
   @UsePipes(new ParseIncomingRequest())
   async createTransfer(data: CreateTransferIncomingRequestDTO) {
     const { transfersService, TransferIncomingRequestMapper, logger } = this;
@@ -45,10 +45,12 @@ export class TransfersController implements OnModuleInit {
     return JSON.stringify(createdTransfer);
   }
 
-  @EventPattern("approve-transfer-event")
-  handleTransferApproval(data: any) {
+  @MessagePattern("approve-transfer-event")
+  @UsePipes(new ParseIncomingRequest())
+  async handleTransferApproval(data: any) {
     console.log("handle transfer approval : ", data);
-    return this.transfersService.approveTransfer(data);
+    const approvedTransfer = await this.transfersService.approveTransfer(data);
+    return JSON.stringify(approvedTransfer);
   }
   onModuleInit() {
     this.bankClient.subscribeToResponseOf("transfer_approval");

@@ -26,7 +26,7 @@ export class AppService implements OnModuleInit {
         createTransferRequestDTO,
       )}`,
     );
-    this.transferClient.send("create-transfer-event", {
+    return this.transferClient.send("create-transfer-event", {
       createTransferRequestDTO,
     });
   }
@@ -35,7 +35,7 @@ export class AppService implements OnModuleInit {
     logger.debug(
       `[AppService] approveTransfer: ${JSON.stringify(approveTransferDTO)}`,
     );
-    this.transferClient.send("approve-transfer-event", {
+    return this.transferClient.send("approve-transfer-event", {
       approveTransferDTO,
     });
   }
