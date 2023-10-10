@@ -38,15 +38,17 @@ export class TransfersController implements OnModuleInit {
         CreateTransferIncomingRequestDTO,
         CreateTransferDTO
       >(data, CreateTransferIncomingRequestDTO, CreateTransferDTO);
-    return await transfersService.createTransfer({
+    const createdTransfer = await transfersService.createTransfer({
       createTransferRequestDTO: formattedRequestData,
     });
+    this.bankClient.emit("transfer-created-event", createdTransfer);
+    return JSON.stringify(createdTransfer);
   }
 
   @EventPattern("approve-transfer-event")
   handleTransferApproval(data: any) {
     console.log("handle transfer approval : ", data);
-    this.transfersService.approveTransfer(data);
+    return this.transfersService.approveTransfer(data);
   }
   onModuleInit() {
     this.bankClient.subscribeToResponseOf("transfer_approval");

@@ -28,7 +28,7 @@ export class AccountService {
     createAccountDTO: CreateAccountDTO;
   }): Promise<AccountDTO> {
     const { accountsRepository, logger, AccountsMapper } = this;
-    logger.debug("[AccountService getAccount]", { createAccountDTO });
+    logger.debug("[AccountService createAccount]", { createAccountDTO });
     const createdAccount: Account = await accountsRepository.createAccount({
       createAccountDTO: createAccountDTO,
     });

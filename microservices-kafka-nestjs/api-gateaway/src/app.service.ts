@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from "@nestjs/common";
+import { Inject, Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { ClientKafka } from "@nestjs/microservices";
 import {
   CreateAccountDTO,
@@ -7,12 +7,18 @@ import {
 } from "./dtos/api.dtos";
 
 @Injectable()
-export class AppService {
+export class AppService implements OnModuleInit {
   private readonly logger = new Logger(AppService.name);
   constructor(
     @Inject("TRANSFER_SERVICE") private readonly transferClient: ClientKafka,
     @Inject("ACCOUNT_SERVICE") private readonly accountClient: ClientKafka,
   ) {}
+  async onModuleInit() {
+    this.transferClient.subscribeToResponseOf("create-transfer-event");
+    this.transferClient.subscribeToResponseOf("approve-transfer-event");
+    this.accountClient.subscribeToResponseOf("create-account-event");
+    await this.accountClient.connect();
+  }
   createMoneyTransferRequest(createTransferRequestDTO: CreateTransferDTO) {
     const { logger } = this;
     logger.debug(
@@ -20,7 +26,7 @@ export class AppService {
         createTransferRequestDTO,
       )}`,
     );
-    this.transferClient.emit("create-transfer-event", {
+    this.transferClient.send("create-transfer-event", {
       createTransferRequestDTO,
     });
   }
@@ -29,7 +35,7 @@ export class AppService {
     logger.debug(
       `[AppService] approveTransfer: ${JSON.stringify(approveTransferDTO)}`,
     );
-    this.transferClient.emit("approve-transfer-event", {
+    this.transferClient.send("approve-transfer-event", {
       approveTransferDTO,
     });
   }
@@ -40,7 +46,7 @@ export class AppService {
         createAccountRequestDTO,
       )}`,
     );
-    this.accountClient.emit("create-account-event", {
+    return this.accountClient.send("create-account-event", {
       createAccountRequestDTO,
     });
   }

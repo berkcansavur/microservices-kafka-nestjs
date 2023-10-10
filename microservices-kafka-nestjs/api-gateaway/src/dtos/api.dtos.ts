@@ -49,3 +49,24 @@ export class CreateAccountDTO {
   @IsNumber()
   interest?: number;
 }
+export class AccountDTO {
+  @IsMongoId()
+  _id: string;
+
+  @IsMongoId()
+  userId: string;
+
+  @IsNumber()
+  accountNumber: number;
+
+  @IsNumber()
+  interest: number;
+
+  balance: any;
+
+  @IsNumber()
+  @IsNotEmpty()
+  status: number;
+
+  actionLogs: any;
+}

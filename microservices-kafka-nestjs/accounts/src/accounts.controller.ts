@@ -6,7 +6,7 @@ import {
   UsePipes,
 } from "@nestjs/common";
 import { AccountService } from "./accounts.service";
-import { ClientKafka, EventPattern } from "@nestjs/microservices";
+import { ClientKafka, MessagePattern } from "@nestjs/microservices";
 import { ParseIncomingRequest } from "pipes/serialize-request-data.pipe";
 import {
   CreateAccountDTO,
@@ -23,7 +23,8 @@ export class AccountsController implements OnModuleInit {
     @Inject("BANK_SERVICE") private readonly bankClient: ClientKafka,
     @InjectMapper() private readonly AccountIncomingRequestMapper: Mapper,
   ) {}
-  @EventPattern("create-account-event")
+
+  @MessagePattern("create-account-event")
   @UsePipes(new ParseIncomingRequest())
   async createAccount(data: CreateAccountIncomingRequestDTO) {
     const { accountsService, logger, AccountIncomingRequestMapper } = this;
@@ -37,10 +38,12 @@ export class AccountsController implements OnModuleInit {
         CreateAccountIncomingRequestDTO,
         CreateAccountDTO
       >(data, CreateAccountIncomingRequestDTO, CreateAccountDTO);
-    return await accountsService.createAccount({
+    const account = await accountsService.createAccount({
       createAccountDTO: formattedRequestData,
     });
+    return JSON.stringify(account);
   }
+
   onModuleInit() {
     this.bankClient.subscribeToResponseOf("transfer_approval");
   }
