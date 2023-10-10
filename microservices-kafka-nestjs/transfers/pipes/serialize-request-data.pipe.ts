@@ -1,4 +1,4 @@
-import { Injectable, Logger, PipeTransform } from '@nestjs/common';
+import { Injectable, Logger, PipeTransform } from "@nestjs/common";
 
 @Injectable()
 export class ParseIncomingRequest implements PipeTransform {
@@ -15,7 +15,7 @@ export class ParseIncomingRequest implements PipeTransform {
         },
       };
       this.logger.debug(
-        '[ParseIncomingRequest Pipe] Formatted request data :',
+        "[ParseIncomingRequest Pipe] Formatted request data :",
         formattedData,
       );
       return formattedData;

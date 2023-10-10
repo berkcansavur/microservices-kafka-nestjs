@@ -1,23 +1,23 @@
 // src/transfers/transfers.service.ts
-import { Inject, Injectable, Logger } from '@nestjs/common';
-import { TransfersRepository } from './repositories/transfers.repository';
-import { CreateTransferDTO, TransferDTO } from './dtos/transfer.dto';
-import { Transfer } from './schemas/transfer.schema';
-import { InjectMapper } from '@automapper/nestjs';
-import { Mapper } from '@automapper/core';
-import { TransferIsNotFoundException } from './exceptions';
-import { ClientKafka } from '@nestjs/microservices';
-import { TransferCouldNotCreatedException } from './exceptions/index';
+import { Inject, Injectable, Logger } from "@nestjs/common";
+import { TransfersRepository } from "./repositories/transfers.repository";
+import { CreateTransferDTO, TransferDTO } from "./dtos/transfer.dto";
+import { Transfer } from "./schemas/transfer.schema";
+import { InjectMapper } from "@automapper/nestjs";
+import { Mapper } from "@automapper/core";
+import { TransferIsNotFoundException } from "./exceptions";
+import { ClientKafka } from "@nestjs/microservices";
+import { TransferCouldNotCreatedException } from "./exceptions/index";
 import {
   TRANSFER_ACTIONS,
   TRANSFER_STATUSES,
-} from './constants/transfer.constants';
+} from "./constants/transfer.constants";
 
 @Injectable()
 export class TransfersService {
   private readonly logger = new Logger(TransfersService.name);
   constructor(
-    @Inject('BANK_SERVICE') private readonly bankClient: ClientKafka,
+    @Inject("BANK_SERVICE") private readonly bankClient: ClientKafka,
     private readonly transfersRepository: TransfersRepository,
     @InjectMapper() private readonly TransferMapper: Mapper,
   ) {}
@@ -28,7 +28,7 @@ export class TransfersService {
     transferId: string;
   }): Promise<TransferDTO> {
     const { logger, transfersRepository, TransferMapper } = this;
-    logger.debug('[TransferService getTransfer]', { transferId });
+    logger.debug("[TransferService getTransfer]", { transferId });
 
     const transfer: Transfer = await transfersRepository.getTransfer({
       transferId,
@@ -49,7 +49,7 @@ export class TransfersService {
     createTransferRequestDTO: CreateTransferDTO;
   }): Promise<TransferDTO> {
     const { transfersRepository, TransferMapper, logger } = this;
-    logger.debug('[TransferService createTransfer]', createTransferRequestDTO);
+    logger.debug("[TransferService createTransfer]", createTransferRequestDTO);
     const createdTransfer: Transfer = await transfersRepository.createTransfer({
       createMoneyTransferDTO: createTransferRequestDTO,
     });
@@ -86,11 +86,11 @@ export class TransfersService {
       });
     }
 
-    logger.debug('[TransferService approveTransfer]', approveTransferEvent);
+    logger.debug("[TransferService approveTransfer]", approveTransferEvent);
     const approvedTransferEventData = bankClient
-      .send('transfer_approval', { approveTransferEvent })
+      .send("transfer_approval", { approveTransferEvent })
       .subscribe(async (approval) => {
-        if (approval.status == '200') {
+        if (approval.status == "200") {
           const approvedTransfer: Transfer =
             await transfersRepository.updateTransferStatus({
               transferId: approval.id,

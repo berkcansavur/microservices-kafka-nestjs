@@ -1,7 +1,7 @@
 import { Controller, Inject, OnModuleInit, UsePipes } from "@nestjs/common";
 import { TransfersService } from "./transfers.service";
 import { ClientKafka, EventPattern } from "@nestjs/microservices";
-import { ParseIncomingRequest } from "pipes/serialize-transfer-data.pipe";
+import { ParseIncomingRequest } from "pipes/serialize-request-data.pipe";
 
 @Controller("/transfers")
 export class TransfersController implements OnModuleInit {

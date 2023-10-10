@@ -3,7 +3,9 @@ import { Types, Schema as mSchema } from "mongoose";
 import {
   ACCOUNT_ACTIONS,
   ACCOUNT_STATUS,
+  CURRENCY_TYPES,
 } from "src/constants/account.constants";
+
 export class ActionLog {
   @Prop({ type: Number, enum: ACCOUNT_ACTIONS, required: true })
   action: number;
@@ -19,6 +21,15 @@ export class ActionLog {
 }
 
 const ActionLogSchema = SchemaFactory.createForClass(ActionLog);
+export class Balance {
+  @Prop({ type: String, enum: CURRENCY_TYPES, required: true })
+  currencyType: string;
+
+  @Prop({ type: Number, required: false })
+  amount?: string;
+}
+
+const BalanceSchema = SchemaFactory.createForClass(Balance);
 
 @Schema({
   timestamps: true,
@@ -33,6 +44,12 @@ export class Account {
 
   @Prop({ type: Number, required: true })
   accountNumber: number;
+
+  @Prop({ type: Number, required: false })
+  interest: number;
+
+  @Prop({ type: [{ type: BalanceSchema, ref: "Balance" }], required: false })
+  balance: Balance[];
 
   @Prop({
     type: Number,

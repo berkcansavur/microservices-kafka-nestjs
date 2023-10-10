@@ -4,15 +4,15 @@ import {
   createMap,
   forMember,
   mapFrom,
-} from '@automapper/core';
-import { Injectable } from '@nestjs/common';
-import { Transfer } from '../schemas/transfer.schema';
+} from "@automapper/core";
+import { Injectable } from "@nestjs/common";
+import { Transfer } from "../schemas/transfer.schema";
 import {
   CreateTransferDTO,
   CreateTransferRequestDTO,
   TransferDTO,
-} from '../dtos/transfer.dto';
-import { AutomapperProfile, InjectMapper } from '@automapper/nestjs';
+} from "../dtos/transfer.dto";
+import { AutomapperProfile, InjectMapper } from "@automapper/nestjs";
 
 @Injectable()
 export class TransferProfile extends AutomapperProfile {

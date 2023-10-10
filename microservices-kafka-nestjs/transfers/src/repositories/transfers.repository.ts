@@ -1,12 +1,12 @@
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Transfer, TransferDocument } from '../schemas/transfer.schema';
-import { Model } from 'mongoose';
-import { CreateTransferDTO } from '../dtos/transfer.dto';
+import { Injectable } from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose";
+import { Transfer, TransferDocument } from "../schemas/transfer.schema";
+import { Model } from "mongoose";
+import { CreateTransferDTO } from "../dtos/transfer.dto";
 import {
   TRANSFER_ACTIONS,
   TRANSFER_STATUSES,
-} from '../constants/transfer.constants';
+} from "../constants/transfer.constants";
 
 @Injectable()
 export class TransfersRepository {

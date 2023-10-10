@@ -1,5 +1,5 @@
-import { Types } from 'mongoose';
-import { IsMongoId, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { Types } from "mongoose";
+import { IsMongoId, IsNotEmpty, IsNumber, IsString } from "class-validator";
 
 export class TransferDTO {
   @IsMongoId()
