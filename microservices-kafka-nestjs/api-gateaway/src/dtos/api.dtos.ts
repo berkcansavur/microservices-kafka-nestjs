@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsMongoId } from 'class-validator';
+import { IsString, IsNumber, IsMongoId, IsNotEmpty } from "class-validator";
 export class CreateTransferDTO {
   @IsString()
   currencyType: string;
@@ -15,7 +15,7 @@ export class CreateTransferDTO {
   @IsNumber()
   amount: number;
 }
-export class ApproveTransferRequestDTO {
+export class IncomingTransferRequestDTO {
   @IsMongoId()
   id: string;
 
@@ -35,27 +35,17 @@ export class ApproveTransferRequestDTO {
   toAccount: string;
 
   @IsNumber()
-  amount: string;
+  amount: number;
 }
-export class IncomingTransferDTO {
+export class CreateAccountDTO {
   @IsMongoId()
-  id: string;
-
-  @IsString()
-  currencyType: string;
-
-  @IsNumber()
-  status: string;
-
-  @IsMongoId()
+  @IsNotEmpty()
   userId: string;
 
-  @IsMongoId()
-  fromAccount: string;
-
-  @IsMongoId()
-  toAccount: string;
+  @IsNumber()
+  @IsNotEmpty()
+  accountNumber: number;
 
   @IsNumber()
-  amount: string;
+  interest?: number;
 }

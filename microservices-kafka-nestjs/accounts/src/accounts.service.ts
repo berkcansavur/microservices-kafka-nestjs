@@ -1,14 +1,16 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Inject, Injectable, Logger } from "@nestjs/common";
 import { AccountsRepository } from "./accounts.repository";
 import { AccountDTO, CreateAccountDTO } from "./dtos/account.dtos";
 import { Account } from "./schemas/account.schema";
 import { InjectMapper } from "@automapper/nestjs";
 import { Mapper } from "@automapper/core";
+import { ClientKafka } from "@nestjs/microservices";
 
 @Injectable()
 export class AccountService {
   private readonly logger = new Logger(AccountService.name);
   constructor(
+    @Inject("BANK_SERVICE") private readonly bankClient: ClientKafka,
     private readonly accountsRepository: AccountsRepository,
     @InjectMapper() private readonly AccountsMapper: Mapper,
   ) {}
