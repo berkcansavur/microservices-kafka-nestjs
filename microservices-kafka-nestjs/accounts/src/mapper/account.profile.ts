@@ -7,7 +7,11 @@ import {
 } from "@automapper/core";
 import { AutomapperProfile, InjectMapper } from "@automapper/nestjs";
 import { Injectable } from "@nestjs/common";
-import { AccountDTO } from "src/dtos/account.dtos";
+import {
+  AccountDTO,
+  CreateAccountDTO,
+  CreateAccountIncomingRequestDTO,
+} from "src/dtos/account.dtos";
 import { Account } from "src/schemas/account.schema";
 
 @Injectable()
@@ -48,6 +52,23 @@ export class AccountProfile extends AutomapperProfile {
         forMember(
           (destination) => destination.userId,
           mapFrom((source) => source.userId),
+        ),
+      );
+      createMap<CreateAccountIncomingRequestDTO, CreateAccountDTO>(
+        mapper,
+        CreateAccountIncomingRequestDTO,
+        CreateAccountDTO,
+        forMember(
+          (destination) => destination.userId,
+          mapFrom((source) => source.userId),
+        ),
+        forMember(
+          (destination) => destination.accountNumber,
+          mapFrom((source) => source.accountNumber),
+        ),
+        forMember(
+          (destination) => destination.interest,
+          mapFrom((source) => source.interest),
         ),
       );
     };

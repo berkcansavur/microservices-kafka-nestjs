@@ -8,6 +8,12 @@ import {
 import { AccountService } from "./accounts.service";
 import { ClientKafka, EventPattern } from "@nestjs/microservices";
 import { ParseIncomingRequest } from "pipes/serialize-request-data.pipe";
+import {
+  CreateAccountDTO,
+  CreateAccountIncomingRequestDTO,
+} from "./dtos/account.dtos";
+import { InjectMapper } from "@automapper/nestjs";
+import { Mapper } from "@automapper/core";
 
 @Controller("/accounts")
 export class AccountsController implements OnModuleInit {
@@ -15,18 +21,24 @@ export class AccountsController implements OnModuleInit {
   constructor(
     private readonly accountsService: AccountService,
     @Inject("BANK_SERVICE") private readonly bankClient: ClientKafka,
+    @InjectMapper() private readonly AccountIncomingRequestMapper: Mapper,
   ) {}
   @EventPattern("create-account-event")
   @UsePipes(new ParseIncomingRequest())
-  async createAccount(data: any) {
-    const { accountsService, logger } = this;
+  async createAccount(data: CreateAccountIncomingRequestDTO) {
+    const { accountsService, logger, AccountIncomingRequestMapper } = this;
     logger.debug(
       `[AccountsController] creating account incoming request data: ${JSON.stringify(
-        data.createAccountRequestDTO,
+        data,
       )}`,
     );
+    const formattedRequestData: CreateAccountDTO =
+      AccountIncomingRequestMapper.map<
+        CreateAccountIncomingRequestDTO,
+        CreateAccountDTO
+      >(data, CreateAccountIncomingRequestDTO, CreateAccountDTO);
     return await accountsService.createAccount({
-      createAccountDTO: data.createAccountRequestDTO,
+      createAccountDTO: formattedRequestData,
     });
   }
   onModuleInit() {

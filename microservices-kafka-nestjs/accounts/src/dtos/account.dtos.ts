@@ -21,6 +21,18 @@ export class CreateAccountDTO {
 
   actionLogs: ActionLog[];
 }
+export class CreateAccountIncomingRequestDTO {
+  @IsMongoId()
+  @IsNotEmpty()
+  userId: string;
+
+  @IsNumber()
+  @IsNotEmpty()
+  accountNumber: number;
+
+  @IsNumber()
+  interest?: number;
+}
 
 export class AccountDTO {
   @IsMongoId()

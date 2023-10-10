@@ -5,9 +5,7 @@ export class ParseIncomingRequest implements PipeTransform {
   private readonly logger = new Logger(ParseIncomingRequest.name);
   transform(value: any) {
     if (value && value.createAccountRequestDTO) {
-      const formattedData = {
-        createAccountRequestDTO: {},
-      };
+      const formattedData = value.createAccountRequestDTO;
       this.logger.debug(
         "[ParseIncomingRequest Pipe] Formatted request data :",
         formattedData,
