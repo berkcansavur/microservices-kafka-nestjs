@@ -33,8 +33,32 @@ export class AccountsRepository {
     accountId: string;
   }): Promise<Account | null> {
     const { AccountModel } = this;
-    return AccountModel.findOne({ _id: accountId }).lean().exec();
+    return await AccountModel.findOne({ _id: accountId }).lean().exec();
   }
+  async GetAccountsCurrencyBalance({
+    accountId,
+    currencyType,
+  }: {
+    accountId: string;
+    currencyType: CURRENCY_TYPES;
+  }): Promise<number | null> {
+    const { AccountModel } = this;
+    const account = await AccountModel.findOne(
+      {
+        _id: accountId,
+        "balance.currencyType": currencyType,
+      },
+      {
+        _id: 0,
+        "balance.$": 1,
+      },
+    )
+      .lean()
+      .exec();
+
+    return account?.balance?.[0]?.amount ?? null;
+  }
+
   async addAction({
     accountId,
     action,
@@ -47,7 +71,7 @@ export class AccountsRepository {
     userId?: string;
   }): Promise<Account | null> {
     const { AccountModel } = this;
-    return AccountModel.findOneAndUpdate(
+    return await AccountModel.findOneAndUpdate(
       {
         _id: accountId,
       },
@@ -79,7 +103,7 @@ export class AccountsRepository {
     userId: string;
   }): Promise<Account | null> {
     const { AccountModel } = this;
-    return AccountModel.findOneAndUpdate(
+    return await AccountModel.findOneAndUpdate(
       {
         _id: accountId,
       },
@@ -114,7 +138,7 @@ export class AccountsRepository {
     currencyType: CURRENCY_TYPES;
   }): Promise<Account | null> {
     const { AccountModel } = this;
-    return AccountModel.findOneAndUpdate(
+    return await AccountModel.findOneAndUpdate(
       {
         _id: accountId,
         "balance.currencyType": currencyType,
@@ -151,7 +175,7 @@ export class AccountsRepository {
     currencyType: CURRENCY_TYPES;
   }): Promise<Account | null> {
     const { AccountModel } = this;
-    return AccountModel.findOneAndUpdate(
+    return await AccountModel.findOneAndUpdate(
       {
         _id: accountId,
         "balance.currencyType": currencyType,
@@ -188,7 +212,7 @@ export class AccountsRepository {
     currencyType: CURRENCY_TYPES;
   }): Promise<Account | null> {
     const { AccountModel } = this;
-    return AccountModel.findOneAndUpdate(
+    return await AccountModel.findOneAndUpdate(
       {
         _id: accountId,
         "balance.currencyType": currencyType,

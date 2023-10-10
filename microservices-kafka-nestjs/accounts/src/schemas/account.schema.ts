@@ -21,6 +21,10 @@ export class ActionLog {
 }
 
 const ActionLogSchema = SchemaFactory.createForClass(ActionLog);
+@Schema({
+  versionKey: false,
+  timestamps: false,
+})
 export class Balance {
   @Prop({ type: String, enum: CURRENCY_TYPES, required: true })
   currencyType: string;

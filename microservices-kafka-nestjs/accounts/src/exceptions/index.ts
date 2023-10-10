@@ -81,3 +81,16 @@ export class TransferCouldNotCompletedException extends BankAppException {
     Object.setPrototypeOf(this, TransferCouldNotCompletedException.prototype);
   }
 }
+export class AccountIsNotAvailableException extends BankAppException {
+  constructor(data?: string | object) {
+    super(
+      "Account is not available",
+      6000,
+      HttpStatus.BAD_REQUEST,
+      JSON.stringify(data),
+      "AccountIsNotAvailableException",
+    );
+    this.name = "AccountIsNotAvailableException";
+    Object.setPrototypeOf(this, AccountIsNotAvailableException.prototype);
+  }
+}

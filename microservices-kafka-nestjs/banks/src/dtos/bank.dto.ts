@@ -1,26 +1,36 @@
-import { IsMongoId, IsNumber, IsString } from 'class-validator';
+import { IsMongoId, IsNotEmpty, IsNumber, IsString } from "class-validator";
 
 export class TransferDTO {
+  @IsNotEmpty()
+  @IsString()
   @IsMongoId()
-  id: string;
+  _id: string;
 
+  @IsNotEmpty()
   @IsString()
   currencyType: string;
 
+  @IsNotEmpty()
   @IsNumber()
-  amount: string;
-
-  @IsNumber()
-  status: string;
+  status: number;
 
   @IsMongoId()
+  @IsString()
   userId: string;
 
+  @IsNotEmpty()
+  @IsString()
   @IsMongoId()
-  fromAccount: string;
+  fromAccountId: string;
 
+  @IsNotEmpty()
+  @IsString()
   @IsMongoId()
-  toAccount: string;
+  toAccountId: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  amount: number;
 }
 export class IncomingTransferDTO {
   @IsMongoId()

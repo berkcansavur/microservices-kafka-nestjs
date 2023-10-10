@@ -4,6 +4,7 @@ import {
   AccountDTO,
   CreateAccountDTO,
   CreateMoneyTransferDTO,
+  TransferDTO,
 } from "./dtos/account.dtos";
 import { Account } from "./schemas/account.schema";
 import { InjectMapper } from "@automapper/nestjs";
@@ -14,19 +15,23 @@ import {
   CURRENCY_TYPES,
   EVENT_RESULTS,
 } from "./constants/account.constants";
-import { TransferCouldNotCompletedException } from "./exceptions";
+import { AccountLogic } from "./logic/account.logic";
+import {
+  AccountIsNotAvailableException,
+  TransferCouldNotCompletedException,
+} from "./exceptions/index";
 
 @Injectable()
 export class AccountService implements OnModuleInit {
   private readonly logger = new Logger(AccountService.name);
   constructor(
     @Inject("BANK_SERVICE") private readonly bankClient: ClientKafka,
-    @Inject("TRANSFER_SERVICE") private readonly transferClient: ClientKafka,
     private readonly accountsRepository: AccountsRepository,
     @InjectMapper() private readonly AccountsMapper: Mapper,
   ) {}
   async onModuleInit() {
-    this.bankClient.subscribeToResponseOf("");
+    // this.bankClient.subscribeToResponseOf("transfer_approval");
+    // await this.bankClient.connect();
   }
   async getAccount({ accountId }: { accountId: string }): Promise<AccountDTO> {
     const { accountsRepository, logger } = this;
@@ -151,13 +156,6 @@ export class AccountService implements OnModuleInit {
       amount,
       currencyType,
     });
-    logger.debug("[AccountService] handleTransferAcrossAccounts", {
-      toAccountId,
-      fromAccountId,
-      userId,
-      amount,
-      currencyType,
-    });
     const updatedToAccount = await this.updateBalanceOfAccount({
       accountId: toAccountId,
       amount,
@@ -202,6 +200,44 @@ export class AccountService implements OnModuleInit {
       return EVENT_RESULTS.SUCCESS;
     } else {
       return EVENT_RESULTS.FAILED;
+    }
+  }
+  async checkTransferApproval({
+    transferDTO,
+  }: {
+    transferDTO: TransferDTO;
+  }): Promise<EVENT_RESULTS> {
+    const { accountsRepository, logger } = this;
+    logger.debug("[AccountService] handleTransferAcrossAccounts", {
+      transferDTO,
+    });
+    const { amount, toAccountId, fromAccountId, currencyType } = transferDTO;
+    const fromAccount: Account = await accountsRepository.getAccount({
+      accountId: fromAccountId,
+    });
+    const toAccount: Account = await accountsRepository.getAccount({
+      accountId: toAccountId,
+    });
+    const fromAccountsBalance: number =
+      await accountsRepository.GetAccountsCurrencyBalance({
+        accountId: fromAccountId,
+        currencyType: currencyType,
+      });
+    if (
+      !AccountLogic.checkAccountAvailability({ account: toAccount }) &&
+      AccountLogic.checkAccountAvailability({ account: fromAccount })
+    ) {
+      throw new AccountIsNotAvailableException();
+    }
+    if (
+      !AccountLogic.checkAccountCurrencyBalanceIsAvailable({
+        amount: amount,
+        accountBalance: fromAccountsBalance,
+      })
+    ) {
+      throw new AccountIsNotAvailableException();
+    } else {
+      return EVENT_RESULTS.SUCCESS;
     }
   }
 }

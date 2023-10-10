@@ -17,7 +17,7 @@ export class CreateTransferDTO {
 }
 export class IncomingTransferRequestDTO {
   @IsMongoId()
-  id: string;
+  _id: string;
 
   @IsString()
   currencyType: string;

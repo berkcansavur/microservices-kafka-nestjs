@@ -62,6 +62,38 @@ export class CreateMoneyTransferDTO {
   @IsString()
   currencyType: CURRENCY_TYPES;
 }
+export class TransferDTO {
+  @IsNotEmpty()
+  @IsString()
+  @IsMongoId()
+  _id: string;
+
+  @IsNotEmpty()
+  @IsString()
+  currencyType: CURRENCY_TYPES;
+
+  @IsNotEmpty()
+  @IsNumber()
+  status: number;
+
+  @IsMongoId()
+  @IsString()
+  userId: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @IsMongoId()
+  fromAccountId: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @IsMongoId()
+  toAccountId: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  amount: number;
+}
 export class IncomingCreateMoneyTransferDTO {
   @IsNotEmpty()
   @IsString()

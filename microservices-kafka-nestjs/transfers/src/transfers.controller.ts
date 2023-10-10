@@ -1,10 +1,11 @@
-import { Controller, Inject, Logger, UsePipes } from "@nestjs/common";
+import { Controller, Logger, UsePipes } from "@nestjs/common";
 import { TransfersService } from "./transfers.service";
-import { ClientKafka, MessagePattern } from "@nestjs/microservices";
+import { MessagePattern } from "@nestjs/microservices";
 import { ParseIncomingRequest } from "pipes/serialize-request-data.pipe";
 import {
   CreateTransferDTO,
   CreateTransferIncomingRequestDTO,
+  TransferDTO,
 } from "./dtos/transfer.dto";
 import { InjectMapper } from "@automapper/nestjs";
 import { Mapper } from "@automapper/core";
@@ -14,7 +15,6 @@ export class TransfersController {
   private readonly logger = new Logger(TransfersController.name);
   constructor(
     private readonly transfersService: TransfersService,
-    @Inject("BANK_SERVICE") private readonly bankClient: ClientKafka,
     @InjectMapper() private readonly TransferIncomingRequestMapper: Mapper,
   ) {}
 
@@ -23,7 +23,7 @@ export class TransfersController {
   async createTransfer(data: CreateTransferIncomingRequestDTO) {
     const { transfersService, TransferIncomingRequestMapper, logger } = this;
     logger.debug(
-      `[AccountsController] creating account incoming request data: ${JSON.stringify(
+      `[TransfersController] creating account incoming request data: ${JSON.stringify(
         data,
       )}`,
     );
@@ -35,15 +35,21 @@ export class TransfersController {
     const createdTransfer = await transfersService.createTransfer({
       createTransferRequestDTO: formattedRequestData,
     });
-    this.bankClient.emit("transfer-created-event", createdTransfer);
     return JSON.stringify(createdTransfer);
   }
 
   @MessagePattern("approve-transfer-event")
   @UsePipes(new ParseIncomingRequest())
-  async handleTransferApproval(data: any) {
-    console.log("handle transfer approval : ", data);
-    const approvedTransfer = await this.transfersService.approveTransfer(data);
+  async handleTransferApproval(data: TransferDTO) {
+    const { transfersService, logger } = this;
+    logger.debug(
+      `[TransfersController] transfer approval incoming request data: ${JSON.stringify(
+        data,
+      )}`,
+    );
+    const approvedTransfer = await transfersService.approveTransfer({
+      transferApprovalDTO: data,
+    });
     return JSON.stringify(approvedTransfer);
   }
 }
