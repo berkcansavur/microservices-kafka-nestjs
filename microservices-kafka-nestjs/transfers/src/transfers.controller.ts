@@ -1,10 +1,4 @@
-import {
-  Controller,
-  Inject,
-  Logger,
-  OnModuleInit,
-  UsePipes,
-} from "@nestjs/common";
+import { Controller, Inject, Logger, UsePipes } from "@nestjs/common";
 import { TransfersService } from "./transfers.service";
 import { ClientKafka, MessagePattern } from "@nestjs/microservices";
 import { ParseIncomingRequest } from "pipes/serialize-request-data.pipe";
@@ -16,7 +10,7 @@ import { InjectMapper } from "@automapper/nestjs";
 import { Mapper } from "@automapper/core";
 
 @Controller("/transfers")
-export class TransfersController implements OnModuleInit {
+export class TransfersController {
   private readonly logger = new Logger(TransfersController.name);
   constructor(
     private readonly transfersService: TransfersService,
@@ -51,8 +45,5 @@ export class TransfersController implements OnModuleInit {
     console.log("handle transfer approval : ", data);
     const approvedTransfer = await this.transfersService.approveTransfer(data);
     return JSON.stringify(approvedTransfer);
-  }
-  onModuleInit() {
-    this.bankClient.subscribeToResponseOf("transfer_approval");
   }
 }

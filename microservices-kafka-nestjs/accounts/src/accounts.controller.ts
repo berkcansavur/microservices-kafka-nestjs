@@ -11,12 +11,14 @@ import { ParseIncomingRequest } from "pipes/serialize-request-data.pipe";
 import {
   CreateAccountDTO,
   CreateAccountIncomingRequestDTO,
+  CreateMoneyTransferDTO,
+  IncomingCreateMoneyTransferDTO,
 } from "./dtos/account.dtos";
 import { InjectMapper } from "@automapper/nestjs";
 import { Mapper } from "@automapper/core";
 
 @Controller("/accounts")
-export class AccountsController implements OnModuleInit {
+export class AccountsController {
   private readonly logger = new Logger(AccountsController.name);
   constructor(
     private readonly accountsService: AccountService,
@@ -43,8 +45,22 @@ export class AccountsController implements OnModuleInit {
     });
     return JSON.stringify(account);
   }
-
-  onModuleInit() {
-    this.bankClient.subscribeToResponseOf("transfer_approval");
+  @MessagePattern("money-transfer-across-accounts-result")
+  async makeMoneyTransfer(data: IncomingCreateMoneyTransferDTO) {
+    const { accountsService, logger, AccountIncomingRequestMapper } = this;
+    logger.debug(
+      `[AccountsController] makeMoneyTransfer incoming request data: ${JSON.stringify(
+        data,
+      )}`,
+    );
+    const createMoneyTransferDTO: CreateMoneyTransferDTO =
+      AccountIncomingRequestMapper.map<
+        IncomingCreateMoneyTransferDTO,
+        CreateMoneyTransferDTO
+      >(data, IncomingCreateMoneyTransferDTO, CreateMoneyTransferDTO);
+    const transferResult = await accountsService.handleTransferAcrossAccounts({
+      createMoneyTransferDTO,
+    });
+    return transferResult;
   }
 }

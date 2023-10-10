@@ -11,6 +11,8 @@ import {
   AccountDTO,
   CreateAccountDTO,
   CreateAccountIncomingRequestDTO,
+  CreateMoneyTransferDTO,
+  IncomingCreateMoneyTransferDTO,
 } from "src/dtos/account.dtos";
 import { Account } from "src/schemas/account.schema";
 
@@ -21,6 +23,35 @@ export class AccountProfile extends AutomapperProfile {
   }
   get profile(): MappingProfile {
     return (mapper: Mapper) => {
+      createMap<IncomingCreateMoneyTransferDTO, CreateMoneyTransferDTO>(
+        mapper,
+        IncomingCreateMoneyTransferDTO,
+        CreateMoneyTransferDTO,
+        forMember(
+          (destination) => destination.transferId,
+          mapFrom((source) => source._id),
+        ),
+        forMember(
+          (destination) => destination.userId,
+          mapFrom((source) => source.userId),
+        ),
+        forMember(
+          (destination) => destination.toAccountId,
+          mapFrom((source) => source.toAccountId),
+        ),
+        forMember(
+          (destination) => destination.fromAccountId,
+          mapFrom((source) => source.fromAccountId),
+        ),
+        forMember(
+          (destination) => destination.currencyType,
+          mapFrom((source) => source.currencyType),
+        ),
+        forMember(
+          (destination) => destination.amount,
+          mapFrom((source) => source.amount),
+        ),
+      );
       createMap<Account, AccountDTO>(
         mapper,
         Account,

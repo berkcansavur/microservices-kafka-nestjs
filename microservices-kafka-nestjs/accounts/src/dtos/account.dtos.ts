@@ -1,5 +1,6 @@
-import { IsMongoId, IsNotEmpty, IsNumber } from "class-validator";
+import { IsMongoId, IsNotEmpty, IsNumber, IsString } from "class-validator";
 import { Types } from "mongoose";
+import { CURRENCY_TYPES } from "src/constants/account.constants";
 import { ActionLog, Balance } from "src/schemas/account.schema";
 export class CreateAccountDTO {
   @IsMongoId()
@@ -32,6 +33,66 @@ export class CreateAccountIncomingRequestDTO {
 
   @IsNumber()
   interest?: number;
+}
+export class CreateMoneyTransferDTO {
+  @IsNotEmpty()
+  @IsString()
+  @IsMongoId()
+  transferId: string;
+
+  @IsMongoId()
+  @IsString()
+  userId: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @IsMongoId()
+  fromAccountId: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @IsMongoId()
+  toAccountId: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  amount: number;
+
+  @IsNotEmpty()
+  @IsString()
+  currencyType: CURRENCY_TYPES;
+}
+export class IncomingCreateMoneyTransferDTO {
+  @IsNotEmpty()
+  @IsString()
+  @IsMongoId()
+  _id: string;
+
+  @IsNotEmpty()
+  @IsString()
+  currencyType: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  status: number;
+
+  @IsMongoId()
+  @IsString()
+  userId: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @IsMongoId()
+  fromAccountId: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @IsMongoId()
+  toAccountId: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  amount: number;
 }
 
 export class AccountDTO {

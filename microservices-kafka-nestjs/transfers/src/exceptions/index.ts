@@ -49,7 +49,7 @@ export class TransferCouldNotCreatedException extends BankAppException {
       5002,
       HttpStatus.BAD_REQUEST,
       JSON.stringify(data),
-      "TransferIsNotFoundException",
+      "TransferCouldNotCreatedException",
     );
     this.name = "TransferCouldNotCreatedException";
     Object.setPrototypeOf(this, TransferCouldNotCreatedException.prototype);
@@ -58,7 +58,7 @@ export class TransferCouldNotCreatedException extends BankAppException {
 export class TransferNotApprovedException extends BankAppException {
   constructor(data?: string | object) {
     super(
-      "Transfer could not created",
+      "Transfer could not approved",
       6000,
       HttpStatus.BAD_REQUEST,
       JSON.stringify(data),
