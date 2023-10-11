@@ -1,35 +1,79 @@
-import {
-  Controller,
-  Inject,
-  Logger,
-  OnModuleInit,
-  UsePipes,
-} from "@nestjs/common";
+import { Controller, Logger, UsePipes } from "@nestjs/common";
 import { AccountService } from "./accounts.service";
-import { ClientKafka, EventPattern } from "@nestjs/microservices";
-import { ParseIncomingRequest } from "pipes/serialize-request-data.pipe";
+import { MessagePattern } from "@nestjs/microservices";
+import { ParseIncomingRequest } from "src/pipes/serialize-request-data.pipe";
+import {
+  CreateAccountDTO,
+  CreateAccountIncomingRequestDTO,
+  CreateMoneyTransferDTO,
+  IncomingCreateMoneyTransferDTO,
+  TransferDTO,
+} from "./dtos/account.dtos";
+import { InjectMapper } from "@automapper/nestjs";
+import { Mapper } from "@automapper/core";
 
 @Controller("/accounts")
-export class AccountsController implements OnModuleInit {
+export class AccountsController {
   private readonly logger = new Logger(AccountsController.name);
   constructor(
     private readonly accountsService: AccountService,
-    @Inject("BANK_SERVICE") private readonly bankClient: ClientKafka,
+    @InjectMapper() private readonly AccountIncomingRequestMapper: Mapper,
   ) {}
-  @EventPattern("create-account-event")
+
+  @MessagePattern("create-account-event")
   @UsePipes(new ParseIncomingRequest())
-  async createAccount(data: any) {
-    const { accountsService, logger } = this;
+  async createAccount(data: CreateAccountIncomingRequestDTO) {
+    const { accountsService, logger, AccountIncomingRequestMapper } = this;
     logger.debug(
       `[AccountsController] creating account incoming request data: ${JSON.stringify(
-        data.createAccountRequestDTO,
+        data,
       )}`,
     );
-    return await accountsService.createAccount({
-      createAccountDTO: data.createAccountRequestDTO,
+    const formattedRequestData: CreateAccountDTO =
+      AccountIncomingRequestMapper.map<
+        CreateAccountIncomingRequestDTO,
+        CreateAccountDTO
+      >(data, CreateAccountIncomingRequestDTO, CreateAccountDTO);
+    const account = await accountsService.createAccount({
+      createAccountDTO: formattedRequestData,
     });
+    return JSON.stringify(account);
   }
-  onModuleInit() {
-    this.bankClient.subscribeToResponseOf("transfer_approval");
+  @MessagePattern("money-transfer-across-accounts-result")
+  async makeMoneyTransfer(data: IncomingCreateMoneyTransferDTO) {
+    const { accountsService, logger, AccountIncomingRequestMapper } = this;
+    logger.debug(
+      `[AccountsController] makeMoneyTransfer incoming request data: ${JSON.stringify(
+        data,
+      )}`,
+    );
+    const createMoneyTransferDTO: CreateMoneyTransferDTO =
+      AccountIncomingRequestMapper.map<
+        IncomingCreateMoneyTransferDTO,
+        CreateMoneyTransferDTO
+      >(data, IncomingCreateMoneyTransferDTO, CreateMoneyTransferDTO);
+    const transferResult = await accountsService.handleTransferAcrossAccounts({
+      createMoneyTransferDTO,
+    });
+    return JSON.stringify(transferResult);
+  }
+
+  @MessagePattern("account_availability_check")
+  @UsePipes(new ParseIncomingRequest())
+  async checkAccountAvailability(data: IncomingCreateMoneyTransferDTO) {
+    const { accountsService, logger, AccountIncomingRequestMapper } = this;
+    logger.debug(
+      `[AccountsController] checkAccountAvailability incoming request data: ${JSON.stringify(
+        data,
+      )}`,
+    );
+    const transferDTO: TransferDTO = AccountIncomingRequestMapper.map<
+      IncomingCreateMoneyTransferDTO,
+      TransferDTO
+    >(data, IncomingCreateMoneyTransferDTO, TransferDTO);
+    const approvalResult = await accountsService.checkTransferApproval({
+      transferDTO,
+    });
+    return JSON.stringify(approvalResult);
   }
 }

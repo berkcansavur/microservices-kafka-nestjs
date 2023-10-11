@@ -7,7 +7,14 @@ import {
 } from "@automapper/core";
 import { AutomapperProfile, InjectMapper } from "@automapper/nestjs";
 import { Injectable } from "@nestjs/common";
-import { AccountDTO } from "src/dtos/account.dtos";
+import {
+  AccountDTO,
+  CreateAccountDTO,
+  CreateAccountIncomingRequestDTO,
+  CreateMoneyTransferDTO,
+  IncomingCreateMoneyTransferDTO,
+  TransferDTO,
+} from "src/dtos/account.dtos";
 import { Account } from "src/schemas/account.schema";
 
 @Injectable()
@@ -17,6 +24,64 @@ export class AccountProfile extends AutomapperProfile {
   }
   get profile(): MappingProfile {
     return (mapper: Mapper) => {
+      createMap<IncomingCreateMoneyTransferDTO, TransferDTO>(
+        mapper,
+        IncomingCreateMoneyTransferDTO,
+        TransferDTO,
+        forMember(
+          (destination) => destination._id,
+          mapFrom((source) => source._id),
+        ),
+        forMember(
+          (destination) => destination.userId,
+          mapFrom((source) => source.userId),
+        ),
+        forMember(
+          (destination) => destination.toAccountId,
+          mapFrom((source) => source.toAccountId),
+        ),
+        forMember(
+          (destination) => destination.fromAccountId,
+          mapFrom((source) => source.fromAccountId),
+        ),
+        forMember(
+          (destination) => destination.currencyType,
+          mapFrom((source) => source.currencyType),
+        ),
+        forMember(
+          (destination) => destination.amount,
+          mapFrom((source) => source.amount),
+        ),
+      );
+      createMap<IncomingCreateMoneyTransferDTO, CreateMoneyTransferDTO>(
+        mapper,
+        IncomingCreateMoneyTransferDTO,
+        CreateMoneyTransferDTO,
+        forMember(
+          (destination) => destination.transferId,
+          mapFrom((source) => source._id),
+        ),
+        forMember(
+          (destination) => destination.userId,
+          mapFrom((source) => source.userId),
+        ),
+        forMember(
+          (destination) => destination.toAccountId,
+          mapFrom((source) => source.toAccountId),
+        ),
+        forMember(
+          (destination) => destination.fromAccountId,
+          mapFrom((source) => source.fromAccountId),
+        ),
+        forMember(
+          (destination) => destination.currencyType,
+          mapFrom((source) => source.currencyType),
+        ),
+        forMember(
+          (destination) => destination.amount,
+          mapFrom((source) => source.amount),
+        ),
+      );
       createMap<Account, AccountDTO>(
         mapper,
         Account,
@@ -48,6 +113,23 @@ export class AccountProfile extends AutomapperProfile {
         forMember(
           (destination) => destination.userId,
           mapFrom((source) => source.userId),
+        ),
+      );
+      createMap<CreateAccountIncomingRequestDTO, CreateAccountDTO>(
+        mapper,
+        CreateAccountIncomingRequestDTO,
+        CreateAccountDTO,
+        forMember(
+          (destination) => destination.userId,
+          mapFrom((source) => source.userId),
+        ),
+        forMember(
+          (destination) => destination.accountNumber,
+          mapFrom((source) => source.accountNumber),
+        ),
+        forMember(
+          (destination) => destination.interest,
+          mapFrom((source) => source.interest),
         ),
       );
     };

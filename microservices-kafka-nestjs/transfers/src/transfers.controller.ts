@@ -1,31 +1,55 @@
-import { Controller, Inject, OnModuleInit, UsePipes } from "@nestjs/common";
+import { Controller, Logger, UsePipes } from "@nestjs/common";
 import { TransfersService } from "./transfers.service";
-import { ClientKafka, EventPattern } from "@nestjs/microservices";
+import { MessagePattern } from "@nestjs/microservices";
 import { ParseIncomingRequest } from "pipes/serialize-request-data.pipe";
+import {
+  CreateTransferDTO,
+  CreateTransferIncomingRequestDTO,
+  TransferDTO,
+} from "./dtos/transfer.dto";
+import { InjectMapper } from "@automapper/nestjs";
+import { Mapper } from "@automapper/core";
 
 @Controller("/transfers")
-export class TransfersController implements OnModuleInit {
+export class TransfersController {
+  private readonly logger = new Logger(TransfersController.name);
   constructor(
     private readonly transfersService: TransfersService,
-    @Inject("BANK_SERVICE") private readonly bankClient: ClientKafka,
+    @InjectMapper() private readonly TransferIncomingRequestMapper: Mapper,
   ) {}
 
-  @EventPattern("create-transfer-event")
+  @MessagePattern("create-transfer-event")
   @UsePipes(new ParseIncomingRequest())
-  async createTransfer(data: any) {
-    const { transfersService } = this;
-    console.log("create transfer controller : ", data.createTransferRequestDTO);
-    return await transfersService.createTransfer({
-      createTransferRequestDTO: data.createTransferRequestDTO,
+  async createTransfer(data: CreateTransferIncomingRequestDTO) {
+    const { transfersService, TransferIncomingRequestMapper, logger } = this;
+    logger.debug(
+      `[TransfersController] creating account incoming request data: ${JSON.stringify(
+        data,
+      )}`,
+    );
+    const formattedRequestData: CreateTransferDTO =
+      TransferIncomingRequestMapper.map<
+        CreateTransferIncomingRequestDTO,
+        CreateTransferDTO
+      >(data, CreateTransferIncomingRequestDTO, CreateTransferDTO);
+    const createdTransfer = await transfersService.createTransfer({
+      createTransferRequestDTO: formattedRequestData,
     });
+    return JSON.stringify(createdTransfer);
   }
 
-  @EventPattern("approve-transfer-event")
-  handleTransferApproval(data: any) {
-    console.log("handle transfer approval : ", data);
-    this.transfersService.approveTransfer(data);
-  }
-  onModuleInit() {
-    this.bankClient.subscribeToResponseOf("transfer_approval");
+  @MessagePattern("approve-transfer-event")
+  @UsePipes(new ParseIncomingRequest())
+  async handleTransferApproval(data: TransferDTO) {
+    const { transfersService, logger } = this;
+    logger.debug(
+      `[TransfersController] transfer approval incoming request data: ${JSON.stringify(
+        data,
+      )}`,
+    );
+    const approvedTransfer = await transfersService.approveTransfer({
+      transferApprovalDTO: data,
+    });
+    return JSON.stringify(approvedTransfer);
   }
 }

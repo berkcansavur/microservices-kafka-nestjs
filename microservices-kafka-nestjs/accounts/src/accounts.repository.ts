@@ -3,7 +3,11 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Account, AccountDocument } from "./schemas/account.schema";
 import { Model } from "mongoose";
 import { CreateAccountDTO } from "./dtos/account.dtos";
-import { ACCOUNT_ACTIONS, ACCOUNT_STATUS } from "./constants/account.constants";
+import {
+  ACCOUNT_ACTIONS,
+  ACCOUNT_STATUS,
+  CURRENCY_TYPES,
+} from "./constants/account.constants";
 
 @Injectable()
 export class AccountsRepository {
@@ -29,7 +33,61 @@ export class AccountsRepository {
     accountId: string;
   }): Promise<Account | null> {
     const { AccountModel } = this;
-    return AccountModel.findOne({ _id: accountId }).lean().exec();
+    return await AccountModel.findOne({ _id: accountId }).lean().exec();
+  }
+  async GetAccountsCurrencyBalance({
+    accountId,
+    currencyType,
+  }: {
+    accountId: string;
+    currencyType: CURRENCY_TYPES;
+  }): Promise<number | null> {
+    const { AccountModel } = this;
+    const account = await AccountModel.findOne(
+      {
+        _id: accountId,
+        "balance.currencyType": currencyType,
+      },
+      {
+        _id: 0,
+        "balance.$": 1,
+      },
+    )
+      .lean()
+      .exec();
+
+    return account?.balance?.[0]?.amount ?? null;
+  }
+
+  async addAction({
+    accountId,
+    action,
+    message,
+    userId,
+  }: {
+    accountId: string;
+    action: ACCOUNT_ACTIONS;
+    message?: string;
+    userId?: string;
+  }): Promise<Account | null> {
+    const { AccountModel } = this;
+    return await AccountModel.findOneAndUpdate(
+      {
+        _id: accountId,
+      },
+      {
+        $set: {
+          actionLogs: {
+            action,
+            ...(message ? { message } : undefined),
+            user: userId,
+          },
+        },
+      },
+      { new: true },
+    )
+      .lean()
+      .exec();
   }
   async updateAccountStatus({
     accountId,
@@ -45,7 +103,7 @@ export class AccountsRepository {
     userId: string;
   }): Promise<Account | null> {
     const { AccountModel } = this;
-    return AccountModel.findOneAndUpdate(
+    return await AccountModel.findOneAndUpdate(
       {
         _id: accountId,
       },
@@ -62,6 +120,117 @@ export class AccountsRepository {
         },
       },
       { new: true },
+    )
+      .lean()
+      .exec();
+  }
+  async updateAccountBalance({
+    accountId,
+    action,
+    amount,
+    message,
+    currencyType,
+  }: {
+    accountId: string;
+    amount: number;
+    action: ACCOUNT_ACTIONS;
+    message?: string;
+    currencyType: CURRENCY_TYPES;
+  }): Promise<Account | null> {
+    const { AccountModel } = this;
+    return await AccountModel.findOneAndUpdate(
+      {
+        _id: accountId,
+        "balance.currencyType": currencyType,
+      },
+      {
+        $set: {
+          "balance.$.amount": amount,
+        },
+        $push: {
+          actionLogs: {
+            action,
+            ...(message ? { message } : undefined),
+          },
+        },
+      },
+      {
+        new: true,
+      },
+    )
+      .lean()
+      .exec();
+  }
+  async addToAccountBalance({
+    accountId,
+    action,
+    amount,
+    message,
+    currencyType,
+  }: {
+    accountId: string;
+    amount: number;
+    action: ACCOUNT_ACTIONS;
+    message?: string;
+    currencyType: CURRENCY_TYPES;
+  }): Promise<Account | null> {
+    const { AccountModel } = this;
+    return await AccountModel.findOneAndUpdate(
+      {
+        _id: accountId,
+        "balance.currencyType": currencyType,
+      },
+      {
+        $inc: {
+          "balance.$.amount": amount,
+        },
+        $push: {
+          actionLogs: {
+            action,
+            ...(message ? { message } : undefined),
+          },
+        },
+      },
+      {
+        new: true,
+      },
+    )
+      .lean()
+      .exec();
+  }
+  async removeFromAccountBalance({
+    accountId,
+    action,
+    amount,
+    message,
+    currencyType,
+  }: {
+    accountId: string;
+    amount: number;
+    action: ACCOUNT_ACTIONS;
+    message?: string;
+    currencyType: CURRENCY_TYPES;
+  }): Promise<Account | null> {
+    const { AccountModel } = this;
+    return await AccountModel.findOneAndUpdate(
+      {
+        _id: accountId,
+        "balance.currencyType": currencyType,
+      },
+      {
+        $inc: {
+          "balance.$.amount": -amount,
+        },
+        $push: {
+          actionLogs: {
+            action,
+            ...(message ? { message } : undefined),
+          },
+        },
+      },
+      {
+        new: true,
+      },
     )
       .lean()
       .exec();

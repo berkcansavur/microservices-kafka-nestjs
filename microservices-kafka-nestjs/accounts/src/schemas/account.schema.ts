@@ -14,19 +14,23 @@ export class ActionLog {
   message?: string;
 
   @Prop({ type: mSchema.Types.ObjectId, required: true })
-  user: string;
+  user?: string;
 
   @Prop({ type: Date, default: Date.now })
   occurredAt: Date;
 }
 
 const ActionLogSchema = SchemaFactory.createForClass(ActionLog);
+@Schema({
+  versionKey: false,
+  timestamps: false,
+})
 export class Balance {
   @Prop({ type: String, enum: CURRENCY_TYPES, required: true })
   currencyType: string;
 
   @Prop({ type: Number, required: false })
-  amount?: string;
+  amount?: number;
 }
 
 const BalanceSchema = SchemaFactory.createForClass(Balance);
@@ -59,7 +63,10 @@ export class Account {
   })
   status: number;
 
-  @Prop({ type: [{ type: ActionLogSchema, ref: "ActionLog" }], default: [] })
+  @Prop({
+    type: [{ type: ActionLogSchema, ref: "ActionLog" }],
+    default: ACCOUNT_ACTIONS.CREATED,
+  })
   actionLogs: ActionLog[];
 
   @Prop({ type: Date })

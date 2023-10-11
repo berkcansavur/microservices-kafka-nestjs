@@ -24,6 +24,27 @@ export class TransferDTO {
   amount: number;
 }
 
+export class CreateTransferIncomingRequestDTO {
+  @IsString()
+  @IsNotEmpty()
+  currencyType: string;
+
+  @IsMongoId()
+  @IsNotEmpty()
+  userId: string;
+
+  @IsMongoId()
+  @IsNotEmpty()
+  fromAccount: string;
+
+  @IsMongoId()
+  @IsNotEmpty()
+  toAccount: string;
+
+  @IsNumber()
+  @IsNotEmpty()
+  amount: number;
+}
 export class CreateTransferDTO {
   @IsString()
   currencyType: string;
