@@ -73,11 +73,11 @@ export class AccountService implements OnModuleInit {
       transactionPerformerId,
     });
     if (actionType === ACCOUNT_ACTIONS.MONEY_TRANSFERRED_TO_ACCOUNT) {
-      const updatedAccount = await accountsRepository.addToAccountBalance({
+      const updatedAccount = await accountsRepository.updateAccountBalance({
         accountId,
         amount: amount,
         action: actionType,
-        message: `User ${transactionPerformerId}transferred money to your account.`,
+        message: `User ${transactionPerformerId} transferred money to your account.`,
         currencyType: currencyType,
       });
       return AccountsMapper.map<Account, AccountDTO>(
@@ -87,9 +87,9 @@ export class AccountService implements OnModuleInit {
       );
     }
     if (actionType === ACCOUNT_ACTIONS.MONEY_TRANSFERRED_FROM_ACCOUNT) {
-      const updatedAccount = await accountsRepository.removeFromAccountBalance({
+      const updatedAccount = await accountsRepository.updateAccountBalance({
         accountId,
-        amount: amount,
+        amount: -amount,
         action: actionType,
         message: `Money has been transferred from your account to account.`,
         currencyType: currencyType,

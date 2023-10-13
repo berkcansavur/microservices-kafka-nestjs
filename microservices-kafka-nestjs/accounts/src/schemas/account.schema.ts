@@ -22,6 +22,7 @@ export class ActionLog {
 
 const ActionLogSchema = SchemaFactory.createForClass(ActionLog);
 @Schema({
+  _id: false,
   versionKey: false,
   timestamps: false,
 })

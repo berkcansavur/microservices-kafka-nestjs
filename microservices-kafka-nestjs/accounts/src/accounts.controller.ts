@@ -6,7 +6,6 @@ import {
   CreateAccountDTO,
   CreateAccountIncomingRequestDTO,
   CreateMoneyTransferDTO,
-  IncomingCreateMoneyTransferDTO,
   TransferDTO,
 } from "./dtos/account.dtos";
 import { InjectMapper } from "@automapper/nestjs";
@@ -20,7 +19,7 @@ export class AccountsController {
     @InjectMapper() private readonly AccountIncomingRequestMapper: Mapper,
   ) {}
 
-  @MessagePattern("create_account")
+  @MessagePattern("handle_create_account")
   @UsePipes(new ParseIncomingRequest())
   async createAccount(data: CreateAccountIncomingRequestDTO) {
     const { accountsService, logger, AccountIncomingRequestMapper } = this;
@@ -54,8 +53,9 @@ export class AccountsController {
     return is_accounts_available;
   }
 
-  @MessagePattern("money-transfer-across-accounts-result")
-  async makeMoneyTransfer(data: IncomingCreateMoneyTransferDTO) {
+  @MessagePattern("money_transfer_across_accounts_result")
+  @UsePipes(new ParseIncomingRequest())
+  async makeMoneyTransfer(data: TransferDTO) {
     const { accountsService, logger, AccountIncomingRequestMapper } = this;
     logger.debug(
       `[AccountsController] makeMoneyTransfer incoming request data: ${JSON.stringify(
@@ -63,13 +63,14 @@ export class AccountsController {
       )}`,
     );
     const createMoneyTransferDTO: CreateMoneyTransferDTO =
-      AccountIncomingRequestMapper.map<
-        IncomingCreateMoneyTransferDTO,
-        CreateMoneyTransferDTO
-      >(data, IncomingCreateMoneyTransferDTO, CreateMoneyTransferDTO);
+      AccountIncomingRequestMapper.map<TransferDTO, CreateMoneyTransferDTO>(
+        data,
+        TransferDTO,
+        CreateMoneyTransferDTO,
+      );
     const transferResult = await accountsService.handleTransferAcrossAccounts({
       createMoneyTransferDTO,
     });
-    return JSON.stringify(transferResult);
+    return transferResult;
   }
 }

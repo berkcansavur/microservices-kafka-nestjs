@@ -5,6 +5,7 @@ import { ParseIncomingRequest } from "pipes/serialize-request-data.pipe";
 import {
   CreateAccountDTO,
   CreateTransferDTO,
+  MoneyTransferDTO,
   TransferDTO,
 } from "./dtos/bank.dto";
 
@@ -39,7 +40,7 @@ export class BanksController {
       transferDTO: data,
     });
   }
-  @MessagePattern("create-transfer-event")
+  @MessagePattern("create-transfer-across-accounts-event")
   @UsePipes(new ParseIncomingRequest())
   async createTransferEvent(data: CreateTransferDTO) {
     const { logger } = this;
@@ -48,8 +49,22 @@ export class BanksController {
         data,
       )}`,
     );
-    return await this.bankService.handleCreateTransfer({
+    return await this.bankService.handleCreateTransferAcrossAccounts({
       createTransferDTO: data,
+    });
+  }
+
+  @MessagePattern("transfer-money-to-account-event")
+  @UsePipes(new ParseIncomingRequest())
+  async createMoneyTransferToAccountEvent(data: MoneyTransferDTO) {
+    const { logger } = this;
+    logger.debug(
+      `[BanksController] Banks approveTransfer Incoming Data: ${JSON.stringify(
+        data,
+      )}`,
+    );
+    return await this.bankService.handleCreateMoneyTransferToAccount({
+      moneyTransferDTO: data,
     });
   }
 }

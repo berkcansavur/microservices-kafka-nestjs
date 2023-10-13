@@ -5,7 +5,6 @@ import { ParseIncomingRequest } from "pipes/serialize-request-data.pipe";
 import {
   CreateTransferDTO,
   CreateTransferIncomingRequestDTO,
-  TransferDTO,
 } from "./dtos/transfer.dto";
 import { InjectMapper } from "@automapper/nestjs";
 import { Mapper } from "@automapper/core";
@@ -18,37 +17,34 @@ export class TransfersController {
     @InjectMapper() private readonly TransferIncomingRequestMapper: Mapper,
   ) {}
 
-  @MessagePattern("handle_create_transfer")
+  @MessagePattern("handle_create_transfer_across_accounts")
   @UsePipes(new ParseIncomingRequest())
-  async createTransfer(data: CreateTransferIncomingRequestDTO) {
-    const { transfersService, TransferIncomingRequestMapper, logger } = this;
-    logger.debug(
-      `[TransfersController] creating account incoming request data: ${JSON.stringify(
-        data,
-      )}`,
-    );
-    const formattedRequestData: CreateTransferDTO =
-      TransferIncomingRequestMapper.map<
-        CreateTransferIncomingRequestDTO,
-        CreateTransferDTO
-      >(data, CreateTransferIncomingRequestDTO, CreateTransferDTO);
-    const createdTransfer = await transfersService.createTransfer({
-      createTransferRequestDTO: formattedRequestData,
-    });
-    return JSON.stringify(createdTransfer);
-  }
-
-  @MessagePattern("approve_transfer")
-  @UsePipes(new ParseIncomingRequest())
-  async handleTransferApproval(data: TransferDTO) {
+  async createTransferAcrossAccounts(data: CreateTransferIncomingRequestDTO) {
     const { transfersService, logger } = this;
     logger.debug(
-      `[TransfersController] transfer approval incoming request data: ${JSON.stringify(
+      `[TransfersController] creating money transfer across accounts request data: ${JSON.stringify(
         data,
       )}`,
     );
-    return await transfersService.approveTransfer({
-      transferDTO: data,
+    const createdTransfer = await transfersService.createTransferAcrossAccounts(
+      {
+        createTransferRequestDTO: data,
+      },
+    );
+    return createdTransfer;
+  }
+  @MessagePattern("handle_create_transfer_to_account")
+  @UsePipes(new ParseIncomingRequest())
+  async createTransferToAccount(data: CreateTransferDTO) {
+    const { transfersService, logger } = this;
+    logger.debug(
+      `[TransfersController] creating money transfer to account request data: ${JSON.stringify(
+        data,
+      )}`,
+    );
+    const createdTransfer = await transfersService.createTransferToAccount({
+      moneyTransferDTO: data,
     });
+    return createdTransfer;
   }
 }

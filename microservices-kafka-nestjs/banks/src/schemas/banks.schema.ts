@@ -1,7 +1,7 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Types, Schema as mSchema, Document } from 'mongoose';
-import { User, UserSchema } from './users.schema';
-import { CURRENCY_TYPES } from '../constants/banks.constants';
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { Types, Schema as mSchema, Document } from "mongoose";
+import { User, UserSchema } from "./users.schema";
+import { CURRENCY_TYPES } from "../constants/banks.constants";
 
 @Schema({
   timestamps: true,
@@ -11,7 +11,7 @@ export class Bank {
   @Prop({ type: mSchema.Types.ObjectId, auto: true })
   _id: Types.ObjectId;
 
-  @Prop({ type: [{ type: UserSchema }], ref: 'Users' })
+  @Prop({ type: [{ type: UserSchema }], ref: "Users" })
   users: User[];
 
   @Prop({ type: Number, enum: CURRENCY_TYPES })

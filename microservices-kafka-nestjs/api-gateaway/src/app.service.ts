@@ -4,6 +4,7 @@ import {
   CreateAccountDTO,
   CreateTransferDTO,
   IncomingTransferRequestDTO,
+  MoneyTransferDTO,
 } from "./dtos/api.dtos";
 
 @Injectable()
@@ -14,12 +15,18 @@ export class AppService implements OnModuleInit {
   ) {}
   async onModuleInit() {
     try {
-      this.bankClient.subscribeToResponseOf("create-transfer-event");
-      this.logger.debug("reate-transfer-event topic is subscribed");
+      this.bankClient.subscribeToResponseOf(
+        "create-transfer-across-accounts-event",
+      );
+      this.logger.debug(
+        "create-transfer-across-accounts-event topic is subscribed",
+      );
       this.bankClient.subscribeToResponseOf("approve-transfer-event");
       this.logger.debug("approve-transfer-event topic is subscribed");
       this.bankClient.subscribeToResponseOf("create-account-event");
       this.logger.debug("create-account-event topic is subscribed");
+      this.bankClient.subscribeToResponseOf("transfer-money-to-account-event");
+      this.logger.debug("transfer-money-to-account-event topic is subscribed");
       this.logger.debug(
         "Subscription of responses is successfully established.",
       );
@@ -34,7 +41,7 @@ export class AppService implements OnModuleInit {
         createTransferRequestDTO,
       )}`,
     );
-    return this.bankClient.send("create-transfer-event", {
+    return this.bankClient.send("create-transfer-across-accounts-event", {
       createTransferRequestDTO,
     });
   }
@@ -56,6 +63,19 @@ export class AppService implements OnModuleInit {
     );
     return this.bankClient.send("create-account-event", {
       createAccountRequestDTO,
+    });
+  }
+  sendTransferMoneyToAccountRequest(
+    transferMoneyToAccountDTO: MoneyTransferDTO,
+  ) {
+    const { logger } = this;
+    logger.debug(
+      `[AppService] transferMoneyToAccountRequest: ${JSON.stringify(
+        transferMoneyToAccountDTO,
+      )}`,
+    );
+    return this.bankClient.send("transfer-money-to-account-event", {
+      transferMoneyToAccountDTO,
     });
   }
 }

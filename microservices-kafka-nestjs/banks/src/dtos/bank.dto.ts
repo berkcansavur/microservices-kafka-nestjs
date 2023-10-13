@@ -60,6 +60,19 @@ export class CreateTransferDTO {
   @IsNumber()
   amount: number;
 }
+export class MoneyTransferDTO {
+  @IsString()
+  currencyType: string;
+
+  @IsNumber()
+  amount: number;
+
+  @IsMongoId()
+  userId: string;
+
+  @IsMongoId()
+  toAccount: string;
+}
 export class IncomingTransferDTO {
   @IsMongoId()
   id: string;

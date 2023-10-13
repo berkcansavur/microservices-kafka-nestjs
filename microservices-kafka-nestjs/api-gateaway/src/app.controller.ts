@@ -4,6 +4,7 @@ import {
   IncomingTransferRequestDTO,
   CreateTransferDTO,
   CreateAccountDTO,
+  MoneyTransferDTO,
 } from "./dtos/api.dtos";
 
 @Controller()
@@ -28,5 +29,12 @@ export class AppController {
   ) {
     const { appService } = this;
     return appService.sendApproveTransferRequest(approveTransferRequestDTO);
+  }
+  @Post("/transferMoneyToAccount")
+  transferMoneyToAccount(@Body() transferMoneyToAccountDTO: MoneyTransferDTO) {
+    const { appService } = this;
+    return appService.sendTransferMoneyToAccountRequest(
+      transferMoneyToAccountDTO,
+    );
   }
 }

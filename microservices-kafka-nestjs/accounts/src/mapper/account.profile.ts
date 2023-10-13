@@ -53,6 +53,35 @@ export class AccountProfile extends AutomapperProfile {
           mapFrom((source) => source.amount),
         ),
       );
+      createMap<TransferDTO, CreateMoneyTransferDTO>(
+        mapper,
+        TransferDTO,
+        CreateMoneyTransferDTO,
+        forMember(
+          (destination) => destination.transferId,
+          mapFrom((source) => source._id),
+        ),
+        forMember(
+          (destination) => destination.userId,
+          mapFrom((source) => source.userId),
+        ),
+        forMember(
+          (destination) => destination.toAccountId,
+          mapFrom((source) => source.toAccount),
+        ),
+        forMember(
+          (destination) => destination.fromAccountId,
+          mapFrom((source) => source.fromAccount),
+        ),
+        forMember(
+          (destination) => destination.currencyType,
+          mapFrom((source) => source.currencyType),
+        ),
+        forMember(
+          (destination) => destination.amount,
+          mapFrom((source) => source.amount),
+        ),
+      );
       createMap<IncomingCreateMoneyTransferDTO, CreateMoneyTransferDTO>(
         mapper,
         IncomingCreateMoneyTransferDTO,
