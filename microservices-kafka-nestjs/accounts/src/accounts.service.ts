@@ -16,10 +16,7 @@ import {
   EVENT_RESULTS,
 } from "./constants/account.constants";
 import { AccountLogic } from "./logic/account.logic";
-import {
-  AccountIsNotAvailableException,
-  TransferCouldNotCompletedException,
-} from "./exceptions/index";
+import { TransferCouldNotCompletedException } from "./exceptions/index";
 
 @Injectable()
 export class AccountService implements OnModuleInit {
@@ -222,21 +219,20 @@ export class AccountService implements OnModuleInit {
         accountId: fromAccount,
         currencyType: currencyType,
       });
-    // if (
-    //   !AccountLogic.checkAccountAvailability({ account: transferToAccount }) &&
-    //   AccountLogic.checkAccountAvailability({ account: transferFromAccount })
-    // ) {
-    //   return EVENT_RESULTS.FAILED;
-    // }
-    // if (
-    //   !AccountLogic.checkAccountCurrencyBalanceIsAvailable({
-    //     amount: amount,
-    //     accountBalance: fromAccountsBalance,
-    //   })
-    // ) {
-    //   return EVENT_RESULTS.FAILED;
-    // } else {
-    {
+    if (
+      !AccountLogic.checkAccountAvailability({ account: transferToAccount }) &&
+      AccountLogic.checkAccountAvailability({ account: transferFromAccount })
+    ) {
+      return AVAILABILITY_RESULT.ACCOUNT_IS_NOT_AVAILABLE;
+    }
+    if (
+      !AccountLogic.checkAccountCurrencyBalanceIsAvailable({
+        amount: amount,
+        accountBalance: fromAccountsBalance,
+      })
+    ) {
+      return AVAILABILITY_RESULT.ACCOUNT_IS_NOT_AVAILABLE;
+    } else {
       return AVAILABILITY_RESULT.ACCOUNT_IS_AVAILABLE;
     }
   }

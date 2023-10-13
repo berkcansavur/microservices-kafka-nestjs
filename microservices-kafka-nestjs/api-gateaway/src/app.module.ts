@@ -7,19 +7,6 @@ import { ClientsModule, Transport } from "@nestjs/microservices";
   imports: [
     ClientsModule.register([
       {
-        name: "TRANSFER_SERVICE",
-        transport: Transport.KAFKA,
-        options: {
-          client: {
-            clientId: "app-transfers",
-            brokers: ["localhost:9092"],
-          },
-          consumer: {
-            groupId: "transfers-consumer",
-          },
-        },
-      },
-      {
         name: "BANK_SERVICE",
         transport: Transport.KAFKA,
         options: {
@@ -29,19 +16,6 @@ import { ClientsModule, Transport } from "@nestjs/microservices";
           },
           consumer: {
             groupId: "banks-consumer",
-          },
-        },
-      },
-      {
-        name: "ACCOUNT_SERVICE",
-        transport: Transport.KAFKA,
-        options: {
-          client: {
-            clientId: "app-accounts",
-            brokers: ["localhost:9092"],
-          },
-          consumer: {
-            groupId: "accounts-consumer",
           },
         },
       },

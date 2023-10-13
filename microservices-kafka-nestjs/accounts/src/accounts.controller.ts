@@ -20,7 +20,7 @@ export class AccountsController {
     @InjectMapper() private readonly AccountIncomingRequestMapper: Mapper,
   ) {}
 
-  @MessagePattern("create-account-event")
+  @MessagePattern("create_account")
   @UsePipes(new ParseIncomingRequest())
   async createAccount(data: CreateAccountIncomingRequestDTO) {
     const { accountsService, logger, AccountIncomingRequestMapper } = this;
@@ -37,7 +37,7 @@ export class AccountsController {
     const account = await accountsService.createAccount({
       createAccountDTO: formattedRequestData,
     });
-    return JSON.stringify(account);
+    return `Created Account : ${JSON.stringify(account)}`;
   }
   @MessagePattern("account_availability_result")
   @UsePipes(new ParseIncomingRequest())

@@ -33,6 +33,19 @@ import { classes } from "@automapper/classes";
           },
         },
       },
+      {
+        name: "ACCOUNT_SERVICE",
+        transport: Transport.KAFKA,
+        options: {
+          client: {
+            clientId: "bank-accounts",
+            brokers: ["localhost:9092"],
+          },
+          consumer: {
+            groupId: "accounts-consumer",
+          },
+        },
+      },
     ]),
     ConfigModule.forRoot({}),
     MongooseModule.forRoot(

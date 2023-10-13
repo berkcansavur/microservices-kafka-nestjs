@@ -20,6 +20,22 @@ export class ParseIncomingRequest implements PipeTransform {
       );
       return formattedData;
     }
+    if (value && value.approveTransferDTO) {
+      const formattedData = value.approveTransferDTO;
+      this.logger.debug(
+        "[ParseIncomingRequest Pipe] Formatted request data :",
+        formattedData,
+      );
+      return formattedData;
+    }
+    if (value && value.createAccountRequestDTO) {
+      const formattedData = value.createAccountRequestDTO;
+      this.logger.debug(
+        "[ParseIncomingRequest Pipe] Formatted request data :",
+        formattedData,
+      );
+      return formattedData;
+    }
     if (value) {
       return value;
     }

@@ -18,10 +18,12 @@ export class TransfersService implements OnModuleInit {
   private readonly logger = new Logger(TransfersService.name);
   constructor(
     @Inject("BANK_SERVICE") private readonly bankClient: ClientKafka,
+    @Inject("ACCOUNT_SERVICE") private readonly accountClient: ClientKafka,
     private readonly transfersRepository: TransfersRepository,
     @InjectMapper() private readonly TransferMapper: Mapper,
   ) {}
   async onModuleInit() {
+    this.accountClient.subscribeToResponseOf("account_availability_result");
     this.bankClient.subscribeToResponseOf("transfer_approval");
   }
 
@@ -77,23 +79,23 @@ export class TransfersService implements OnModuleInit {
   }
 
   async approveTransfer({
-    transferApprovalDTO,
+    transferDTO,
   }: {
-    transferApprovalDTO: TransferDTO;
+    transferDTO: TransferDTO;
   }): Promise<any> {
-    const { logger, bankClient, transfersRepository } = this;
+    const { logger, accountClient, transfersRepository } = this;
 
     const transfer: Transfer = await transfersRepository.getTransfer({
-      transferId: transferApprovalDTO._id.toString(),
+      transferId: transferDTO._id.toString(),
     });
 
     if (!transfer) {
       throw new TransferIsNotFoundException({
-        transferId: transferApprovalDTO._id,
+        transferId: transferDTO._id,
       });
     }
-    logger.debug("[TransferService approveTransfer]", transferApprovalDTO);
+    logger.debug("[TransferService approveTransfer]", transferDTO);
 
-    return bankClient.send("transfer_approval", { transferApprovalDTO });
+    return accountClient.send("account_availability_result", { transferDTO });
   }
 }

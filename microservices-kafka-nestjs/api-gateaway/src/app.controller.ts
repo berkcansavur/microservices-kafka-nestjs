@@ -1,29 +1,25 @@
-import { Body, Controller, Inject, Post, Logger } from "@nestjs/common";
+import { Body, Controller, Post, Logger } from "@nestjs/common";
 import { AppService } from "./app.service";
 import {
   IncomingTransferRequestDTO,
   CreateTransferDTO,
   CreateAccountDTO,
 } from "./dtos/api.dtos";
-import { ClientKafka } from "@nestjs/microservices";
 
 @Controller()
 export class AppController {
   private readonly logger = new Logger(AppController.name);
-  constructor(
-    private readonly appService: AppService,
-    @Inject("ACCOUNT_SERVICE") private readonly accountClient: ClientKafka,
-  ) {}
+  constructor(private readonly appService: AppService) {}
 
   @Post("/createTransfer")
   createTransfer(@Body() createTransferRequestDTO: CreateTransferDTO) {
     const { appService } = this;
-    return appService.createMoneyTransferRequest(createTransferRequestDTO);
+    return appService.sendCreateMoneyTransferRequest(createTransferRequestDTO);
   }
   @Post("/createAccount")
   createAccount(@Body() createAccountRequestDTO: CreateAccountDTO) {
     const { appService } = this;
-    return appService.createAccountRequest(createAccountRequestDTO);
+    return appService.sendCreateAccountRequest(createAccountRequestDTO);
   }
 
   @Post("/approveTransfer")
@@ -31,6 +27,6 @@ export class AppController {
     @Body() approveTransferRequestDTO: IncomingTransferRequestDTO,
   ) {
     const { appService } = this;
-    return appService.approveTransfer(approveTransferRequestDTO);
+    return appService.sendApproveTransferRequest(approveTransferRequestDTO);
   }
 }

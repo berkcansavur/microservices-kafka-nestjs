@@ -10,42 +10,51 @@ import {
 export class AppService implements OnModuleInit {
   private readonly logger = new Logger(AppService.name);
   constructor(
-    @Inject("TRANSFER_SERVICE") private readonly transferClient: ClientKafka,
-    @Inject("ACCOUNT_SERVICE") private readonly accountClient: ClientKafka,
+    @Inject("BANK_SERVICE") private readonly bankClient: ClientKafka,
   ) {}
   async onModuleInit() {
-    this.transferClient.subscribeToResponseOf("create-transfer-event");
-    this.transferClient.subscribeToResponseOf("approve-transfer-event");
-    this.accountClient.subscribeToResponseOf("create-account-event");
+    try {
+      this.bankClient.subscribeToResponseOf("create-transfer-event");
+      this.logger.debug("reate-transfer-event topic is subscribed");
+      this.bankClient.subscribeToResponseOf("approve-transfer-event");
+      this.logger.debug("approve-transfer-event topic is subscribed");
+      this.bankClient.subscribeToResponseOf("create-account-event");
+      this.logger.debug("create-account-event topic is subscribed");
+      this.logger.debug(
+        "Subscription of responses is successfully established.",
+      );
+    } catch (error) {
+      this.logger.error("Subscription of responses is failed", error);
+    }
   }
-  createMoneyTransferRequest(createTransferRequestDTO: CreateTransferDTO) {
+  sendCreateMoneyTransferRequest(createTransferRequestDTO: CreateTransferDTO) {
     const { logger } = this;
     logger.debug(
       `[AppService] createMoneyTransferRequest: ${JSON.stringify(
         createTransferRequestDTO,
       )}`,
     );
-    return this.transferClient.send("create-transfer-event", {
+    return this.bankClient.send("create-transfer-event", {
       createTransferRequestDTO,
     });
   }
-  approveTransfer(approveTransferDTO: IncomingTransferRequestDTO) {
+  sendApproveTransferRequest(approveTransferDTO: IncomingTransferRequestDTO) {
     const { logger } = this;
     logger.debug(
       `[AppService] approveTransfer: ${JSON.stringify(approveTransferDTO)}`,
     );
-    return this.transferClient.send("approve-transfer-event", {
+    return this.bankClient.send("approve-transfer-event", {
       approveTransferDTO,
     });
   }
-  createAccountRequest(createAccountRequestDTO: CreateAccountDTO) {
+  sendCreateAccountRequest(createAccountRequestDTO: CreateAccountDTO) {
     const { logger } = this;
     logger.debug(
       `[AppService] createAccountRequest: ${JSON.stringify(
         createAccountRequestDTO,
       )}`,
     );
-    return this.accountClient.send("create-account-event", {
+    return this.bankClient.send("create-account-event", {
       createAccountRequestDTO,
     });
   }

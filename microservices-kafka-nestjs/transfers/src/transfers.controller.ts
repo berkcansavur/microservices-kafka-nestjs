@@ -18,7 +18,7 @@ export class TransfersController {
     @InjectMapper() private readonly TransferIncomingRequestMapper: Mapper,
   ) {}
 
-  @MessagePattern("create-transfer-event")
+  @MessagePattern("handle_create_transfer")
   @UsePipes(new ParseIncomingRequest())
   async createTransfer(data: CreateTransferIncomingRequestDTO) {
     const { transfersService, TransferIncomingRequestMapper, logger } = this;
@@ -38,7 +38,7 @@ export class TransfersController {
     return JSON.stringify(createdTransfer);
   }
 
-  @MessagePattern("approve-transfer-event")
+  @MessagePattern("approve_transfer")
   @UsePipes(new ParseIncomingRequest())
   async handleTransferApproval(data: TransferDTO) {
     const { transfersService, logger } = this;
@@ -48,7 +48,7 @@ export class TransfersController {
       )}`,
     );
     return await transfersService.approveTransfer({
-      transferApprovalDTO: data,
+      transferDTO: data,
     });
   }
 }
