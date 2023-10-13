@@ -11,7 +11,7 @@ import { ClientsModule, Transport } from "@nestjs/microservices";
         transport: Transport.KAFKA,
         options: {
           client: {
-            clientId: "transfers",
+            clientId: "app-transfers",
             brokers: ["localhost:9092"],
           },
           consumer: {
@@ -24,7 +24,7 @@ import { ClientsModule, Transport } from "@nestjs/microservices";
         transport: Transport.KAFKA,
         options: {
           client: {
-            clientId: "banks",
+            clientId: "app-banks",
             brokers: ["localhost:9092"],
           },
           consumer: {
@@ -37,7 +37,7 @@ import { ClientsModule, Transport } from "@nestjs/microservices";
         transport: Transport.KAFKA,
         options: {
           client: {
-            clientId: "accounts",
+            clientId: "app-accounts",
             brokers: ["localhost:9092"],
           },
           consumer: {

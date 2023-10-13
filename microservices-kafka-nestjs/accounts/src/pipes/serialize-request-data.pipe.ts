@@ -12,13 +12,16 @@ export class ParseIncomingRequest implements PipeTransform {
       );
       return formattedData;
     }
-    if (value && value.TransferDTO) {
-      const formattedData = value.TransferDTO;
+    if (value && value.transferDTO) {
+      const formattedData = value.transferDTO;
       this.logger.debug(
         "[ParseIncomingRequest Pipe] Formatted request data :",
         formattedData,
       );
       return formattedData;
+    }
+    if (value) {
+      return value;
     }
   }
 }

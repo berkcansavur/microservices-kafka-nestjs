@@ -13,6 +13,7 @@ export class AccountLogic {
     if (result < 0) {
       return false;
     }
+    return true;
   }
   static checkAccountAvailability({ account }: { account: AccountType }) {
     if (
@@ -22,5 +23,6 @@ export class AccountLogic {
     ) {
       return true;
     }
+    return false;
   }
 }

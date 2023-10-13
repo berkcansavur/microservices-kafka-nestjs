@@ -39,6 +39,21 @@ export class AccountsController {
     });
     return JSON.stringify(account);
   }
+  @MessagePattern("account_availability_result")
+  @UsePipes(new ParseIncomingRequest())
+  async checkAccountAvailability(data: TransferDTO) {
+    const { accountsService, logger } = this;
+    logger.debug(
+      `[AccountsController] checkAccountAvailability incoming request data: ${JSON.stringify(
+        data,
+      )}`,
+    );
+    const is_accounts_available = await accountsService.checkTransferApproval({
+      transferDTO: data,
+    });
+    return is_accounts_available;
+  }
+
   @MessagePattern("money-transfer-across-accounts-result")
   async makeMoneyTransfer(data: IncomingCreateMoneyTransferDTO) {
     const { accountsService, logger, AccountIncomingRequestMapper } = this;
@@ -56,24 +71,5 @@ export class AccountsController {
       createMoneyTransferDTO,
     });
     return JSON.stringify(transferResult);
-  }
-
-  @MessagePattern("account_availability_check")
-  @UsePipes(new ParseIncomingRequest())
-  async checkAccountAvailability(data: IncomingCreateMoneyTransferDTO) {
-    const { accountsService, logger, AccountIncomingRequestMapper } = this;
-    logger.debug(
-      `[AccountsController] checkAccountAvailability incoming request data: ${JSON.stringify(
-        data,
-      )}`,
-    );
-    const transferDTO: TransferDTO = AccountIncomingRequestMapper.map<
-      IncomingCreateMoneyTransferDTO,
-      TransferDTO
-    >(data, IncomingCreateMoneyTransferDTO, TransferDTO);
-    const approvalResult = await accountsService.checkTransferApproval({
-      transferDTO,
-    });
-    return JSON.stringify(approvalResult);
   }
 }

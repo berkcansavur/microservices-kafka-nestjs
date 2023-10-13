@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger, OnModuleInit } from "@nestjs/common";
+import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { AccountsRepository } from "./accounts.repository";
 import {
   AccountDTO,
@@ -9,9 +9,9 @@ import {
 import { Account } from "./schemas/account.schema";
 import { InjectMapper } from "@automapper/nestjs";
 import { Mapper } from "@automapper/core";
-import { ClientKafka } from "@nestjs/microservices";
 import {
   ACCOUNT_ACTIONS,
+  AVAILABILITY_RESULT,
   CURRENCY_TYPES,
   EVENT_RESULTS,
 } from "./constants/account.constants";
@@ -25,7 +25,6 @@ import {
 export class AccountService implements OnModuleInit {
   private readonly logger = new Logger(AccountService.name);
   constructor(
-    @Inject("BANK_SERVICE") private readonly bankClient: ClientKafka,
     private readonly accountsRepository: AccountsRepository,
     @InjectMapper() private readonly AccountsMapper: Mapper,
   ) {}
@@ -206,38 +205,39 @@ export class AccountService implements OnModuleInit {
     transferDTO,
   }: {
     transferDTO: TransferDTO;
-  }): Promise<EVENT_RESULTS> {
+  }): Promise<AVAILABILITY_RESULT> {
     const { accountsRepository, logger } = this;
     logger.debug("[AccountService] handleTransferAcrossAccounts", {
       transferDTO,
     });
-    const { amount, toAccountId, fromAccountId, currencyType } = transferDTO;
-    const fromAccount: Account = await accountsRepository.getAccount({
-      accountId: fromAccountId,
+    const { amount, toAccount, fromAccount, currencyType } = transferDTO;
+    const transferFromAccount: Account = await accountsRepository.getAccount({
+      accountId: fromAccount,
     });
-    const toAccount: Account = await accountsRepository.getAccount({
-      accountId: toAccountId,
+    const transferToAccount: Account = await accountsRepository.getAccount({
+      accountId: toAccount,
     });
     const fromAccountsBalance: number =
       await accountsRepository.GetAccountsCurrencyBalance({
-        accountId: fromAccountId,
+        accountId: fromAccount,
         currencyType: currencyType,
       });
-    if (
-      !AccountLogic.checkAccountAvailability({ account: toAccount }) &&
-      AccountLogic.checkAccountAvailability({ account: fromAccount })
-    ) {
-      throw new AccountIsNotAvailableException();
-    }
-    if (
-      !AccountLogic.checkAccountCurrencyBalanceIsAvailable({
-        amount: amount,
-        accountBalance: fromAccountsBalance,
-      })
-    ) {
-      throw new AccountIsNotAvailableException();
-    } else {
-      return EVENT_RESULTS.SUCCESS;
+    // if (
+    //   !AccountLogic.checkAccountAvailability({ account: transferToAccount }) &&
+    //   AccountLogic.checkAccountAvailability({ account: transferFromAccount })
+    // ) {
+    //   return EVENT_RESULTS.FAILED;
+    // }
+    // if (
+    //   !AccountLogic.checkAccountCurrencyBalanceIsAvailable({
+    //     amount: amount,
+    //     accountBalance: fromAccountsBalance,
+    //   })
+    // ) {
+    //   return EVENT_RESULTS.FAILED;
+    // } else {
+    {
+      return AVAILABILITY_RESULT.ACCOUNT_IS_AVAILABLE;
     }
   }
 }

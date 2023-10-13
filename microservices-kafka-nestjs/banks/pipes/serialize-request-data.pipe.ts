@@ -20,5 +20,8 @@ export class ParseIncomingRequest implements PipeTransform {
       );
       return formattedData;
     }
+    if (value) {
+      return value;
+    }
   }
 }

@@ -47,9 +47,8 @@ export class TransfersController {
         data,
       )}`,
     );
-    const approvedTransfer = await transfersService.approveTransfer({
+    return await transfersService.approveTransfer({
       transferApprovalDTO: data,
     });
-    return JSON.stringify(approvedTransfer);
   }
 }
