@@ -49,6 +49,10 @@ export enum ACCOUNT_STATUS {
   IN_TRANSACTION = 2100,
   DELETED = 3000,
 }
+export enum ACCOUNT_TYPES {
+  INVESTMENT = "INVESTMENT",
+  DEPOSIT = "DEPOSIT",
+}
 export enum ACCOUNT_ACTIONS {
   CREATED = 1000,
   APPROVE_PENDING = 1900,
@@ -60,4 +64,10 @@ export enum ACCOUNT_ACTIONS {
   TRANSFER_FAILED = 3600,
   CANCEL_PENDING = 6900,
   CANCELLED = 7000,
+}
+export enum ACCOUNT_TYPES {
+  INVESTMENT_ACCOUNT = "Investment Account",
+  DEPOSIT_ACCOUNT = "Deposit Account",
+  INTEREST_ACCOUNT = "Interest Account",
+  EXCHANGE_ACCOUNT = "Exchange Account",
 }

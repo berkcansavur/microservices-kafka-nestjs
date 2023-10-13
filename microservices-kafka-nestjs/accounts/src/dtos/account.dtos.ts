@@ -15,6 +15,10 @@ export class CreateAccountDTO {
   @IsString()
   accountName: string;
 
+  @IsNotEmpty()
+  @IsString()
+  accountType: string;
+
   @IsNumber()
   interest: number;
 
@@ -34,6 +38,10 @@ export class CreateAccountIncomingRequestDTO {
   @IsNumber()
   @IsNotEmpty()
   accountNumber: number;
+
+  @IsNotEmpty()
+  @IsString()
+  accountType: string;
 
   @IsNotEmpty()
   @IsString()
@@ -136,15 +144,23 @@ export class IncomingCreateMoneyTransferDTO {
 }
 
 export class AccountDTO {
+  @IsNotEmpty()
   @IsMongoId()
   _id: Types.ObjectId;
 
+  @IsNotEmpty()
   @IsMongoId()
   userId: Types.ObjectId;
 
+  @IsNotEmpty()
   @IsNumber()
   accountNumber: number;
 
+  @IsNotEmpty()
+  @IsString()
+  accountType: string;
+
+  @IsNotEmpty()
   @IsString()
   accountName: string;
 

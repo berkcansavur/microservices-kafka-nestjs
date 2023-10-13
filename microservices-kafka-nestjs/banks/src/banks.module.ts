@@ -2,13 +2,14 @@ import { Module } from "@nestjs/common";
 import { BanksService } from "./banks.service";
 import { MongooseModule } from "@nestjs/mongoose";
 import { Bank, BanksSchema } from "./schemas/banks.schema";
-import { User, UserSchema } from "./schemas/customers.schema";
+import { Customer, CustomerSchema } from "./schemas/customers.schema";
 import { BanksRepository } from "./repositories/banks.repository";
 import { BanksController } from "./banks.controller";
 import { ConfigModule } from "@nestjs/config";
 import { AutomapperModule } from "@automapper/nestjs";
 import { classes } from "@automapper/classes";
 import { ClientsModule, Transport } from "@nestjs/microservices";
+import { CustomerAuth, CustomerAuthSchema } from "./schemas/auth.schema";
 
 @Module({
   imports: [
@@ -50,7 +51,8 @@ import { ClientsModule, Transport } from "@nestjs/microservices";
     }),
     MongooseModule.forFeature([
       { name: Bank.name, schema: BanksSchema },
-      { name: User.name, schema: UserSchema },
+      { name: Customer.name, schema: CustomerSchema },
+      { name: CustomerAuth.name, schema: CustomerAuthSchema },
     ]),
   ],
 

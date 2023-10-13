@@ -47,11 +47,15 @@ export class CreateAccountDTO {
 
   @IsNotEmpty()
   @IsString()
-  accountName: string;
+  accountType: string;
 
-  @IsNumber()
   @IsNotEmpty()
-  accountNumber: number;
+  @IsString()
+  bankBranchCode: string;
+
+  @IsNotEmpty()
+  @IsString()
+  accountName: string;
 
   @IsNumber()
   interest: number;

@@ -17,10 +17,12 @@ import {
 } from "./constants/account.constants";
 import { AccountLogic } from "./logic/account.logic";
 import { TransferCouldNotCompletedException } from "./exceptions/index";
+import { Utils } from "./utils/utils";
 
 @Injectable()
 export class AccountService implements OnModuleInit {
   private readonly logger = new Logger(AccountService.name);
+  private readonly utils: Utils;
   constructor(
     private readonly accountsRepository: AccountsRepository,
     @InjectMapper() private readonly AccountsMapper: Mapper,
@@ -46,6 +48,9 @@ export class AccountService implements OnModuleInit {
     const createdAccount: Account = await accountsRepository.createAccount({
       createAccountDTO: createAccountDTO,
     });
+    if (!createdAccount) {
+      throw new Error("Account is not created");
+    }
     return AccountsMapper.map<Account, AccountDTO>(
       createdAccount,
       Account,

@@ -36,7 +36,8 @@ export class AccountsController {
     const account = await accountsService.createAccount({
       createAccountDTO: formattedRequestData,
     });
-    return `Created Account : ${JSON.stringify(account)}`;
+    const formattedAccount = JSON.stringify(account, null, 2);
+    return `Created Account : ${formattedAccount}`;
   }
   @MessagePattern("account_availability_result")
   @UsePipes(new ParseIncomingRequest())

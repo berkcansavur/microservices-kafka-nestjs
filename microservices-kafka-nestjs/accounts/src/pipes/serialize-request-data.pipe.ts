@@ -4,8 +4,8 @@ import { Injectable, Logger, PipeTransform } from "@nestjs/common";
 export class ParseIncomingRequest implements PipeTransform {
   private readonly logger = new Logger(ParseIncomingRequest.name);
   transform(value: any) {
-    if (value && value.createAccountDTO) {
-      const formattedData = value.createAccountDTO;
+    if (value && value.createAccountDTOWithAccountNumber) {
+      const formattedData = value.createAccountDTOWithAccountNumber;
       this.logger.debug(
         "[ParseIncomingRequest Pipe] Formatted request data :",
         formattedData,

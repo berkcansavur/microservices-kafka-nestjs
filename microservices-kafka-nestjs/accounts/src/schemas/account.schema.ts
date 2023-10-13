@@ -50,6 +50,9 @@ export class Account {
   @Prop({ type: String, required: true })
   accountName: string;
 
+  @Prop({ type: String, required: true })
+  accountType: string;
+
   @Prop({ type: Number, required: true })
   accountNumber: number;
 

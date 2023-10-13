@@ -13,7 +13,7 @@ import { Customer } from "./schemas/customers.schema";
 @Injectable()
 export class BanksService implements OnModuleInit {
   private readonly logger = new Logger(BanksService.name);
-  private readonly utils: Utils;
+  private readonly utils = new Utils();
   constructor(
     @Inject("ACCOUNT_SERVICE") private readonly accountClient: ClientKafka,
     @Inject("TRANSFER_SERVICE") private readonly transferClient: ClientKafka,
@@ -58,18 +58,40 @@ export class BanksService implements OnModuleInit {
   }: {
     createAccountDTO: CreateAccountDTO;
   }): Promise<any> {
-    const { logger, accountClient } = this;
+    const { logger, accountClient, utils } = this;
     logger.debug("[BanksService] create account DTO: ", createAccountDTO);
-    return accountClient.send("handle_create_account", { createAccountDTO });
+    let accountNumber = utils.generateRandomNumber();
+    const bankBranchCode = utils.getBanksBranchCode(
+      createAccountDTO.bankBranchCode,
+    );
+    const accountType = utils.getAccountType(createAccountDTO.accountType);
+    createAccountDTO.accountType = accountType;
+    if (bankBranchCode === null) {
+      throw new Error("Bank Branch Code is not found");
+    }
+    accountNumber = parseInt(
+      bankBranchCode.toString() + accountNumber.toString(),
+    );
+    const createAccountDTOWithAccountNumber = {
+      ...createAccountDTO,
+      accountNumber: accountNumber,
+    };
+    logger.debug(
+      "[BanksService] createAccountDTOWithAccountNumber: ",
+      createAccountDTO,
+    );
+    return accountClient.send("handle_create_account", {
+      createAccountDTOWithAccountNumber,
+    });
   }
   async handleCreateCustomer({
     createCustomerDTO,
   }: {
     createCustomerDTO: CreateCustomerDTO;
   }) {
-    const { logger, banksRepository } = this;
+    const { logger, banksRepository, utils } = this;
     logger.debug("[BanksService] create customer DTO: ", createCustomerDTO);
-    const customerNumber = this.utils.generateRandomNumber();
+    const customerNumber = utils.generateRandomNumber();
     const customerAuth = await banksRepository.createCustomerAuth({
       customerNumber,
       password: createCustomerDTO.password,
