@@ -124,6 +124,10 @@ export class AccountProfile extends AutomapperProfile {
           mapFrom((source) => source.accountNumber),
         ),
         forMember(
+          (destination) => destination.accountName,
+          mapFrom((source) => source.accountName),
+        ),
+        forMember(
           (destination) => destination.actionLogs,
           mapFrom((source) => source.actionLogs),
         ),
@@ -151,6 +155,10 @@ export class AccountProfile extends AutomapperProfile {
         forMember(
           (destination) => destination.userId,
           mapFrom((source) => source.userId),
+        ),
+        forMember(
+          (destination) => destination.accountName,
+          mapFrom((source) => source.accountName),
         ),
         forMember(
           (destination) => destination.accountNumber,

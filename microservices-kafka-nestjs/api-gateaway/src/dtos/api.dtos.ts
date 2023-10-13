@@ -51,12 +51,16 @@ export class MoneyTransferDTO {
   toAccount: string;
 }
 export class CreateAccountDTO {
-  @IsMongoId()
   @IsNotEmpty()
+  @IsMongoId()
   userId: string;
 
-  @IsNumber()
   @IsNotEmpty()
+  @IsString()
+  accountName: string;
+
+  @IsNotEmpty()
+  @IsNumber()
   accountNumber: number;
 
   @IsNumber()
@@ -68,6 +72,9 @@ export class AccountDTO {
 
   @IsMongoId()
   userId: string;
+
+  @IsString()
+  accountName: string;
 
   @IsNumber()
   accountNumber: number;

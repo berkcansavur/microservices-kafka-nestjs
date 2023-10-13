@@ -47,6 +47,9 @@ export class Account {
   @Prop({ type: mSchema.Types.ObjectId, required: true })
   userId: Types.ObjectId;
 
+  @Prop({ type: String, required: true })
+  accountName: string;
+
   @Prop({ type: Number, required: true })
   accountNumber: number;
 

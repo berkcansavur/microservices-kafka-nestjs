@@ -3,21 +3,25 @@ import { Types } from "mongoose";
 import { CURRENCY_TYPES } from "src/constants/account.constants";
 import { ActionLog, Balance } from "src/schemas/account.schema";
 export class CreateAccountDTO {
-  @IsMongoId()
   @IsNotEmpty()
+  @IsMongoId()
   userId: string;
 
-  @IsNumber()
   @IsNotEmpty()
+  @IsNumber()
   accountNumber: number;
+
+  @IsNotEmpty()
+  @IsString()
+  accountName: string;
 
   @IsNumber()
   interest: number;
 
   balance: Balance[];
 
-  @IsNumber()
   @IsNotEmpty()
+  @IsNumber()
   status: number;
 
   actionLogs: ActionLog[];
@@ -30,6 +34,10 @@ export class CreateAccountIncomingRequestDTO {
   @IsNumber()
   @IsNotEmpty()
   accountNumber: number;
+
+  @IsNotEmpty()
+  @IsString()
+  accountName: string;
 
   @IsNumber()
   interest?: number;
@@ -136,6 +144,9 @@ export class AccountDTO {
 
   @IsNumber()
   accountNumber: number;
+
+  @IsString()
+  accountName: string;
 
   @IsNumber()
   interest: number;

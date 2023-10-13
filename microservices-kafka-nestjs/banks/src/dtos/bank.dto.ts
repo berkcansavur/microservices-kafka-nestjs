@@ -37,6 +37,10 @@ export class CreateAccountDTO {
   @IsNotEmpty()
   userId: string;
 
+  @IsNotEmpty()
+  @IsString()
+  accountName: string;
+
   @IsNumber()
   @IsNotEmpty()
   accountNumber: number;
