@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Types, Schema as mSchema, Document } from "mongoose";
-import { User, UserSchema } from "./users.schema";
+import { User, UserSchema } from "./customers.schema";
 import { CURRENCY_TYPES } from "../constants/banks.constants";
 
 @Schema({

@@ -2,6 +2,7 @@ import { Inject, Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { ClientKafka } from "@nestjs/microservices";
 import {
   CreateAccountDTO,
+  CreateCustomerDTO,
   CreateTransferDTO,
   IncomingTransferRequestDTO,
   MoneyTransferDTO,
@@ -77,5 +78,16 @@ export class AppService implements OnModuleInit {
     return this.bankClient.send("transfer-money-to-account-event", {
       transferMoneyToAccountDTO,
     });
+  }
+  sendCreateCustomerRequest(createCustomerRequestDTO: CreateCustomerDTO) {
+    const { logger } = this;
+    logger.debug(
+      "[AppService] sendCreateCustomerRequest DTO: ",
+      createCustomerRequestDTO,
+    );
+    return this.bankClient.send(
+      "create-customer-event",
+      createCustomerRequestDTO,
+    );
   }
 }

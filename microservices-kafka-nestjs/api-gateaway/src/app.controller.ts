@@ -5,6 +5,7 @@ import {
   CreateTransferDTO,
   CreateAccountDTO,
   MoneyTransferDTO,
+  CreateCustomerDTO,
 } from "./dtos/api.dtos";
 
 @Controller()
@@ -21,6 +22,11 @@ export class AppController {
   createAccount(@Body() createAccountRequestDTO: CreateAccountDTO) {
     const { appService } = this;
     return appService.sendCreateAccountRequest(createAccountRequestDTO);
+  }
+  @Post("/createCustomer")
+  createCustomer(@Body() createCustomerRequestDTO: CreateCustomerDTO) {
+    const { appService } = this;
+    return appService.sendCreateCustomerRequest(createCustomerRequestDTO);
   }
 
   @Post("/approveTransfer")

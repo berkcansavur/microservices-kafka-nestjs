@@ -1,4 +1,12 @@
-import { IsMongoId, IsNotEmpty, IsNumber, IsString } from "class-validator";
+import {
+  IsEmail,
+  IsMongoId,
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+  Length,
+  Min,
+} from "class-validator";
 
 export class TransferDTO {
   @IsNotEmpty()
@@ -47,6 +55,64 @@ export class CreateAccountDTO {
 
   @IsNumber()
   interest: number;
+}
+export class CreateCustomerDTO {
+  @IsNotEmpty()
+  @IsString()
+  customerName: string;
+
+  @IsNotEmpty()
+  @IsString()
+  customerSurname: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  @Min(18)
+  customerAge: number;
+
+  @IsNotEmpty()
+  @IsString()
+  @IsEmail()
+  customerEmail: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  @Length(11)
+  customerSocialSecurityNumber: number;
+
+  @IsNotEmpty()
+  @IsString()
+  @Length(8, 20)
+  password: string;
+}
+export class CreateCustomerDTOWithAccountNumber {
+  @IsNotEmpty()
+  @IsString()
+  customerName: string;
+
+  @IsNotEmpty()
+  @IsString()
+  customerSurname: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  @Min(18)
+  customerAge: number;
+
+  @IsNotEmpty()
+  @IsString()
+  @IsEmail()
+  customerEmail: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  @Length(11)
+  customerSocialSecurityNumber: number;
+
+  @IsNotEmpty()
+  @IsString()
+  @Length(8, 20)
+  password: string;
 }
 export class CreateTransferDTO {
   @IsString()

@@ -4,12 +4,16 @@ import {
   CreateAccountDTO,
   CreateTransferDTO,
   MoneyTransferDTO,
+  CreateCustomerDTO,
 } from "src/dtos/bank.dto";
 import { BanksRepository } from "./repositories/banks.repository";
 import { ClientKafka } from "@nestjs/microservices";
+import { Utils } from "../utils/utils";
+import { Customer } from "./schemas/customers.schema";
 @Injectable()
 export class BanksService implements OnModuleInit {
   private readonly logger = new Logger(BanksService.name);
+  private readonly utils: Utils;
   constructor(
     @Inject("ACCOUNT_SERVICE") private readonly accountClient: ClientKafka,
     @Inject("TRANSFER_SERVICE") private readonly transferClient: ClientKafka,
@@ -57,6 +61,33 @@ export class BanksService implements OnModuleInit {
     const { logger, accountClient } = this;
     logger.debug("[BanksService] create account DTO: ", createAccountDTO);
     return accountClient.send("handle_create_account", { createAccountDTO });
+  }
+  async handleCreateCustomer({
+    createCustomerDTO,
+  }: {
+    createCustomerDTO: CreateCustomerDTO;
+  }) {
+    const { logger, banksRepository } = this;
+    logger.debug("[BanksService] create customer DTO: ", createCustomerDTO);
+    const customerNumber = this.utils.generateRandomNumber();
+    const customerAuth = await banksRepository.createCustomerAuth({
+      customerNumber,
+      password: createCustomerDTO.password,
+    });
+    if (!customerAuth) {
+      throw new Error("Customer authentication failed");
+    }
+    const createCustomerDTOWithAccountNumber = {
+      ...createCustomerDTO,
+      customerNumber,
+    };
+    const customer: Customer = await banksRepository.createCustomer({
+      createCustomerDTOWithAccountNumber,
+    });
+    if (!customer) {
+      throw new Error("Customer could not be created");
+    }
+    return `Created customers Customer Number is : ${customerAuth.customerNumber}`;
   }
   async handleCreateTransferAcrossAccounts({
     createTransferDTO,

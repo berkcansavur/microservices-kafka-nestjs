@@ -2,7 +2,7 @@ import { Module } from "@nestjs/common";
 import { BanksService } from "./banks.service";
 import { MongooseModule } from "@nestjs/mongoose";
 import { Bank, BanksSchema } from "./schemas/banks.schema";
-import { User, UserSchema } from "./schemas/users.schema";
+import { User, UserSchema } from "./schemas/customers.schema";
 import { BanksRepository } from "./repositories/banks.repository";
 import { BanksController } from "./banks.controller";
 import { ConfigModule } from "@nestjs/config";
