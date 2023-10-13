@@ -17,7 +17,6 @@ export class AppService implements OnModuleInit {
     this.transferClient.subscribeToResponseOf("create-transfer-event");
     this.transferClient.subscribeToResponseOf("approve-transfer-event");
     this.accountClient.subscribeToResponseOf("create-account-event");
-    await this.accountClient.connect();
   }
   createMoneyTransferRequest(createTransferRequestDTO: CreateTransferDTO) {
     const { logger } = this;

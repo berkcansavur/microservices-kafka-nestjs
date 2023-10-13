@@ -23,7 +23,6 @@ export class TransfersService implements OnModuleInit {
   ) {}
   async onModuleInit() {
     this.bankClient.subscribeToResponseOf("transfer_approval");
-    await this.bankClient.connect();
   }
 
   async getTransfer({
@@ -95,10 +94,6 @@ export class TransfersService implements OnModuleInit {
     }
     logger.debug("[TransferService approveTransfer]", transferApprovalDTO);
 
-    const approvedTransferEventData = bankClient.send("transfer_approval", {
-      transferApprovalDTO,
-    });
-
-    return approvedTransferEventData;
+    return bankClient.send("transfer_approval", { transferApprovalDTO });
   }
 }

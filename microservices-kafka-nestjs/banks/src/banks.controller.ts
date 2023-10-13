@@ -18,9 +18,8 @@ export class BanksController {
         data,
       )}`,
     );
-    const transferApproval = await this.bankService.approveMoneyTransfer({
+    return await this.bankService.approveMoneyTransfer({
       transferDTO: data,
     });
-    return JSON.stringify(transferApproval);
   }
 }

@@ -37,11 +37,11 @@ export class AccountProfile extends AutomapperProfile {
           mapFrom((source) => source.userId),
         ),
         forMember(
-          (destination) => destination.toAccountId,
+          (destination) => destination.toAccount,
           mapFrom((source) => source.toAccountId),
         ),
         forMember(
-          (destination) => destination.fromAccountId,
+          (destination) => destination.fromAccount,
           mapFrom((source) => source.fromAccountId),
         ),
         forMember(

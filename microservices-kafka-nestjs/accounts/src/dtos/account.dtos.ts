@@ -83,12 +83,12 @@ export class TransferDTO {
   @IsNotEmpty()
   @IsString()
   @IsMongoId()
-  fromAccountId: string;
+  fromAccount: string;
 
   @IsNotEmpty()
   @IsString()
   @IsMongoId()
-  toAccountId: string;
+  toAccount: string;
 
   @IsNotEmpty()
   @IsNumber()

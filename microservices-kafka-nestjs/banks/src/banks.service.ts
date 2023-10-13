@@ -11,8 +11,15 @@ export class BanksService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    this.accountClient.subscribeToResponseOf("account_availability_check");
-    await this.accountClient.connect();
+    try {
+      this.accountClient.subscribeToResponseOf("account_availability_result");
+      this.logger.debug("account_availability_result toic is subscribed");
+    } catch (error) {
+      this.logger.error(
+        "Client can not subscribed needed event error: ",
+        error,
+      );
+    }
   }
   async approveMoneyTransfer({
     transferDTO,
@@ -22,11 +29,6 @@ export class BanksService implements OnModuleInit {
     const { logger, accountClient } = this;
     logger.debug("[BanksService] approve money transfer: ", transferDTO);
 
-    const accountAvailability = accountClient.send(
-      "account_availability_check",
-      { transferDTO },
-    );
-
-    return accountAvailability;
+    return accountClient.send("account_availability_result", { transferDTO });
   }
 }
