@@ -12,7 +12,7 @@ import {
 } from "src/dtos/bank.dto";
 import { BanksRepository } from "./repositories/banks.repository";
 import { ClientKafka } from "@nestjs/microservices";
-import { Utils } from "../utils/utils";
+import { Utils } from "./utils/utils";
 import { Customer } from "./schemas/customers.schema";
 @Injectable()
 export class BanksService implements OnModuleInit {

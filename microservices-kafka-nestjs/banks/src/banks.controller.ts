@@ -1,7 +1,7 @@
 import { Controller, Logger, UsePipes } from "@nestjs/common";
 import { BanksService } from "./banks.service";
 import { MessagePattern } from "@nestjs/microservices";
-import { ParseIncomingRequest } from "pipes/serialize-request-data.pipe";
+import { ParseIncomingRequest } from "src/pipes/serialize-request-data.pipe";
 import {
   CreateAccountDTO,
   CreateBankCustomerRepresentativeDTO,
