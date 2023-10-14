@@ -15,6 +15,8 @@ import { ClientKafka } from "@nestjs/microservices";
 import { Utils } from "./utils/utils";
 import { Customer } from "./schemas/customers.schema";
 import { CustomersService } from "./customers/customers.service";
+import { BanksLogic } from "./logic/banks.logic";
+import { AccountType } from "./types/bank.types";
 @Injectable()
 export class BanksService implements OnModuleInit {
   private readonly logger = new Logger(BanksService.name);
@@ -67,17 +69,20 @@ export class BanksService implements OnModuleInit {
     const { logger, accountClient, utils, customersService } = this;
     logger.debug("[BanksService] create account DTO: ", createAccountDTO);
     let accountNumber = utils.generateRandomNumber();
-    const bankBranchCode = utils.getBanksBranchCode(
+    if (!BanksLogic.isAccountTypeIsValid({ accountDTO: createAccountDTO })) {
+      throw new Error("Account type is not valid");
+    }
+    if (!BanksLogic.isValidBankBranchCode(createAccountDTO.bankBranchCode)) {
+      throw new Error(
+        "Invalid Bank Branch Code: " + createAccountDTO.bankBranchCode,
+      );
+    }
+    const branchCode = utils.getBanksBranchCode(
       createAccountDTO.bankBranchCode,
     );
     const accountType = utils.getAccountType(createAccountDTO.accountType);
     createAccountDTO.accountType = accountType;
-    if (bankBranchCode === null) {
-      throw new Error("Bank Branch Code is not found");
-    }
-    accountNumber = parseInt(
-      bankBranchCode.toString() + accountNumber.toString(),
-    );
+    accountNumber = utils.combineNumbers({ branchCode, accountNumber });
     const createAccountDTOWithAccountNumber = {
       ...createAccountDTO,
       accountNumber: accountNumber,
@@ -86,14 +91,16 @@ export class BanksService implements OnModuleInit {
       "[BanksService] createAccountDTOWithAccountNumber: ",
       createAccountDTO,
     );
-    let createdAccount;
+    let createdAccount: AccountType;
     try {
       const result = await accountClient
         .send("handle_create_account", {
           createAccountDTOWithAccountNumber,
         })
         .toPromise();
-      console.log("Result:", result);
+      if (!BanksLogic.isObjectValid(result)) {
+        throw new Error(`Object is not valid : ${result}`);
+      }
       createdAccount = result;
     } catch (error) {
       throw new Error("Account creation failed");
@@ -105,7 +112,7 @@ export class BanksService implements OnModuleInit {
         accountId: accountId,
       },
     );
-    if (!updatedCustomerAccounts) {
+    if (!BanksLogic.isObjectValid(updatedCustomerAccounts)) {
       throw new Error("Account could not added to customer");
     }
     return createdAccount;
