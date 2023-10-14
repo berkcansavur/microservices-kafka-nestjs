@@ -1,4 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
+import { ACCOUNT_ACTIONS } from "src/constants/banks.constants";
 import { createCustomerDTOWithCustomerNumber } from "src/dtos/bank.dto";
 import { CustomersRepository } from "src/repositories/customer.repository";
 import { Customer } from "src/schemas/customers.schema";
@@ -51,5 +52,29 @@ export class CustomersService {
       throw new Error("Account could not be found");
     }
     return accounts;
+  }
+  async addAccountToCustomer({
+    customerId,
+    accountId,
+  }: {
+    customerId: string;
+    accountId: string;
+  }) {
+    const { logger, customersRepository } = this;
+    logger.debug(
+      "addAccountToCustomer customerId: ",
+      customerId,
+      ", ",
+      accountId,
+    );
+    const updatedCustomer = await customersRepository.addAccount({
+      customerId,
+      accountId,
+      action: ACCOUNT_ACTIONS.CREATED,
+    });
+    if (!updatedCustomer) {
+      throw new Error("Account could not added to the customer");
+    }
+    return updatedCustomer;
   }
 }

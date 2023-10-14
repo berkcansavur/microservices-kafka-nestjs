@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
+import { ACCOUNT_ACTIONS } from "src/constants/banks.constants";
 import { createCustomerDTOWithCustomerNumber } from "src/dtos/bank.dto";
 import { CustomerAuth, CustomerAuthDocument } from "src/schemas/auth.schema";
 import { Customer, CustomerDocument } from "src/schemas/customers.schema";
@@ -59,5 +60,36 @@ export class CustomersRepository {
       return [];
     }
     return customerIds;
+  }
+  async addAccount({
+    customerId,
+    accountId,
+    action,
+    message,
+  }: {
+    customerId: string;
+    accountId: string;
+    action: ACCOUNT_ACTIONS;
+    message?: string;
+  }) {
+    const { CustomerModel } = this;
+    return CustomerModel.findOneAndUpdate(
+      { _id: customerId },
+      {
+        $push: {
+          accounts: accountId,
+        },
+        $addToSet: {
+          actionLogs: {
+            action,
+            ...(message ? { message } : undefined),
+            user: customerId,
+          },
+        },
+      },
+      { new: true },
+    )
+      .lean()
+      .exec();
   }
 }

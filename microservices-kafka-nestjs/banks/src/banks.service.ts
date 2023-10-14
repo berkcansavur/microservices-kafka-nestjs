@@ -64,7 +64,7 @@ export class BanksService implements OnModuleInit {
   }: {
     createAccountDTO: CreateAccountDTO;
   }): Promise<any> {
-    const { logger, accountClient, utils } = this;
+    const { logger, accountClient, utils, customersService } = this;
     logger.debug("[BanksService] create account DTO: ", createAccountDTO);
     let accountNumber = utils.generateRandomNumber();
     const bankBranchCode = utils.getBanksBranchCode(
@@ -86,9 +86,29 @@ export class BanksService implements OnModuleInit {
       "[BanksService] createAccountDTOWithAccountNumber: ",
       createAccountDTO,
     );
-    return accountClient.send("handle_create_account", {
-      createAccountDTOWithAccountNumber,
-    });
+    let createdAccount;
+    try {
+      const result = await accountClient
+        .send("handle_create_account", {
+          createAccountDTOWithAccountNumber,
+        })
+        .toPromise();
+      console.log("Result:", result);
+      createdAccount = result;
+    } catch (error) {
+      throw new Error("Account creation failed");
+    }
+    const accountId: string = createdAccount._id;
+    const updatedCustomerAccounts = await customersService.addAccountToCustomer(
+      {
+        customerId: createAccountDTO.userId,
+        accountId: accountId,
+      },
+    );
+    if (!updatedCustomerAccounts) {
+      throw new Error("Account could not added to customer");
+    }
+    return createdAccount;
   }
   async handleCreateCustomer({
     createCustomerDTO,
