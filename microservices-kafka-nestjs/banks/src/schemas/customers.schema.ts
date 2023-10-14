@@ -1,13 +1,13 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Types, Schema as mSchema } from 'mongoose';
-import { USER_ACTIONS } from '../constants/banks.constants';
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { Types, Schema as mSchema } from "mongoose";
+import { CUSTOMER_ACTIONS } from "../constants/banks.constants";
 
 @Schema({
   _id: false,
   versionKey: false,
 })
 export class ActionLog {
-  @Prop({ type: Number, enum: USER_ACTIONS, required: true })
+  @Prop({ type: Number, enum: CUSTOMER_ACTIONS, required: true })
   action: number;
 
   @Prop({ type: String, required: false })
@@ -26,27 +26,34 @@ const ActionLogSchema = SchemaFactory.createForClass(ActionLog);
   timestamps: true,
   versionKey: false,
 })
-export class User {
+export class Customer {
   @Prop({ type: mSchema.Types.ObjectId, auto: true })
   _id: Types.ObjectId;
 
   @Prop({ type: String, required: true })
-  userName: string;
-
-  @Prop({ type: Number, required: true })
-  userAge: number;
+  customerName: string;
 
   @Prop({ type: String, required: true })
-  userEmail: string;
+  customerSurname: string;
 
   @Prop({ type: Number, required: true })
-  userSocialSecurityNumber: number;
+  customerNumber: number;
+
+  @Prop({ type: Number, required: true })
+  customerAge: number;
+
+  @Prop({ type: String, required: true })
+  customerEmail: string;
+
+  @Prop({ type: Number, required: true, length: 11 })
+  customerSocialSecurityNumber: number;
 
   @Prop({ type: [{ type: mSchema.Types.ObjectId }], default: [] })
   accounts: mSchema.Types.ObjectId[];
 
-  @Prop({ type: [{ type: ActionLogSchema, ref: 'ActionLog' }], default: [] })
-  userActions: ActionLog[];
+  @Prop({ type: [{ type: ActionLogSchema, ref: "ActionLog" }], default: [] })
+  customerActions: ActionLog[];
+
   @Prop({ type: Date })
   createdAt: Date;
 
@@ -56,5 +63,5 @@ export class User {
   @Prop({ type: Date })
   approvedAt: Date;
 }
-export type UserDocument = User & Document;
-export const UserSchema = SchemaFactory.createForClass(User);
+export type CustomerDocument = Customer & Document;
+export const CustomerSchema = SchemaFactory.createForClass(Customer);

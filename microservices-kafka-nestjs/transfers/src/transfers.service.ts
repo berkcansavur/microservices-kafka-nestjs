@@ -18,10 +18,12 @@ export class TransfersService implements OnModuleInit {
   private readonly logger = new Logger(TransfersService.name);
   constructor(
     @Inject("BANK_SERVICE") private readonly bankClient: ClientKafka,
+    @Inject("ACCOUNT_SERVICE") private readonly accountClient: ClientKafka,
     private readonly transfersRepository: TransfersRepository,
     @InjectMapper() private readonly TransferMapper: Mapper,
   ) {}
   async onModuleInit() {
+    this.accountClient.subscribeToResponseOf("account_availability_result");
     this.bankClient.subscribeToResponseOf("transfer_approval");
   }
 
@@ -46,13 +48,16 @@ export class TransfersService implements OnModuleInit {
       TransferDTO,
     );
   }
-  async createTransfer({
+  async createTransferAcrossAccounts({
     createTransferRequestDTO,
   }: {
     createTransferRequestDTO: CreateTransferDTO;
   }): Promise<TransferDTO> {
     const { transfersRepository, TransferMapper, logger } = this;
-    logger.debug("[TransferService createTransfer]", createTransferRequestDTO);
+    logger.debug(
+      "[TransferService] createTransfer across accounts",
+      createTransferRequestDTO,
+    );
     const createdTransfer: Transfer = await transfersRepository.createTransfer({
       createMoneyTransferDTO: createTransferRequestDTO,
     });
@@ -60,8 +65,8 @@ export class TransfersService implements OnModuleInit {
       const updateTransferStatusApprovePending: Transfer =
         await transfersRepository.updateTransferStatus({
           transferId: createdTransfer._id.toString(),
-          status: TRANSFER_STATUSES.APPROVE_PENDING,
-          action: TRANSFER_ACTIONS.APPROVE_PENDING,
+          status: TRANSFER_STATUSES.TRANSFER_STARTED,
+          action: TRANSFER_ACTIONS.TRANSFER_STARTED,
           userId: createdTransfer.userId.toString(),
         });
       return TransferMapper.map<Transfer, TransferDTO>(
@@ -75,25 +80,72 @@ export class TransfersService implements OnModuleInit {
       );
     }
   }
-
-  async approveTransfer({
-    transferApprovalDTO,
+  async createTransferToAccount({
+    moneyTransferDTO,
   }: {
-    transferApprovalDTO: TransferDTO;
+    moneyTransferDTO: CreateTransferDTO;
+  }): Promise<TransferDTO> {
+    const { transfersRepository, logger, TransferMapper } = this;
+    logger.debug(
+      "[TransferService] createTransfer to account",
+      moneyTransferDTO,
+    );
+    const createdTransfer: Transfer = await transfersRepository.createTransfer({
+      createMoneyTransferDTO: moneyTransferDTO,
+    });
+    if (createdTransfer) {
+      const updateTransferStatusApprovePending: Transfer =
+        await transfersRepository.updateTransferStatus({
+          transferId: createdTransfer._id.toString(),
+          status: TRANSFER_STATUSES.TRANSFER_STARTED,
+          action: TRANSFER_ACTIONS.TRANSFER_STARTED,
+          userId: createdTransfer.userId.toString(),
+        });
+      return TransferMapper.map<Transfer, TransferDTO>(
+        updateTransferStatusApprovePending,
+        Transfer,
+        TransferDTO,
+      );
+    }
+  }
+  async approveTransfer({
+    transferDTO,
+  }: {
+    transferDTO: TransferDTO;
   }): Promise<any> {
-    const { logger, bankClient, transfersRepository } = this;
+    const { logger, accountClient, transfersRepository } = this;
 
     const transfer: Transfer = await transfersRepository.getTransfer({
-      transferId: transferApprovalDTO._id.toString(),
+      transferId: transferDTO._id.toString(),
     });
 
     if (!transfer) {
       throw new TransferIsNotFoundException({
-        transferId: transferApprovalDTO._id,
+        transferId: transferDTO._id,
       });
     }
-    logger.debug("[TransferService approveTransfer]", transferApprovalDTO);
+    logger.debug("[TransferService approveTransfer]", transferDTO);
 
-    return bankClient.send("transfer_approval", { transferApprovalDTO });
+    return accountClient.send("account_availability_result", { transferDTO });
+  }
+  async approveRawTransfer({
+    transferDTO,
+  }: {
+    transferDTO: TransferDTO;
+  }): Promise<any> {
+    const { logger, accountClient, transfersRepository } = this;
+
+    const transfer: Transfer = await transfersRepository.getTransfer({
+      transferId: transferDTO._id.toString(),
+    });
+
+    if (!transfer) {
+      throw new TransferIsNotFoundException({
+        transferId: transferDTO._id,
+      });
+    }
+    logger.debug("[TransferService approveTransfer]", transferDTO);
+
+    return accountClient.send("account_availability_result", { transferDTO });
   }
 }

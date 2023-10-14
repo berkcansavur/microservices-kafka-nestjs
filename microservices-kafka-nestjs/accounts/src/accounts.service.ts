@@ -16,14 +16,13 @@ import {
   EVENT_RESULTS,
 } from "./constants/account.constants";
 import { AccountLogic } from "./logic/account.logic";
-import {
-  AccountIsNotAvailableException,
-  TransferCouldNotCompletedException,
-} from "./exceptions/index";
+import { TransferCouldNotCompletedException } from "./exceptions/index";
+import { Utils } from "./utils/utils";
 
 @Injectable()
 export class AccountService implements OnModuleInit {
   private readonly logger = new Logger(AccountService.name);
+  private readonly utils: Utils;
   constructor(
     private readonly accountsRepository: AccountsRepository,
     @InjectMapper() private readonly AccountsMapper: Mapper,
@@ -49,6 +48,9 @@ export class AccountService implements OnModuleInit {
     const createdAccount: Account = await accountsRepository.createAccount({
       createAccountDTO: createAccountDTO,
     });
+    if (!createdAccount) {
+      throw new Error("Account is not created");
+    }
     return AccountsMapper.map<Account, AccountDTO>(
       createdAccount,
       Account,
@@ -76,11 +78,11 @@ export class AccountService implements OnModuleInit {
       transactionPerformerId,
     });
     if (actionType === ACCOUNT_ACTIONS.MONEY_TRANSFERRED_TO_ACCOUNT) {
-      const updatedAccount = await accountsRepository.addToAccountBalance({
+      const updatedAccount = await accountsRepository.updateAccountBalance({
         accountId,
         amount: amount,
         action: actionType,
-        message: `User ${transactionPerformerId}transferred money to your account.`,
+        message: `User ${transactionPerformerId} transferred money to your account.`,
         currencyType: currencyType,
       });
       return AccountsMapper.map<Account, AccountDTO>(
@@ -90,9 +92,9 @@ export class AccountService implements OnModuleInit {
       );
     }
     if (actionType === ACCOUNT_ACTIONS.MONEY_TRANSFERRED_FROM_ACCOUNT) {
-      const updatedAccount = await accountsRepository.removeFromAccountBalance({
+      const updatedAccount = await accountsRepository.updateAccountBalance({
         accountId,
-        amount: amount,
+        amount: -amount,
         action: actionType,
         message: `Money has been transferred from your account to account.`,
         currencyType: currencyType,
@@ -222,21 +224,20 @@ export class AccountService implements OnModuleInit {
         accountId: fromAccount,
         currencyType: currencyType,
       });
-    // if (
-    //   !AccountLogic.checkAccountAvailability({ account: transferToAccount }) &&
-    //   AccountLogic.checkAccountAvailability({ account: transferFromAccount })
-    // ) {
-    //   return EVENT_RESULTS.FAILED;
-    // }
-    // if (
-    //   !AccountLogic.checkAccountCurrencyBalanceIsAvailable({
-    //     amount: amount,
-    //     accountBalance: fromAccountsBalance,
-    //   })
-    // ) {
-    //   return EVENT_RESULTS.FAILED;
-    // } else {
-    {
+    if (
+      !AccountLogic.checkAccountAvailability({ account: transferToAccount }) &&
+      AccountLogic.checkAccountAvailability({ account: transferFromAccount })
+    ) {
+      return AVAILABILITY_RESULT.ACCOUNT_IS_NOT_AVAILABLE;
+    }
+    if (
+      !AccountLogic.checkAccountCurrencyBalanceIsAvailable({
+        amount: amount,
+        accountBalance: fromAccountsBalance,
+      })
+    ) {
+      return AVAILABILITY_RESULT.ACCOUNT_IS_NOT_AVAILABLE;
+    } else {
       return AVAILABILITY_RESULT.ACCOUNT_IS_AVAILABLE;
     }
   }
