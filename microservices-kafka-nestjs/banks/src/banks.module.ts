@@ -18,6 +18,8 @@ import {
   BankDepartmentDirector,
   BankDepartmentDirectorSchema,
 } from "./schemas/employee-schema";
+import { CustomersService } from "./customers/customers.service";
+import { CustomersRepository } from "./repositories/customer.repository";
 
 @Module({
   imports: [
@@ -73,7 +75,12 @@ import {
     ]),
   ],
 
-  providers: [BanksService, BanksRepository],
+  providers: [
+    BanksService,
+    BanksRepository,
+    CustomersService,
+    CustomersRepository,
+  ],
 
   controllers: [BanksController],
 })

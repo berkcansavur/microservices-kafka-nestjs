@@ -14,6 +14,7 @@ import { BanksRepository } from "./repositories/banks.repository";
 import { ClientKafka } from "@nestjs/microservices";
 import { Utils } from "./utils/utils";
 import { Customer } from "./schemas/customers.schema";
+import { CustomersService } from "./customers/customers.service";
 @Injectable()
 export class BanksService implements OnModuleInit {
   private readonly logger = new Logger(BanksService.name);
@@ -22,6 +23,7 @@ export class BanksService implements OnModuleInit {
     @Inject("ACCOUNT_SERVICE") private readonly accountClient: ClientKafka,
     @Inject("TRANSFER_SERVICE") private readonly transferClient: ClientKafka,
     private readonly banksRepository: BanksRepository,
+    private readonly customersService: CustomersService,
   ) {}
 
   async onModuleInit() {
@@ -93,27 +95,21 @@ export class BanksService implements OnModuleInit {
   }: {
     createCustomerDTO: CreateCustomerDTO;
   }) {
-    const { logger, banksRepository, utils } = this;
+    const { logger, utils, customersService } = this;
     logger.debug("[BanksService] create customer DTO: ", createCustomerDTO);
     const customerNumber = utils.generateRandomNumber();
-    const customerAuth = await banksRepository.createCustomerAuth({
+    const customerAuth = await customersService.createCustomerAuth({
       customerNumber,
       password: createCustomerDTO.password,
     });
-    if (!customerAuth) {
-      throw new Error("Customer authentication failed");
-    }
-    const createCustomerDTOWithAccountNumber = {
+    const createCustomerDTOWithCustomerNumber = {
       ...createCustomerDTO,
       customerNumber,
     };
-    const customer: Customer = await banksRepository.createCustomer({
-      createCustomerDTOWithAccountNumber,
+    const customer: Customer = await customersService.createCustomer({
+      createCustomerDTOWithCustomerNumber,
     });
-    if (!customer) {
-      throw new Error("Customer could not be created");
-    }
-    return `Created customers Customer Number is : ${customerAuth.customerNumber}`;
+    return `Created customers Customer Number is : ${customerAuth.customerNumber} and customer is ${customer}`;
   }
   async handleCreateTransferAcrossAccounts({
     createTransferDTO,

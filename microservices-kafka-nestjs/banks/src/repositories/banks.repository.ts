@@ -7,10 +7,7 @@ import {
   CreateBankDTO,
   CreateBankDepartmentDirectorDTO,
   CreateBankDirectorDTO,
-  CreateCustomerDTOWithAccountNumber,
 } from "src/dtos/bank.dto";
-import { Customer, CustomerDocument } from "src/schemas/customers.schema";
-import { CustomerAuth, CustomerAuthDocument } from "src/schemas/auth.schema";
 import {
   BankDirector,
   BankDirectorDocument,
@@ -24,9 +21,6 @@ import {
 export class BanksRepository {
   constructor(
     @InjectModel(Bank.name) private BankModel: Model<BankDocument>,
-    @InjectModel(Customer.name) private CustomerModel: Model<CustomerDocument>,
-    @InjectModel(CustomerAuth.name)
-    private CustomerAuthModel: Model<CustomerAuthDocument>,
     @InjectModel(BankDirector.name)
     private BankDirectorModel: Model<BankDirectorDocument>,
     @InjectModel(BankDepartmentDirector.name)
@@ -38,26 +32,6 @@ export class BanksRepository {
   async getBank({ bankId }: { bankId: string }): Promise<BankDocument> {
     const { BankModel } = this;
     return BankModel.findOne({ _id: bankId }).lean().exec();
-  }
-  async createCustomer({
-    createCustomerDTOWithAccountNumber,
-  }: {
-    createCustomerDTOWithAccountNumber: CreateCustomerDTOWithAccountNumber;
-  }): Promise<CustomerDocument> {
-    const { CustomerModel } = this;
-    return CustomerModel.create({ createCustomerDTOWithAccountNumber });
-  }
-  async createCustomerAuth({
-    customerNumber,
-    password,
-  }: {
-    customerNumber: number;
-    password: string;
-  }): Promise<CustomerAuthDocument> {
-    const { CustomerAuthModel } = this;
-    return (
-      await CustomerAuthModel.create({ customerNumber, password })
-    ).toObject();
   }
   async createBankDirector({
     createBankDirectorDTO,
