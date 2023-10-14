@@ -6,6 +6,9 @@ import {
   CreateAccountDTO,
   MoneyTransferDTO,
   CreateCustomerDTO,
+  CreateBankDTO,
+  CreateDirectorDTO,
+  CreateCustomerRepresentativeDTO,
 } from "./dtos/api.dtos";
 
 @Controller()
@@ -41,6 +44,25 @@ export class AppController {
     const { appService } = this;
     return appService.sendTransferMoneyToAccountRequest(
       transferMoneyToAccountDTO,
+    );
+  }
+  @Post("/createBank")
+  createBank(@Body() createBankDTO: CreateBankDTO) {
+    const { appService } = this;
+    return appService.sendCreateBankRequest(createBankDTO);
+  }
+  @Post("/createDirector")
+  createDirector(@Body() createDirectorDTO: CreateDirectorDTO) {
+    const { appService } = this;
+    return appService.sendCreateDirectorRequest(createDirectorDTO);
+  }
+  @Post("/createCustomerRepresentative")
+  createCustomerRepresentative(
+    @Body() createCustomerRepresentativeDTO: CreateCustomerRepresentativeDTO,
+  ) {
+    const { appService } = this;
+    return appService.sendCreateCustomerRepresentativeRequest(
+      createCustomerRepresentativeDTO,
     );
   }
 }

@@ -42,13 +42,13 @@ export class Bank {
   @Prop({ type: mSchema.Types.ObjectId, auto: true })
   _id: Types.ObjectId;
 
-  @Prop({ type: [{ type: CustomerSchema }], ref: "Users" })
+  @Prop({ type: [{ type: CustomerSchema }], ref: "Customer" })
   customers: Customer[];
 
   @Prop({ type: String, required: true })
   bankName: string;
 
-  @Prop({ type: BalanceSchema, required: true })
+  @Prop({ type: BalanceSchema })
   balance: Balance[];
 
   @Prop({

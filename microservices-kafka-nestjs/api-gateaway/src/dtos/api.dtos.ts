@@ -58,6 +58,50 @@ export class MoneyTransferDTO {
   @IsMongoId()
   toAccount: string;
 }
+export class CreateBankDTO {
+  @IsNotEmpty()
+  @IsString()
+  bankName: string;
+
+  @IsNotEmpty()
+  @IsMongoId()
+  bankManager: string;
+
+  @IsNotEmpty()
+  @IsMongoId()
+  customerRepresentatives: object[];
+
+  @IsNotEmpty()
+  @IsMongoId()
+  directors: object[];
+}
+export class CreateDirectorDTO {
+  @IsNotEmpty()
+  @IsString()
+  directorName: string;
+
+  @IsNotEmpty()
+  @IsString()
+  directorSurname: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  directorAge: number;
+}
+export class CreateCustomerRepresentativeDTO {
+  @IsNotEmpty()
+  @IsString()
+  customerRepresentativeName: string;
+
+  @IsNotEmpty()
+  @IsString()
+  customerRepresentativeSurname: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  customerRepresentativeAge: number;
+}
+
 export class CreateAccountDTO {
   @IsNotEmpty()
   @IsMongoId()
