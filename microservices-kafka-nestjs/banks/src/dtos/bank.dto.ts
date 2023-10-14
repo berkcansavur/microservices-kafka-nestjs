@@ -118,6 +118,66 @@ export class CreateCustomerDTOWithAccountNumber {
   @Length(8, 20)
   password: string;
 }
+export class CreateBankDirectorDTO {
+  @IsNotEmpty()
+  @IsString()
+  directorName: string;
+
+  @IsNotEmpty()
+  @IsString()
+  directorSurname: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  directorAge: number;
+}
+export class CreateBankCustomerRepresentativeDTO {
+  @IsNotEmpty()
+  @IsString()
+  customerRepresentativeName: string;
+
+  @IsNotEmpty()
+  @IsString()
+  customerRepresentativeSurname: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  customerRepresentativeAge: number;
+}
+export class CreateBankDepartmentDirectorDTO {
+  @IsNotEmpty()
+  @IsString()
+  departmentDirectorName: string;
+
+  @IsNotEmpty()
+  @IsString()
+  departmentDirectorSurname: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  departmentDirectorAge: number;
+
+  @IsNotEmpty()
+  @IsString()
+  department: string;
+}
+export class CreateBankDTO {
+  @IsNotEmpty()
+  @IsString()
+  bankName: string;
+
+  @IsNotEmpty()
+  @IsMongoId()
+  bankManager: string;
+
+  @IsNotEmpty()
+  @IsMongoId()
+  customerRepresentatives: object[];
+
+  @IsNotEmpty()
+  @IsMongoId()
+  departmentDirectors: object[];
+}
 export class CreateTransferDTO {
   @IsString()
   currencyType: string;

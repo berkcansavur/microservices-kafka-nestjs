@@ -52,6 +52,38 @@ export class ParseIncomingRequest implements PipeTransform {
       );
       return formattedData;
     }
+    if (value && value.createBankDirectorRequestDTO) {
+      const formattedData = value.createBankDirectorRequestDTO;
+      this.logger.debug(
+        "[ParseIncomingRequest Pipe] Formatted request data :",
+        formattedData,
+      );
+      return formattedData;
+    }
+    if (value && value.createCustomerRepresentativeRequestDTO) {
+      const formattedData = value.createCustomerRepresentativeRequestDTO;
+      this.logger.debug(
+        "[ParseIncomingRequest Pipe] Formatted request data :",
+        formattedData,
+      );
+      return formattedData;
+    }
+    if (value && value.createBankRequestDTO) {
+      const formattedData = value.createBankRequestDTO;
+      this.logger.debug(
+        "[ParseIncomingRequest Pipe] Formatted request data :",
+        formattedData,
+      );
+      return formattedData;
+    }
+    if (value && value.createDepartmentDirectorRequestDTO) {
+      const formattedData = value.createDepartmentDirectorRequestDTO;
+      this.logger.debug(
+        "[ParseIncomingRequest Pipe] Formatted request data :",
+        formattedData,
+      );
+      return formattedData;
+    }
     if (value) {
       return value;
     }

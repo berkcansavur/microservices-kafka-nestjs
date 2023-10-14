@@ -5,6 +5,7 @@ import {
   CreateBankDTO,
   CreateCustomerDTO,
   CreateCustomerRepresentativeDTO,
+  CreateDepartmentDirectorDTO,
   CreateDirectorDTO,
   CreateTransferDTO,
   IncomingTransferRequestDTO,
@@ -31,6 +32,22 @@ export class AppService implements OnModuleInit {
       this.logger.debug("create-account-event topic is subscribed");
       this.bankClient.subscribeToResponseOf("transfer-money-to-account-event");
       this.logger.debug("transfer-money-to-account-event topic is subscribed");
+      this.bankClient.subscribeToResponseOf("create-bank-event");
+      this.logger.debug("create-bank-event topic is subscribed");
+      this.bankClient.subscribeToResponseOf("create-bank-director-event");
+      this.logger.debug("create-bank-director-event topic is subscribed");
+      this.bankClient.subscribeToResponseOf(
+        "create-bank-department-director-event",
+      );
+      this.logger.debug(
+        "create-bank-department-director-event topic is subscribed",
+      );
+      this.bankClient.subscribeToResponseOf(
+        "create-bank-customer-representative-event",
+      );
+      this.logger.debug(
+        "create-bank-customer-representative-event topic is subscribed",
+      );
       this.logger.debug(
         "Subscription of responses is successfully established.",
       );
@@ -101,28 +118,41 @@ export class AppService implements OnModuleInit {
     );
     return this.bankClient.send("create-bank-event", createBankRequestDTO);
   }
-  sendCreateDirectorRequest(createDirectorRequestDTO: CreateDirectorDTO) {
+  sendCreateDirectorRequest(createBankDirectorRequestDTO: CreateDirectorDTO) {
     const { logger } = this;
     logger.debug(
       "[AppService] sendCreateDirectorRequest DTO: ",
-      createDirectorRequestDTO,
+      createBankDirectorRequestDTO,
     );
     return this.bankClient.send(
       "create-bank-director-event",
-      createDirectorRequestDTO,
+      createBankDirectorRequestDTO,
     );
   }
   sendCreateCustomerRepresentativeRequest(
-    createCustomerRepresentativeDTO: CreateCustomerRepresentativeDTO,
+    createCustomerRepresentativeRequestDTO: CreateCustomerRepresentativeDTO,
   ) {
     const { logger } = this;
     logger.debug(
       "[AppService] sendCreateCustomerRepresentativeRequest DTO: ",
-      createCustomerRepresentativeDTO,
+      createCustomerRepresentativeRequestDTO,
     );
     return this.bankClient.send(
       "create-bank-customer-representative-event",
-      createCustomerRepresentativeDTO,
+      createCustomerRepresentativeRequestDTO,
+    );
+  }
+  sendCreateDepartmentDirectorRequest(
+    createDepartmentDirectorRequestDTO: CreateDepartmentDirectorDTO,
+  ) {
+    const { logger } = this;
+    logger.debug(
+      "[AppService] sendCreateDirectorRequest DTO: ",
+      createDepartmentDirectorRequestDTO,
+    );
+    return this.bankClient.send(
+      "create-bank-department-director-event",
+      createDepartmentDirectorRequestDTO,
     );
   }
 }

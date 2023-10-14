@@ -4,6 +4,10 @@ import { MessagePattern } from "@nestjs/microservices";
 import { ParseIncomingRequest } from "pipes/serialize-request-data.pipe";
 import {
   CreateAccountDTO,
+  CreateBankCustomerRepresentativeDTO,
+  CreateBankDTO,
+  CreateBankDepartmentDirectorDTO,
+  CreateBankDirectorDTO,
   CreateCustomerDTO,
   CreateTransferDTO,
   MoneyTransferDTO,
@@ -69,6 +73,62 @@ export class BanksController {
     });
   }
 
+  @MessagePattern("create-bank-director-event")
+  @UsePipes(new ParseIncomingRequest())
+  async createBankDirectorEvent(data: CreateBankDirectorDTO) {
+    const { logger } = this;
+    logger.debug(
+      `[BanksController] Banks createBankDirectorEvent Incoming Data: ${JSON.stringify(
+        data,
+      )}`,
+    );
+    return await this.bankService.handleCreateBankDirector({
+      createBankDirectorDTO: data,
+    });
+  }
+  @MessagePattern("create-bank-department-director-event")
+  @UsePipes(new ParseIncomingRequest())
+  async createBankDepartmentDirectorEvent(
+    data: CreateBankDepartmentDirectorDTO,
+  ) {
+    const { logger } = this;
+    logger.debug(
+      `[BanksController] Banks createBankDirectorEvent Incoming Data: ${JSON.stringify(
+        data,
+      )}`,
+    );
+    return await this.bankService.handleCreateBankDepartmentDirector({
+      createBankDepartmentDirectorDTO: data,
+    });
+  }
+  @MessagePattern("create-bank-customer-representative-event")
+  @UsePipes(new ParseIncomingRequest())
+  async createBankCustomerRepresentativeEvent(
+    data: CreateBankCustomerRepresentativeDTO,
+  ) {
+    const { logger } = this;
+    logger.debug(
+      `[BanksController] Banks createBankCustomerRepresentativeEvent Incoming Data: ${JSON.stringify(
+        data,
+      )}`,
+    );
+    return await this.bankService.handleCreateBankCustomerRepresentative({
+      createBankCustomerRepresentativeDTO: data,
+    });
+  }
+  @MessagePattern("create-bank-event")
+  @UsePipes(new ParseIncomingRequest())
+  async createBankEvent(data: CreateBankDTO) {
+    const { logger } = this;
+    logger.debug(
+      `[BanksController] Banks approveTransfer Incoming Data: ${JSON.stringify(
+        data,
+      )}`,
+    );
+    return await this.bankService.handleCreateBank({
+      createBankDTO: data,
+    });
+  }
   @MessagePattern("transfer-money-to-account-event")
   @UsePipes(new ParseIncomingRequest())
   async createMoneyTransferToAccountEvent(data: MoneyTransferDTO) {

@@ -10,6 +10,14 @@ import { AutomapperModule } from "@automapper/nestjs";
 import { classes } from "@automapper/classes";
 import { ClientsModule, Transport } from "@nestjs/microservices";
 import { CustomerAuth, CustomerAuthSchema } from "./schemas/auth.schema";
+import {
+  BankCustomerRepresentativeSchema,
+  BankDirector,
+  BankDirectorSchema,
+  BankCustomerRepresentative,
+  BankDepartmentDirector,
+  BankDepartmentDirectorSchema,
+} from "./schemas/employee-schema";
 
 @Module({
   imports: [
@@ -53,6 +61,15 @@ import { CustomerAuth, CustomerAuthSchema } from "./schemas/auth.schema";
       { name: Bank.name, schema: BanksSchema },
       { name: Customer.name, schema: CustomerSchema },
       { name: CustomerAuth.name, schema: CustomerAuthSchema },
+      { name: BankDirector.name, schema: BankDirectorSchema },
+      {
+        name: BankDepartmentDirector.name,
+        schema: BankDepartmentDirectorSchema,
+      },
+      {
+        name: BankCustomerRepresentative.name,
+        schema: BankCustomerRepresentativeSchema,
+      },
     ]),
   ],
 

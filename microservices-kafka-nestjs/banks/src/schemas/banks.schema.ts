@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Types, Schema as mSchema, Document } from "mongoose";
-import { Customer, CustomerSchema } from "./customers.schema";
 import { BANK_ACTIONS, CURRENCY_TYPES } from "../constants/banks.constants";
 
 @Schema({
@@ -19,7 +18,7 @@ export class Balance {
 const BalanceSchema = SchemaFactory.createForClass(Balance);
 
 export class ActionLog {
-  @Prop({ type: String, enum: BANK_ACTIONS, required: true })
+  @Prop({ type: String, enum: Object.values(BANK_ACTIONS) })
   action: string;
 
   @Prop({ type: String, required: false })
@@ -42,18 +41,27 @@ export class Bank {
   @Prop({ type: mSchema.Types.ObjectId, auto: true })
   _id: Types.ObjectId;
 
-  @Prop({ type: [{ type: CustomerSchema }], ref: "Customer" })
-  customers: Customer[];
+  @Prop({ type: [mSchema.Types.ObjectId] })
+  customers: Types.ObjectId[];
 
   @Prop({ type: String, required: true })
   bankName: string;
+
+  @Prop({ type: mSchema.Types.ObjectId, ref: "BankDirector", required: true })
+  bankManager: Types.ObjectId;
+
+  @Prop({ type: [mSchema.Types.ObjectId], ref: "BankDepartmentDirector" })
+  departmentDirectors: Types.ObjectId[];
+
+  @Prop({ type: [mSchema.Types.ObjectId], ref: "BankCustomerRepresentative" })
+  customerRepresentatives: Types.ObjectId[];
 
   @Prop({ type: BalanceSchema })
   balance: Balance[];
 
   @Prop({
     type: [{ type: ActionLogSchema, ref: "ActionLog" }],
-    default: BANK_ACTIONS.CREATED,
+    default: [{ action: BANK_ACTIONS.CREATED }],
   })
   actionLogs: ActionLog[];
 }

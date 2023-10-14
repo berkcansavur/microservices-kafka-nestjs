@@ -9,6 +9,7 @@ import {
   CreateBankDTO,
   CreateDirectorDTO,
   CreateCustomerRepresentativeDTO,
+  CreateDepartmentDirectorDTO,
 } from "./dtos/api.dtos";
 
 @Controller()
@@ -51,12 +52,21 @@ export class AppController {
     const { appService } = this;
     return appService.sendCreateBankRequest(createBankDTO);
   }
-  @Post("/createDirector")
+  @Post("/createBankDirector")
   createDirector(@Body() createDirectorDTO: CreateDirectorDTO) {
     const { appService } = this;
     return appService.sendCreateDirectorRequest(createDirectorDTO);
   }
-  @Post("/createCustomerRepresentative")
+  @Post("/createBankDepartmentDirector")
+  createBankDepartmentDirector(
+    @Body() createDepartmentDirectorDTO: CreateDepartmentDirectorDTO,
+  ) {
+    const { appService } = this;
+    return appService.sendCreateDepartmentDirectorRequest(
+      createDepartmentDirectorDTO,
+    );
+  }
+  @Post("/createBankCustomerRepresentative")
   createCustomerRepresentative(
     @Body() createCustomerRepresentativeDTO: CreateCustomerRepresentativeDTO,
   ) {

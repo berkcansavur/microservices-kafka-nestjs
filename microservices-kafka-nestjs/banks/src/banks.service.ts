@@ -5,6 +5,10 @@ import {
   CreateTransferDTO,
   MoneyTransferDTO,
   CreateCustomerDTO,
+  CreateBankCustomerRepresentativeDTO,
+  CreateBankDTO,
+  CreateBankDirectorDTO,
+  CreateBankDepartmentDirectorDTO,
 } from "src/dtos/bank.dto";
 import { BanksRepository } from "./repositories/banks.repository";
 import { ClientKafka } from "@nestjs/microservices";
@@ -178,5 +182,79 @@ export class BanksService implements OnModuleInit {
       logger.error("Error in handleCreateMoneyTransferToAccount: ", error);
       throw error;
     }
+  }
+  async handleCreateBankDirector({
+    createBankDirectorDTO,
+  }: {
+    createBankDirectorDTO: CreateBankDirectorDTO;
+  }): Promise<any> {
+    const { logger, banksRepository } = this;
+    logger.debug(
+      "[BanksService] handleCreateBankDirector DTO: ",
+      createBankDirectorDTO,
+    );
+    const bankDirector = await banksRepository.createBankDirector({
+      createBankDirectorDTO,
+    });
+    if (!bankDirector) {
+      throw new Error("BankDirector could not be created");
+    }
+    return bankDirector;
+  }
+  async handleCreateBankDepartmentDirector({
+    createBankDepartmentDirectorDTO,
+  }: {
+    createBankDepartmentDirectorDTO: CreateBankDepartmentDirectorDTO;
+  }): Promise<any> {
+    const { logger, banksRepository } = this;
+    logger.debug(
+      "[BanksService] handleCreateBankDepartmentDirector DTO: ",
+      createBankDepartmentDirectorDTO,
+    );
+    const bankDepartmentDirector =
+      await banksRepository.createDepartmentDirector({
+        createBankDepartmentDirectorDTO,
+      });
+    if (!bankDepartmentDirector) {
+      throw new Error("BankDirector could not be created");
+    }
+    return bankDepartmentDirector;
+  }
+  async handleCreateBankCustomerRepresentative({
+    createBankCustomerRepresentativeDTO,
+  }: {
+    createBankCustomerRepresentativeDTO: CreateBankCustomerRepresentativeDTO;
+  }): Promise<any> {
+    const { logger, banksRepository } = this;
+    logger.debug(
+      "[BanksService] handleCreateBankDirector DTO: ",
+      createBankCustomerRepresentativeDTO,
+    );
+    const bankCustomerRepresentativeDTO =
+      await banksRepository.createCustomerRepresentative({
+        createBankCustomerRepresentativeDTO,
+      });
+    if (!bankCustomerRepresentativeDTO) {
+      throw new Error("BankDirector could not be created");
+    }
+    return bankCustomerRepresentativeDTO;
+  }
+  async handleCreateBank({
+    createBankDTO,
+  }: {
+    createBankDTO: CreateBankDTO;
+  }): Promise<any> {
+    const { logger, banksRepository } = this;
+    logger.debug(
+      "[BanksService] handleCreateBankDirector DTO: ",
+      createBankDTO,
+    );
+    const bank = await banksRepository.createBank({
+      createBankDTO,
+    });
+    if (!bank) {
+      throw new Error("BankDirector could not be created");
+    }
+    return bank;
   }
 }

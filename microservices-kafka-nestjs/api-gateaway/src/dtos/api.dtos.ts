@@ -73,7 +73,7 @@ export class CreateBankDTO {
 
   @IsNotEmpty()
   @IsMongoId()
-  directors: object[];
+  departmentDirectors: object[];
 }
 export class CreateDirectorDTO {
   @IsNotEmpty()
@@ -121,6 +121,23 @@ export class CreateAccountDTO {
 
   @IsNumber()
   interest?: number;
+}
+export class CreateDepartmentDirectorDTO {
+  @IsNotEmpty()
+  @IsString()
+  departmentDirectorName: string;
+
+  @IsNotEmpty()
+  @IsString()
+  departmentDirectorSurname: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  departmentDirectorAge: number;
+
+  @IsNotEmpty()
+  @IsString()
+  department: string;
 }
 export class AccountDTO {
   @IsMongoId()
