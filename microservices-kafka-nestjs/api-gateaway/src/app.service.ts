@@ -48,6 +48,8 @@ export class AppService implements OnModuleInit {
       this.logger.debug(
         "create-bank-customer-representative-event topic is subscribed",
       );
+      this.bankClient.subscribeToResponseOf("create-customer-event");
+      this.logger.debug("create-customer-event topic is subscribed.");
       this.logger.debug(
         "Subscription of responses is successfully established.",
       );

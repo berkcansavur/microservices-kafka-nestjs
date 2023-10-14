@@ -89,7 +89,7 @@ export class CreateCustomerDTO {
   @Length(8, 20)
   password: string;
 }
-export class CreateCustomerDTOWithAccountNumber {
+export class createCustomerDTOWithCustomerNumber {
   @IsNotEmpty()
   @IsString()
   customerName: string;
@@ -107,6 +107,11 @@ export class CreateCustomerDTOWithAccountNumber {
   @IsString()
   @IsEmail()
   customerEmail: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  @Length(8)
+  customerNumber: number;
 
   @IsNotEmpty()
   @IsNumber()

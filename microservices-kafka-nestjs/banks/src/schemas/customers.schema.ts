@@ -48,6 +48,9 @@ export class Customer {
   @Prop({ type: Number, required: true, length: 11 })
   customerSocialSecurityNumber: number;
 
+  @Prop({ type: String, required: true })
+  password: string;
+
   @Prop({ type: [{ type: mSchema.Types.ObjectId }], default: [] })
   accounts: mSchema.Types.ObjectId[];
 

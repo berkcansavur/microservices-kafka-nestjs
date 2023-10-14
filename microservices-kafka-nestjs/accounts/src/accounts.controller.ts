@@ -37,7 +37,7 @@ export class AccountsController {
       createAccountDTO: formattedRequestData,
     });
     const formattedAccount = JSON.stringify(account, null, 2);
-    return `Created Account : ${formattedAccount}`;
+    return formattedAccount;
   }
   @MessagePattern("account_availability_result")
   @UsePipes(new ParseIncomingRequest())
