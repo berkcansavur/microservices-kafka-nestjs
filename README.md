@@ -1,23 +1,42 @@
-# microservices-kafka-nestjs
-Microservices Banking Project
-This project is an example of a microservices architecture for a banking application. It incorporates technologies such as NestJS, Kafka, MongoDB, and Node.js. Below, you will find information about the overall structure of the project and details about each microservice.
+# Microservices Banking Project
 
-Technologies
-NestJS: A modern, modular Node.js web framework is used.
-Kafka: Used for event-driven microservices communication.
-MongoDB: Used as the database.
-Node.js: Used for fast and efficient execution.
-General Information
-The project adopts a microservices architecture. Each microservice focuses on its own area of responsibility and communicates with others through Kafka. Brief descriptions of each microservice are provided below:
+This project is an example of a microservices architecture for a banking application, utilizing NestJS, Kafka, MongoDB, and Node.js.
 
-accounts: Handles operations related to account creation and management.
-api-gateway: Receives HTTP requests and directs them to the relevant microservices.
-banks: Manages bank and customer-related operations.
-transfers: Manages transfer creation and management operations.
-Banking Application Features
-Basic operations like creating, deleting, and updating accounts can be performed.
-Bank and customer information can be managed.
-Transfer creation and approval operations can be performed.
-Adopts an event-driven architecture through Kafka.
-How to Run
-Please refer to the README.md file in each microservice's directory for detailed instructions on running the application. Note that Kafka server and Java must be installed and configured in the environment for the application to work correctly.
+## Technologies
+
+- NestJS: A modern, modular Node.js web framework.
+- Kafka: Event-driven microservices communication.
+- MongoDB: Database storage.
+- Node.js: Fast and efficient execution.
+
+## General Information
+
+The project follows a microservices architecture, with each microservice focused on specific responsibilities and communication handled through Kafka. Below are brief descriptions of each microservice:
+
+- **accounts**: Manages account creation and management operations.
+- **api-gateway**: Receives HTTP requests and directs them to relevant microservices.
+- **banks**: Handles bank and customer-related operations.
+- **transfers**: Manages transfer creation and approval operations.
+
+## Banking Application Features
+
+- Perform basic operations like creating, deleting, and updating accounts.
+- Manage bank and customer information.
+- Execute transfer creation and approval operations.
+- Adopt an event-driven architecture through Kafka.
+
+## How to Run
+
+Refer to the README.md file in each microservice's directory for detailed instructions on running the application. Ensure that Kafka server and Java are installed and correctly configured in the environment for the application to work.
+
+## Getting Started
+
+To get started with the project, follow these steps:
+
+1. Clone the repository.
+2. Navigate to each microservice's directory and follow the instructions in their respective README.md files.
+3. Install and configure Kafka server and Java in your environment.
+
+Feel free to reach out for any issues or questions.
+
+Happy coding!
