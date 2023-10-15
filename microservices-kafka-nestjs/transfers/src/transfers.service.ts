@@ -12,15 +12,15 @@ import { Mapper } from "@automapper/core";
 import { TransferIsNotFoundException } from "./exceptions";
 import { ClientKafka } from "@nestjs/microservices";
 import { TransferCouldNotCreatedException } from "./exceptions/index";
-import {
-  TRANSFER_ACTIONS,
-  TRANSFER_STATUSES,
-} from "./constants/transfer.constants";
+import { TRANSFER_STATUSES } from "./constants/transfer.constants";
+import { TransferStateFactory } from "./transfer-state.factory";
 
 @Injectable()
 export class TransfersService implements OnModuleInit {
   private readonly logger = new Logger(TransfersService.name);
   constructor(
+    @Inject("TRANSFER_STATE_FACTORY")
+    private readonly transferStateFactory: TransferStateFactory,
     @Inject("BANK_SERVICE") private readonly bankClient: ClientKafka,
     private readonly transfersRepository: TransfersRepository,
     @InjectMapper() private readonly TransferMapper: Mapper,
@@ -55,7 +55,7 @@ export class TransfersService implements OnModuleInit {
   }: {
     createTransferRequestDTO: CreateTransferBetweenAccountsDTO;
   }): Promise<TransferDTO> {
-    const { transfersRepository, TransferMapper, logger } = this;
+    const { transfersRepository, logger, transferStateFactory } = this;
     logger.debug(
       "[TransferService] createTransfer across accounts",
       createTransferRequestDTO,
@@ -64,18 +64,9 @@ export class TransfersService implements OnModuleInit {
       createMoneyTransferDTO: createTransferRequestDTO,
     });
     if (createdTransfer) {
-      const updateTransferStatusApprovePending: Transfer =
-        await transfersRepository.updateTransferStatus({
-          transferId: createdTransfer._id.toString(),
-          status: TRANSFER_STATUSES.CREATED,
-          action: TRANSFER_ACTIONS.CREATED,
-          userId: createdTransfer.userId.toString(),
-        });
-      return TransferMapper.map<Transfer, TransferDTO>(
-        updateTransferStatusApprovePending,
-        Transfer,
-        TransferDTO,
-      );
+      return (
+        await transferStateFactory.getState(TRANSFER_STATUSES.CREATED)
+      ).created(createdTransfer);
     } else {
       throw new TransferCouldNotCreatedException(
         createTransferRequestDTO.userId,
@@ -87,7 +78,7 @@ export class TransfersService implements OnModuleInit {
   }: {
     moneyTransferDTO: CreateMoneyTransferDTO;
   }): Promise<TransferDTO> {
-    const { transfersRepository, logger, TransferMapper } = this;
+    const { transfersRepository, logger, transferStateFactory } = this;
     logger.debug(
       "[TransferService] createTransfer to account",
       moneyTransferDTO,
@@ -96,18 +87,9 @@ export class TransfersService implements OnModuleInit {
       createMoneyTransferDTO: moneyTransferDTO,
     });
     if (createdTransfer) {
-      const updateTransferStatusApprovePending: Transfer =
-        await transfersRepository.updateTransferStatus({
-          transferId: createdTransfer._id.toString(),
-          status: TRANSFER_STATUSES.CREATED,
-          action: TRANSFER_ACTIONS.CREATED,
-          userId: createdTransfer.userId.toString(),
-        });
-      return TransferMapper.map<Transfer, TransferDTO>(
-        updateTransferStatusApprovePending,
-        Transfer,
-        TransferDTO,
-      );
+      return (
+        await transferStateFactory.getState(TRANSFER_STATUSES.CREATED)
+      ).created(createdTransfer);
     }
   }
   async updateTransferStatusApproved({
@@ -115,113 +97,77 @@ export class TransfersService implements OnModuleInit {
   }: {
     transferDTO: TransferDTO;
   }) {
-    const { transfersRepository, TransferMapper } = this;
-    const approvedTransfer: Transfer =
-      await transfersRepository.updateTransferStatus({
-        transferId: transferDTO._id.toString(),
-        status: TRANSFER_STATUSES.APPROVED,
-        action: TRANSFER_ACTIONS.APPROVED,
-        userId: transferDTO.userId,
-      });
-    return TransferMapper.map<Transfer, TransferDTO>(
-      approvedTransfer,
-      Transfer,
-      TransferDTO,
-    );
+    const { transferStateFactory } = this;
+    const transfer: TransferDTO = await this.getTransfer({
+      transferId: transferDTO._id.toString(),
+    });
+    return (
+      await transferStateFactory.getState(TRANSFER_STATUSES.APPROVED)
+    ).approved(transfer);
   }
   async updateTransferStatusStarted({
     transferDTO,
   }: {
     transferDTO: TransferDTO;
   }): Promise<TransferDTO> {
-    const { transfersRepository, TransferMapper } = this;
-    const startedTransfer: Transfer =
-      await transfersRepository.updateTransferStatus({
-        transferId: transferDTO._id.toString(),
-        status: TRANSFER_STATUSES.TRANSFER_STARTED,
-        action: TRANSFER_ACTIONS.TRANSFER_STARTED,
-        userId: transferDTO.userId,
-      });
-    return TransferMapper.map<Transfer, TransferDTO>(
-      startedTransfer,
-      Transfer,
-      TransferDTO,
-    );
+    const { transferStateFactory } = this;
+    const transfer: TransferDTO = await this.getTransfer({
+      transferId: transferDTO._id.toString(),
+    });
+    return (
+      await transferStateFactory.getState(TRANSFER_STATUSES.TRANSFER_STARTED)
+    ).started(transfer);
   }
   async updateTransferStatusCancelled({
     transferDTO,
   }: {
     transferDTO: TransferDTO;
   }): Promise<TransferDTO> {
-    const { transfersRepository, TransferMapper } = this;
-    const cancelledTransfer: Transfer =
-      await transfersRepository.updateTransferStatus({
-        transferId: transferDTO._id.toString(),
-        status: TRANSFER_STATUSES.CANCELLED,
-        action: TRANSFER_ACTIONS.CANCELLED,
-        userId: transferDTO.userId,
-      });
-    return TransferMapper.map<Transfer, TransferDTO>(
-      cancelledTransfer,
-      Transfer,
-      TransferDTO,
-    );
+    const { transferStateFactory } = this;
+    const transfer: TransferDTO = await this.getTransfer({
+      transferId: transferDTO._id.toString(),
+    });
+    return (
+      await transferStateFactory.getState(TRANSFER_STATUSES.CANCELLED)
+    ).cancelled(transfer);
   }
   async updateTransferStatusCompleted({
     transferDTO,
   }: {
     transferDTO: TransferDTO;
   }): Promise<TransferDTO> {
-    const { transfersRepository, TransferMapper } = this;
-    const completedTransfer: Transfer =
-      await transfersRepository.updateTransferStatus({
-        transferId: transferDTO._id.toString(),
-        status: TRANSFER_STATUSES.COMPLETED,
-        action: TRANSFER_ACTIONS.COMPLETED,
-        userId: transferDTO.userId,
-      });
-    return TransferMapper.map<Transfer, TransferDTO>(
-      completedTransfer,
-      Transfer,
-      TransferDTO,
-    );
+    const { transferStateFactory } = this;
+    const transfer: TransferDTO = await this.getTransfer({
+      transferId: transferDTO._id.toString(),
+    });
+    return (
+      await transferStateFactory.getState(TRANSFER_STATUSES.COMPLETED)
+    ).completed(transfer);
   }
   async updateTransferStatusFailed({
     transferDTO,
   }: {
     transferDTO: TransferDTO;
   }): Promise<TransferDTO> {
-    const { transfersRepository, TransferMapper } = this;
-    const failedTransfer: Transfer =
-      await transfersRepository.updateTransferStatus({
-        transferId: transferDTO._id.toString(),
-        status: TRANSFER_STATUSES.FAILED,
-        action: TRANSFER_ACTIONS.FAILURE,
-        userId: transferDTO.userId,
-      });
-    return TransferMapper.map<Transfer, TransferDTO>(
-      failedTransfer,
-      Transfer,
-      TransferDTO,
-    );
+    const { transferStateFactory } = this;
+    const transfer: TransferDTO = await this.getTransfer({
+      transferId: transferDTO._id.toString(),
+    });
+    return (
+      await transferStateFactory.getState(TRANSFER_STATUSES.FAILED)
+    ).failed(transfer);
   }
   async updateTransferStatusApprovePending({
     transferDTO,
   }: {
     transferDTO: TransferDTO;
   }): Promise<TransferDTO> {
-    const { transfersRepository, TransferMapper } = this;
-    const failedTransfer: Transfer =
-      await transfersRepository.updateTransferStatus({
-        transferId: transferDTO._id.toString(),
-        status: TRANSFER_STATUSES.APPROVE_PENDING,
-        action: TRANSFER_ACTIONS.TRANSFER_AWAITS,
-        userId: transferDTO.userId,
-      });
-    return TransferMapper.map<Transfer, TransferDTO>(
-      failedTransfer,
-      Transfer,
-      TransferDTO,
-    );
+    const { transferStateFactory } = this;
+    const transfer: TransferDTO = await this.getTransfer({
+      transferId: transferDTO._id.toString(),
+    });
+    return (
+      await transferStateFactory.getState(TRANSFER_STATUSES.APPROVE_PENDING)
+    ).approvedPending(transfer);
   }
 }

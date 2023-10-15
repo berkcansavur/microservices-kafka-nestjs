@@ -1,18 +1,17 @@
 import {
   EVENT_RESULTS,
   TRANSFER_STATUSES,
-} from '../constants/transfer.constants';
-import { TransferType } from '../types/transfer.types';
+} from "../constants/transfer.constants";
 
 export class TransferLogic {
-  static isTransferStatus({
-    transfer,
-    statuses = [],
-  }: {
-    transfer: TransferType;
-    statuses: TRANSFER_STATUSES[];
-  }): boolean {
-    return statuses.includes(transfer.status);
+  static checkTransferStatus(
+    transfersStatus: TRANSFER_STATUSES,
+    expectedStatuses: TRANSFER_STATUSES[],
+  ): boolean {
+    if (expectedStatuses.includes(transfersStatus)) {
+      return true;
+    }
+    return false;
   }
 
   static isReturnOrderEventResultCode({

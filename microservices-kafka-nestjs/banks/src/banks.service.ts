@@ -24,11 +24,7 @@ import {
   BankDirector,
 } from "./schemas/employee-schema";
 import { EVENT_RESULTS } from "./constants/banks.constants";
-import {
-  ACCOUNT_TOPICS,
-  TRANSFER_TOPICS,
-  kafkaTopics,
-} from "./constants/kafka.constants";
+import { ACCOUNT_TOPICS, TRANSFER_TOPICS } from "./constants/kafka.constants";
 @Injectable()
 export class BanksService implements OnModuleInit {
   private readonly logger = new Logger(BanksService.name);
@@ -41,8 +37,14 @@ export class BanksService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
+    const transferTopics: string[] = Object.values(TRANSFER_TOPICS);
+    const accountTopics: string[] = Object.values(ACCOUNT_TOPICS);
     try {
-      kafkaTopics.forEach((topic) => {
+      transferTopics.forEach((topic) => {
+        this.transferClient.subscribeToResponseOf(topic);
+        this.logger.debug(`${topic} topic is subscribed`);
+      });
+      accountTopics.forEach((topic) => {
         this.transferClient.subscribeToResponseOf(topic);
         this.logger.debug(`${topic} topic is subscribed`);
       });
@@ -59,7 +61,7 @@ export class BanksService implements OnModuleInit {
     createAccountDTO,
   }: {
     createAccountDTO: CreateAccountDTO;
-  }): Promise<any> {
+  }): Promise<AccountType> {
     const { logger, utils, customersService } = this;
     logger.debug("[BanksService] create account DTO: ", createAccountDTO);
     let accountNumber = utils.generateRandomNumber();
