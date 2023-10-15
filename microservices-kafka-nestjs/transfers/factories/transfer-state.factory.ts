@@ -1,6 +1,7 @@
 import { Inject, Injectable, Type } from "@nestjs/common";
 import { ModuleRef } from "@nestjs/core";
 import { TRANSFER_STATUSES } from "src/constants/transfer.constants";
+import { TransferStatusIsNotValidException } from "src/exceptions";
 import { ITransferState } from "src/interfaces/transfer-state.interface";
 
 @Injectable()
@@ -8,14 +9,17 @@ export class TransferStateFactory {
   constructor(
     private readonly moduleReference: ModuleRef,
     @Inject("TRANSFER_STATE")
-    private readonly stateMap: Record<TRANSFER_STATUSES, Type<ITransferState>>,
+    private readonly transferStateMap: Record<
+      TRANSFER_STATUSES,
+      Type<ITransferState>
+    >,
   ) {}
-  async getState(state: TRANSFER_STATUSES): Promise<ITransferState> {
-    const { stateMap } = this;
-    const StateClass = stateMap[state];
-    if (StateClass) {
-      return this.moduleReference.create<ITransferState>(StateClass);
+  async getTransferState(state: TRANSFER_STATUSES): Promise<ITransferState> {
+    const { transferStateMap } = this;
+    const TransferStateClass = transferStateMap[state];
+    if (!TransferStateClass) {
+      throw new TransferStatusIsNotValidException({ message: state });
     }
-    throw new Error("Invalid State");
+    return this.moduleReference.create<ITransferState>(TransferStateClass);
   }
 }

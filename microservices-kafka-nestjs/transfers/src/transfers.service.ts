@@ -66,7 +66,7 @@ export class TransfersService implements ITransferService, OnModuleInit {
     });
     if (createdTransfer) {
       return (
-        await transferStateFactory.getState(TRANSFER_STATUSES.CREATED)
+        await transferStateFactory.getTransferState(TRANSFER_STATUSES.CREATED)
       ).created(createdTransfer);
     } else {
       throw new TransferCouldNotCreatedException(
@@ -89,7 +89,7 @@ export class TransfersService implements ITransferService, OnModuleInit {
     });
     if (createdTransfer) {
       return (
-        await transferStateFactory.getState(TRANSFER_STATUSES.CREATED)
+        await transferStateFactory.getTransferState(TRANSFER_STATUSES.CREATED)
       ).created(createdTransfer);
     }
   }
@@ -103,7 +103,7 @@ export class TransfersService implements ITransferService, OnModuleInit {
       transferId: transferDTO._id.toString(),
     });
     return (
-      await transferStateFactory.getState(TRANSFER_STATUSES.APPROVED)
+      await transferStateFactory.getTransferState(TRANSFER_STATUSES.APPROVED)
     ).approved(transfer);
   }
   async updateTransferStatusStarted({
@@ -116,7 +116,9 @@ export class TransfersService implements ITransferService, OnModuleInit {
       transferId: transferDTO._id.toString(),
     });
     return (
-      await transferStateFactory.getState(TRANSFER_STATUSES.TRANSFER_STARTED)
+      await transferStateFactory.getTransferState(
+        TRANSFER_STATUSES.TRANSFER_STARTED,
+      )
     ).started(transfer);
   }
   async updateTransferStatusCancelled({
@@ -129,7 +131,7 @@ export class TransfersService implements ITransferService, OnModuleInit {
       transferId: transferDTO._id.toString(),
     });
     return (
-      await transferStateFactory.getState(TRANSFER_STATUSES.CANCELLED)
+      await transferStateFactory.getTransferState(TRANSFER_STATUSES.CANCELLED)
     ).cancelled(transfer);
   }
   async updateTransferStatusCompleted({
@@ -142,7 +144,7 @@ export class TransfersService implements ITransferService, OnModuleInit {
       transferId: transferDTO._id.toString(),
     });
     return (
-      await transferStateFactory.getState(TRANSFER_STATUSES.COMPLETED)
+      await transferStateFactory.getTransferState(TRANSFER_STATUSES.COMPLETED)
     ).completed(transfer);
   }
   async updateTransferStatusFailed({
@@ -155,7 +157,7 @@ export class TransfersService implements ITransferService, OnModuleInit {
       transferId: transferDTO._id.toString(),
     });
     return (
-      await transferStateFactory.getState(TRANSFER_STATUSES.FAILED)
+      await transferStateFactory.getTransferState(TRANSFER_STATUSES.FAILED)
     ).failed(transfer);
   }
   async updateTransferStatusApprovePending({
@@ -168,7 +170,9 @@ export class TransfersService implements ITransferService, OnModuleInit {
       transferId: transferDTO._id.toString(),
     });
     return (
-      await transferStateFactory.getState(TRANSFER_STATUSES.APPROVE_PENDING)
+      await transferStateFactory.getTransferState(
+        TRANSFER_STATUSES.APPROVE_PENDING,
+      )
     ).approvedPending(transfer);
   }
 }
