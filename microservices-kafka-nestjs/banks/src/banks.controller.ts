@@ -139,7 +139,7 @@ export class BanksController {
       )}`,
     );
     return await this.bankService.handleCreateMoneyTransferToAccount({
-      moneyTransferDTO: data,
+      createTransferDTO: data,
     });
   }
 }

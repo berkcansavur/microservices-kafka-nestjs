@@ -48,7 +48,7 @@ export class Transfer {
   @Prop({ type: mSchema.Types.ObjectId, required: true })
   userId: Types.ObjectId;
 
-  @Prop({ type: mSchema.Types.ObjectId, required: true })
+  @Prop({ type: mSchema.Types.ObjectId })
   fromAccount: string;
 
   @Prop({ type: mSchema.Types.ObjectId, required: true })

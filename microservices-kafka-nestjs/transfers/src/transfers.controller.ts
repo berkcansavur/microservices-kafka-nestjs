@@ -3,8 +3,8 @@ import { TransfersService } from "./transfers.service";
 import { MessagePattern } from "@nestjs/microservices";
 import { ParseIncomingRequest } from "src/pipes/serialize-request-data.pipe";
 import {
-  CreateTransferDTO,
-  CreateTransferIncomingRequestDTO,
+  CreateMoneyTransferDTO,
+  CreateTransferBetweenAccountsDTO,
   TransferDTO,
 } from "./dtos/transfer.dto";
 
@@ -14,7 +14,7 @@ export class TransfersController {
 
   @MessagePattern("handle_create_transfer_across_accounts")
   @UsePipes(new ParseIncomingRequest())
-  async createTransferAcrossAccounts(data: CreateTransferIncomingRequestDTO) {
+  async createTransferAcrossAccounts(data: CreateTransferBetweenAccountsDTO) {
     const { transfersService } = this;
     const createdTransfer = await transfersService.createTransferAcrossAccounts(
       {
@@ -26,11 +26,13 @@ export class TransfersController {
   }
   @MessagePattern("handle_create_transfer_to_account")
   @UsePipes(new ParseIncomingRequest())
-  async createTransferToAccount(data: CreateTransferDTO) {
+  async createTransferToAccount(data: CreateMoneyTransferDTO) {
     const { transfersService } = this;
-    const createdTransfer = await transfersService.createTransferToAccount({
-      moneyTransferDTO: data,
-    });
+    const createdTransfer = await transfersService.createMoneyTransferToAccount(
+      {
+        moneyTransferDTO: data,
+      },
+    );
     const formattedTransfer = JSON.stringify(createdTransfer, null, 2);
     return formattedTransfer;
   }

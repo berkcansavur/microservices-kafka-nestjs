@@ -197,22 +197,17 @@ export class BanksService implements OnModuleInit {
     }
   }
   async handleCreateMoneyTransferToAccount({
-    moneyTransferDTO,
+    createTransferDTO,
   }: {
-    moneyTransferDTO: MoneyTransferDTO;
+    createTransferDTO: MoneyTransferDTO;
   }): Promise<TransferType> {
     // TODO: in this step there will incoming money serial no check for the
     //money request and it will be added to the MoneyTransferDTO's fields
     // but for now it will skipped and added statically.
-    const serials: number[] = [];
-    if (!BanksLogic.isIncomingMoneyIsValid(serials)) {
+    //const serials: number[] = [];
+    if (!BanksLogic.isIncomingMoneyIsValid(createTransferDTO.serials)) {
       throw new Error("Invalid money serial numbers");
     }
-    let createTransferDTO = new CreateTransferDTO();
-    createTransferDTO = {
-      ...moneyTransferDTO,
-      fromAccount: "6528c8e67ac7b576c92439aa",
-    };
     try {
       const createdTransfer: TransferType =
         await this.handleKafkaTransferEvents(

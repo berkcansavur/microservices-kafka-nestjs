@@ -2,11 +2,12 @@ import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Transfer, TransferDocument } from "../schemas/transfer.schema";
 import { Model } from "mongoose";
-import { CreateTransferDTO } from "../dtos/transfer.dto";
 import {
   TRANSFER_ACTIONS,
   TRANSFER_STATUSES,
 } from "../constants/transfer.constants";
+import { CreateTransferBetweenAccountsDTO } from "src/dtos/transfer.dto";
+import { CreateMoneyTransferDTO } from "../dtos/transfer.dto";
 
 @Injectable()
 export class TransfersRepository {
@@ -17,16 +18,14 @@ export class TransfersRepository {
   async createTransfer({
     createMoneyTransferDTO,
   }: {
-    createMoneyTransferDTO: CreateTransferDTO;
+    createMoneyTransferDTO:
+      | CreateTransferBetweenAccountsDTO
+      | CreateMoneyTransferDTO;
   }): Promise<TransferDocument> {
     const { TransferModel } = this;
 
     const transfer = await TransferModel.create({
-      currencyType: createMoneyTransferDTO.currencyType,
-      amount: createMoneyTransferDTO.amount,
-      userId: createMoneyTransferDTO.userId,
-      fromAccount: createMoneyTransferDTO.fromAccount,
-      toAccount: createMoneyTransferDTO.toAccount,
+      ...createMoneyTransferDTO,
     });
     await transfer.save();
     return transfer.toObject();
