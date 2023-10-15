@@ -1,5 +1,16 @@
 # Microservices Banking Project
 
+In the real world, data consistency is critical in banking and similar industries. In these sectors, the consistency of transactions, data accessibility and effective measures against possible data interruptions must be successfully managed. While this microservice project ensures data continuity using Kafka, it also focuses on consistency and continuity targets with design patterns appropriate to the need, through the maintained state logic and process controls.
+
+# Project Basic Principles
+- Data Continuity is Provided with Kafka: In the project, data continuity is ensured by using the Kafka messaging system. This enables fast and reliable communication between microservices.
+
+- Design Patterns for Consistency and Continuity: The project aims for consistency and continuity with design patterns appropriate to the need. These patterns are used to increase data consistency and ensure the reliability of transactions.
+
+- CAP Theorem and Priorities: The project was considered in the context of the CAP theorem and transaction accuracy and consistency between microservices were prioritized instead of accessibility, especially in the banking sector.
+
+- Kafka Partition Structure: Kafka's partition structure strengthens partitional precision and consistency mechanisms with state logic by providing operations specific to topics. In this way, it minimizes the possibility of data interruption between microservices.
+
 This project is an example of a microservices architecture for a banking application, utilizing NestJS, Kafka, MongoDB, and Node.js.
 
 ## Technologies
