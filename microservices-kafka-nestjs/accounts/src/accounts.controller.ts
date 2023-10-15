@@ -10,6 +10,7 @@ import {
 } from "./dtos/account.dtos";
 import { InjectMapper } from "@automapper/nestjs";
 import { Mapper } from "@automapper/core";
+import { EVENT_RESULTS } from "./constants/account.constants";
 
 @Controller("/accounts")
 export class AccountsController {
@@ -69,9 +70,10 @@ export class AccountsController {
         TransferDTO,
         CreateMoneyTransferDTO,
       );
-    const transferResult = await accountsService.handleTransferAcrossAccounts({
-      createMoneyTransferDTO,
-    });
+    const transferResult: EVENT_RESULTS =
+      await accountsService.handleTransferAcrossAccounts({
+        createMoneyTransferDTO,
+      });
     return transferResult;
   }
 }

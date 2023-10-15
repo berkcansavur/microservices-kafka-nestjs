@@ -24,4 +24,13 @@ export class Utils {
     }
     return ACCOUNT_TYPES[matchingKey];
   }
+  combineNumbers({
+    branchCode,
+    accountNumber,
+  }: {
+    branchCode: number;
+    accountNumber: number;
+  }) {
+    return parseInt(branchCode.toString() + accountNumber.toString());
+  }
 }
