@@ -3,19 +3,14 @@ import { TransferProfile } from "./mapper/transfer-profile";
 import { TransfersService } from "./transfers.service";
 import { MongooseModule } from "@nestjs/mongoose";
 import { Transfer, TransferSchema } from "./schemas/transfer.schema";
-import {
-  TransferReport,
-  TransferReportSchema,
-} from "./schemas/transfer-report.schema";
 import { TransferStateMap } from "./states/transfer-state.map";
-import { TransferStateFactory } from "./transfer-state.factory";
-import { TransferReportRepository } from "./repositories/transfer-report.repository";
 import { TransfersRepository } from "./repositories/transfers.repository";
 import { TransfersController } from "./transfers.controller";
 import { ClientsModule, Transport } from "@nestjs/microservices";
 import { ConfigModule } from "@nestjs/config";
 import { AutomapperModule } from "@automapper/nestjs";
 import { classes } from "@automapper/classes";
+import { TransferStateFactory } from "factories/transfer-state.factory";
 
 @Module({
   imports: [
@@ -57,14 +52,12 @@ import { classes } from "@automapper/classes";
     }),
     MongooseModule.forFeature([
       { name: Transfer.name, schema: TransferSchema },
-      { name: TransferReport.name, schema: TransferReportSchema },
     ]),
   ],
   providers: [
     TransferStateMap,
     TransferProfile,
     TransfersRepository,
-    TransferReportRepository,
     {
       provide: "TRANSFER_STATE_FACTORY",
       useClass: TransferStateFactory,
