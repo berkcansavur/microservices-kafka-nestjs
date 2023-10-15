@@ -1,50 +1,101 @@
-import { Controller, Logger, UsePipes } from "@nestjs/common";
+import { Controller, UsePipes } from "@nestjs/common";
 import { TransfersService } from "./transfers.service";
 import { MessagePattern } from "@nestjs/microservices";
 import { ParseIncomingRequest } from "src/pipes/serialize-request-data.pipe";
 import {
   CreateTransferDTO,
   CreateTransferIncomingRequestDTO,
+  TransferDTO,
 } from "./dtos/transfer.dto";
-import { InjectMapper } from "@automapper/nestjs";
-import { Mapper } from "@automapper/core";
 
 @Controller("/transfers")
 export class TransfersController {
-  private readonly logger = new Logger(TransfersController.name);
-  constructor(
-    private readonly transfersService: TransfersService,
-    @InjectMapper() private readonly TransferIncomingRequestMapper: Mapper,
-  ) {}
+  constructor(private readonly transfersService: TransfersService) {}
 
   @MessagePattern("handle_create_transfer_across_accounts")
   @UsePipes(new ParseIncomingRequest())
   async createTransferAcrossAccounts(data: CreateTransferIncomingRequestDTO) {
-    const { transfersService, logger } = this;
-    logger.debug(
-      `[TransfersController] creating money transfer across accounts request data: ${JSON.stringify(
-        data,
-      )}`,
-    );
+    const { transfersService } = this;
     const createdTransfer = await transfersService.createTransferAcrossAccounts(
       {
         createTransferRequestDTO: data,
       },
     );
-    return createdTransfer;
+    const formattedTransfer = JSON.stringify(createdTransfer, null, 2);
+    return formattedTransfer;
   }
   @MessagePattern("handle_create_transfer_to_account")
   @UsePipes(new ParseIncomingRequest())
   async createTransferToAccount(data: CreateTransferDTO) {
-    const { transfersService, logger } = this;
-    logger.debug(
-      `[TransfersController] creating money transfer to account request data: ${JSON.stringify(
-        data,
-      )}`,
-    );
+    const { transfersService } = this;
     const createdTransfer = await transfersService.createTransferToAccount({
       moneyTransferDTO: data,
     });
-    return createdTransfer;
+    const formattedTransfer = JSON.stringify(createdTransfer, null, 2);
+    return formattedTransfer;
+  }
+  @MessagePattern("handle_start_transfer")
+  @UsePipes(new ParseIncomingRequest())
+  async startTransfer(data: TransferDTO) {
+    const { transfersService } = this;
+    const startedTransfer = await transfersService.updateTransferStatusStarted({
+      transferDTO: data,
+    });
+    const formattedTransfer = JSON.stringify(startedTransfer, null, 2);
+    return formattedTransfer;
+  }
+  @MessagePattern("handle_approve_transfer")
+  @UsePipes(new ParseIncomingRequest())
+  async approveTransfer(data: TransferDTO) {
+    const { transfersService } = this;
+    const approvedTransfer =
+      await transfersService.updateTransferStatusApproved({
+        transferDTO: data,
+      });
+    const formattedTransfer = JSON.stringify(approvedTransfer, null, 2);
+    return formattedTransfer;
+  }
+  @MessagePattern("handle_cancel_transfer")
+  @UsePipes(new ParseIncomingRequest())
+  async cancelTransfer(data: TransferDTO) {
+    const { transfersService } = this;
+    const cancelledTransfer =
+      await transfersService.updateTransferStatusCancelled({
+        transferDTO: data,
+      });
+    const formattedTransfer = JSON.stringify(cancelledTransfer, null, 2);
+    return formattedTransfer;
+  }
+  @MessagePattern("handle_complete_transfer")
+  @UsePipes(new ParseIncomingRequest())
+  async completeTransfer(data: TransferDTO) {
+    const { transfersService } = this;
+    const completedTransfer =
+      await transfersService.updateTransferStatusCompleted({
+        transferDTO: data,
+      });
+    const formattedTransfer = JSON.stringify(completedTransfer, null, 2);
+    return formattedTransfer;
+  }
+  @MessagePattern("handle_failure_transfer")
+  @UsePipes(new ParseIncomingRequest())
+  async failureTransfer(data: TransferDTO) {
+    const { transfersService } = this;
+    const failedTransfer = await transfersService.updateTransferStatusFailed({
+      transferDTO: data,
+    });
+    const formattedTransfer = JSON.stringify(failedTransfer, null, 2);
+    return formattedTransfer;
+  }
+  @MessagePattern("handle_approve_pending_transfer")
+  @UsePipes(new ParseIncomingRequest())
+  async approvePendingTransfer(data: TransferDTO) {
+    const { transfersService } = this;
+    const failedTransfer =
+      await transfersService.updateTransferStatusApprovePending({
+        transferDTO: data,
+      });
+    const formattedTransfer = JSON.stringify(failedTransfer, null, 2);
+    return formattedTransfer;
   }
 }

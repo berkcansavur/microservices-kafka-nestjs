@@ -23,7 +23,6 @@ export class TransfersService implements OnModuleInit {
     @InjectMapper() private readonly TransferMapper: Mapper,
   ) {}
   async onModuleInit() {
-    this.accountClient.subscribeToResponseOf("account_availability_result");
     this.bankClient.subscribeToResponseOf("transfer_approval");
   }
 
@@ -65,8 +64,8 @@ export class TransfersService implements OnModuleInit {
       const updateTransferStatusApprovePending: Transfer =
         await transfersRepository.updateTransferStatus({
           transferId: createdTransfer._id.toString(),
-          status: TRANSFER_STATUSES.TRANSFER_STARTED,
-          action: TRANSFER_ACTIONS.TRANSFER_STARTED,
+          status: TRANSFER_STATUSES.CREATED,
+          action: TRANSFER_ACTIONS.CREATED,
           userId: createdTransfer.userId.toString(),
         });
       return TransferMapper.map<Transfer, TransferDTO>(
@@ -97,8 +96,8 @@ export class TransfersService implements OnModuleInit {
       const updateTransferStatusApprovePending: Transfer =
         await transfersRepository.updateTransferStatus({
           transferId: createdTransfer._id.toString(),
-          status: TRANSFER_STATUSES.TRANSFER_STARTED,
-          action: TRANSFER_ACTIONS.TRANSFER_STARTED,
+          status: TRANSFER_STATUSES.CREATED,
+          action: TRANSFER_ACTIONS.CREATED,
           userId: createdTransfer.userId.toString(),
         });
       return TransferMapper.map<Transfer, TransferDTO>(
@@ -108,44 +107,118 @@ export class TransfersService implements OnModuleInit {
       );
     }
   }
-  async approveTransfer({
+  async updateTransferStatusApproved({
     transferDTO,
   }: {
     transferDTO: TransferDTO;
-  }): Promise<any> {
-    const { logger, accountClient, transfersRepository } = this;
-
-    const transfer: Transfer = await transfersRepository.getTransfer({
-      transferId: transferDTO._id.toString(),
-    });
-
-    if (!transfer) {
-      throw new TransferIsNotFoundException({
-        transferId: transferDTO._id,
+  }) {
+    const { transfersRepository, TransferMapper } = this;
+    const approvedTransfer: Transfer =
+      await transfersRepository.updateTransferStatus({
+        transferId: transferDTO._id.toString(),
+        status: TRANSFER_STATUSES.APPROVED,
+        action: TRANSFER_ACTIONS.APPROVED,
+        userId: transferDTO.userId,
       });
-    }
-    logger.debug("[TransferService approveTransfer]", transferDTO);
-
-    return accountClient.send("account_availability_result", { transferDTO });
+    return TransferMapper.map<Transfer, TransferDTO>(
+      approvedTransfer,
+      Transfer,
+      TransferDTO,
+    );
   }
-  async approveRawTransfer({
+  async updateTransferStatusStarted({
     transferDTO,
   }: {
     transferDTO: TransferDTO;
-  }): Promise<any> {
-    const { logger, accountClient, transfersRepository } = this;
-
-    const transfer: Transfer = await transfersRepository.getTransfer({
-      transferId: transferDTO._id.toString(),
-    });
-
-    if (!transfer) {
-      throw new TransferIsNotFoundException({
-        transferId: transferDTO._id,
+  }): Promise<TransferDTO> {
+    const { transfersRepository, TransferMapper } = this;
+    const startedTransfer: Transfer =
+      await transfersRepository.updateTransferStatus({
+        transferId: transferDTO._id.toString(),
+        status: TRANSFER_STATUSES.TRANSFER_STARTED,
+        action: TRANSFER_ACTIONS.TRANSFER_STARTED,
+        userId: transferDTO.userId,
       });
-    }
-    logger.debug("[TransferService approveTransfer]", transferDTO);
-
-    return accountClient.send("account_availability_result", { transferDTO });
+    return TransferMapper.map<Transfer, TransferDTO>(
+      startedTransfer,
+      Transfer,
+      TransferDTO,
+    );
+  }
+  async updateTransferStatusCancelled({
+    transferDTO,
+  }: {
+    transferDTO: TransferDTO;
+  }): Promise<TransferDTO> {
+    const { transfersRepository, TransferMapper } = this;
+    const cancelledTransfer: Transfer =
+      await transfersRepository.updateTransferStatus({
+        transferId: transferDTO._id.toString(),
+        status: TRANSFER_STATUSES.CANCELLED,
+        action: TRANSFER_ACTIONS.CANCELLED,
+        userId: transferDTO.userId,
+      });
+    return TransferMapper.map<Transfer, TransferDTO>(
+      cancelledTransfer,
+      Transfer,
+      TransferDTO,
+    );
+  }
+  async updateTransferStatusCompleted({
+    transferDTO,
+  }: {
+    transferDTO: TransferDTO;
+  }): Promise<TransferDTO> {
+    const { transfersRepository, TransferMapper } = this;
+    const completedTransfer: Transfer =
+      await transfersRepository.updateTransferStatus({
+        transferId: transferDTO._id.toString(),
+        status: TRANSFER_STATUSES.COMPLETED,
+        action: TRANSFER_ACTIONS.COMPLETED,
+        userId: transferDTO.userId,
+      });
+    return TransferMapper.map<Transfer, TransferDTO>(
+      completedTransfer,
+      Transfer,
+      TransferDTO,
+    );
+  }
+  async updateTransferStatusFailed({
+    transferDTO,
+  }: {
+    transferDTO: TransferDTO;
+  }): Promise<TransferDTO> {
+    const { transfersRepository, TransferMapper } = this;
+    const failedTransfer: Transfer =
+      await transfersRepository.updateTransferStatus({
+        transferId: transferDTO._id.toString(),
+        status: TRANSFER_STATUSES.FAILED,
+        action: TRANSFER_ACTIONS.FAILURE,
+        userId: transferDTO.userId,
+      });
+    return TransferMapper.map<Transfer, TransferDTO>(
+      failedTransfer,
+      Transfer,
+      TransferDTO,
+    );
+  }
+  async updateTransferStatusApprovePending({
+    transferDTO,
+  }: {
+    transferDTO: TransferDTO;
+  }): Promise<TransferDTO> {
+    const { transfersRepository, TransferMapper } = this;
+    const failedTransfer: Transfer =
+      await transfersRepository.updateTransferStatus({
+        transferId: transferDTO._id.toString(),
+        status: TRANSFER_STATUSES.APPROVE_PENDING,
+        action: TRANSFER_ACTIONS.TRANSFER_AWAITS,
+        userId: transferDTO.userId,
+      });
+    return TransferMapper.map<Transfer, TransferDTO>(
+      failedTransfer,
+      Transfer,
+      TransferDTO,
+    );
   }
 }

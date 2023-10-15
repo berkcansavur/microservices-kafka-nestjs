@@ -53,8 +53,8 @@ export enum CUSTOMER_ACTIONS {
   CANCELLED = 7000,
 }
 export enum EVENT_RESULTS {
-  SUCCESS = 1000,
-  FAILED = 2000,
+  SUCCESS = "SUCCESS",
+  FAILED = "FAILED",
 }
 export enum BANK_ACTIONS {
   CREATED = "CREATED",
