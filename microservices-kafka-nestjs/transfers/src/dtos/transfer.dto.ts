@@ -15,7 +15,7 @@ export class TransferDTO {
   userId: string;
 
   @IsMongoId()
-  fromAccount: string;
+  fromAccount?: string;
 
   @IsMongoId()
   toAccount: string;
@@ -24,7 +24,7 @@ export class TransferDTO {
   amount: number;
 }
 
-export class CreateTransferIncomingRequestDTO {
+export class CreateTransferBetweenAccountsDTO {
   @IsString()
   @IsNotEmpty()
   currencyType: string;
@@ -45,19 +45,20 @@ export class CreateTransferIncomingRequestDTO {
   @IsNotEmpty()
   amount: number;
 }
-export class CreateTransferDTO {
+export class CreateMoneyTransferDTO {
+  @IsNotEmpty()
   @IsString()
   currencyType: string;
 
+  @IsNotEmpty()
   @IsMongoId()
   userId: string;
 
-  @IsMongoId()
-  fromAccount: string;
-
+  @IsNotEmpty()
   @IsMongoId()
   toAccount: string;
 
+  @IsNotEmpty()
   @IsNumber()
   amount: number;
 }

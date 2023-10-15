@@ -1,7 +1,11 @@
 // src/transfers/transfers.service.ts
 import { Inject, Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { TransfersRepository } from "./repositories/transfers.repository";
-import { CreateTransferDTO, TransferDTO } from "./dtos/transfer.dto";
+import {
+  CreateMoneyTransferDTO,
+  CreateTransferBetweenAccountsDTO,
+  TransferDTO,
+} from "./dtos/transfer.dto";
 import { Transfer } from "./schemas/transfer.schema";
 import { InjectMapper } from "@automapper/nestjs";
 import { Mapper } from "@automapper/core";
@@ -18,7 +22,6 @@ export class TransfersService implements OnModuleInit {
   private readonly logger = new Logger(TransfersService.name);
   constructor(
     @Inject("BANK_SERVICE") private readonly bankClient: ClientKafka,
-    @Inject("ACCOUNT_SERVICE") private readonly accountClient: ClientKafka,
     private readonly transfersRepository: TransfersRepository,
     @InjectMapper() private readonly TransferMapper: Mapper,
   ) {}
@@ -50,7 +53,7 @@ export class TransfersService implements OnModuleInit {
   async createTransferAcrossAccounts({
     createTransferRequestDTO,
   }: {
-    createTransferRequestDTO: CreateTransferDTO;
+    createTransferRequestDTO: CreateTransferBetweenAccountsDTO;
   }): Promise<TransferDTO> {
     const { transfersRepository, TransferMapper, logger } = this;
     logger.debug(
@@ -79,10 +82,10 @@ export class TransfersService implements OnModuleInit {
       );
     }
   }
-  async createTransferToAccount({
+  async createMoneyTransferToAccount({
     moneyTransferDTO,
   }: {
-    moneyTransferDTO: CreateTransferDTO;
+    moneyTransferDTO: CreateMoneyTransferDTO;
   }): Promise<TransferDTO> {
     const { transfersRepository, logger, TransferMapper } = this;
     logger.debug(

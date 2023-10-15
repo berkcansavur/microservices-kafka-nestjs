@@ -46,15 +46,22 @@ export class IncomingTransferRequestDTO {
   amount: number;
 }
 export class MoneyTransferDTO {
+  @IsNotEmpty()
   @IsString()
   currencyType: string;
 
+  @IsNotEmpty()
   @IsNumber()
   amount: number;
 
+  @IsNotEmpty()
+  serials: number[];
+
+  @IsNotEmpty()
   @IsMongoId()
   userId: string;
 
+  @IsNotEmpty()
   @IsMongoId()
   toAccount: string;
 }

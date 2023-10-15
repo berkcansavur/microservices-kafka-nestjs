@@ -18,7 +18,7 @@ export type TransferType = {
   currencyType: string;
   status: number;
   userId: string;
-  fromAccount: string;
+  fromAccount?: string;
   toAccount: string;
   amount: number;
 };
