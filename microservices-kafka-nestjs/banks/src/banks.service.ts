@@ -24,7 +24,11 @@ import {
   BankDirector,
 } from "./schemas/employee-schema";
 import { EVENT_RESULTS } from "./constants/banks.constants";
-import { kafkaTopics } from "./constants/kafka.constants";
+import {
+  ACCOUNT_TOPICS,
+  TRANSFER_TOPICS,
+  kafkaTopics,
+} from "./constants/kafka.constants";
 @Injectable()
 export class BanksService implements OnModuleInit {
   private readonly logger = new Logger(BanksService.name);
@@ -56,7 +60,7 @@ export class BanksService implements OnModuleInit {
   }: {
     createAccountDTO: CreateAccountDTO;
   }): Promise<any> {
-    const { logger, accountClient, utils, customersService } = this;
+    const { logger, utils, customersService } = this;
     logger.debug("[BanksService] create account DTO: ", createAccountDTO);
     let accountNumber = utils.generateRandomNumber();
     if (!BanksLogic.isAccountTypeIsValid({ accountDTO: createAccountDTO })) {
@@ -81,31 +85,24 @@ export class BanksService implements OnModuleInit {
       "[BanksService] createAccountDTOWithAccountNumber: ",
       createAccountDTO,
     );
-    let createdAccount: AccountType;
     try {
-      const result = await accountClient
-        .send("handle_create_account", {
-          createAccountDTOWithAccountNumber,
-        })
-        .toPromise();
-      if (!BanksLogic.isObjectValid(result)) {
-        throw new Error(`Object is not valid : ${result}`);
+      const createdAccount: AccountType = (await this.handleKafkaAccountEvents(
+        createAccountDTOWithAccountNumber,
+        ACCOUNT_TOPICS.HANDLE_CREATE_ACCOUNT,
+      )) as AccountType;
+      const accountId: string = createdAccount._id;
+      const updatedCustomerAccounts =
+        await customersService.addAccountToCustomer({
+          customerId: createAccountDTO.userId,
+          accountId: accountId,
+        });
+      if (!BanksLogic.isObjectValid(updatedCustomerAccounts)) {
+        throw new Error("Account could not added to customer");
       }
-      createdAccount = result;
+      return createdAccount;
     } catch (error) {
       throw new Error("Account creation failed");
     }
-    const accountId: string = createdAccount._id;
-    const updatedCustomerAccounts = await customersService.addAccountToCustomer(
-      {
-        customerId: createAccountDTO.userId,
-        accountId: accountId,
-      },
-    );
-    if (!BanksLogic.isObjectValid(updatedCustomerAccounts)) {
-      throw new Error("Account could not added to customer");
-    }
-    return createdAccount;
   }
   async handleCreateCustomer({
     createCustomerDTO,
@@ -143,12 +140,12 @@ export class BanksService implements OnModuleInit {
         const createdTransfer: TransferType =
           await this.handleKafkaTransferEvents(
             createTransferDTO,
-            "handle_create_transfer_across_accounts",
+            TRANSFER_TOPICS.HANDLE_CREATE_TRANSFER_ACROSS_ACCOUNTS,
           );
         const approvePendingTransfer: TransferType =
           await this.handleKafkaTransferEvents(
             createdTransfer,
-            "handle_approve_pending_transfer",
+            TRANSFER_TOPICS.HANDLE_APPROVE_PENDING_TRANSFER,
           );
         return approvePendingTransfer;
       } catch (error) {
@@ -161,34 +158,34 @@ export class BanksService implements OnModuleInit {
       const createdTransfer: TransferType =
         await this.handleKafkaTransferEvents(
           createTransferDTO,
-          "handle_create_transfer_across_accounts",
+          TRANSFER_TOPICS.HANDLE_CREATE_TRANSFER_ACROSS_ACCOUNTS,
         );
       const approvedTransfer: TransferType =
         await this.handleKafkaTransferEvents(
           createdTransfer,
-          "handle_approve_transfer",
+          TRANSFER_TOPICS.HANDLE_APPROVE_TRANSFER,
         );
       const startedTransfer: TransferType =
         await this.handleKafkaTransferEvents(
           approvedTransfer,
-          "handle_start_transfer",
+          TRANSFER_TOPICS.HANDLE_START_TRANSFER,
         );
       const eventResult = (await this.handleKafkaAccountEvents(
         startedTransfer,
-        "money_transfer_across_accounts_result",
+        ACCOUNT_TOPICS.MONEY_TRANSFER_ACROSS_ACCOUNTS_RESULT,
       )) as EVENT_RESULTS;
       if (BanksLogic.isTransferSucceed(eventResult)) {
         const completedTransfer: TransferType =
           await this.handleKafkaTransferEvents(
             startedTransfer,
-            "handle_complete_transfer",
+            TRANSFER_TOPICS.HANDLE_COMPLETE_TRANSFER,
           );
         return completedTransfer;
       } else {
         const failedTransfer: TransferType =
           await this.handleKafkaTransferEvents(
             startedTransfer,
-            "handle_failure_transfer",
+            TRANSFER_TOPICS.HANDLE_FAILURE_TRANSFER,
           );
         return failedTransfer;
       }
@@ -201,10 +198,6 @@ export class BanksService implements OnModuleInit {
   }: {
     createTransferDTO: MoneyTransferDTO;
   }): Promise<TransferType> {
-    // TODO: in this step there will incoming money serial no check for the
-    //money request and it will be added to the MoneyTransferDTO's fields
-    // but for now it will skipped and added statically.
-    //const serials: number[] = [];
     if (!BanksLogic.isIncomingMoneyIsValid(createTransferDTO.serials)) {
       throw new Error("Invalid money serial numbers");
     }
@@ -212,34 +205,34 @@ export class BanksService implements OnModuleInit {
       const createdTransfer: TransferType =
         await this.handleKafkaTransferEvents(
           createTransferDTO,
-          "handle_create_transfer_to_account",
+          TRANSFER_TOPICS.HANDLE_CREATE_TRANSFER_TO_ACCOUNT,
         );
       const approvedTransfer: TransferType =
         await this.handleKafkaTransferEvents(
           createdTransfer,
-          "handle_approve_transfer",
+          TRANSFER_TOPICS.HANDLE_APPROVE_TRANSFER,
         );
       const startedTransfer: TransferType =
         await this.handleKafkaTransferEvents(
           approvedTransfer,
-          "handle_start_transfer",
+          TRANSFER_TOPICS.HANDLE_START_TRANSFER,
         );
       const eventResult = (await this.handleKafkaAccountEvents(
         startedTransfer,
-        "money_transfer_across_accounts_result",
+        ACCOUNT_TOPICS.MONEY_TRANSFER_ACROSS_ACCOUNTS_RESULT,
       )) as EVENT_RESULTS;
       if (BanksLogic.isTransferSucceed(eventResult)) {
         const completedTransfer: TransferType =
           await this.handleKafkaTransferEvents(
             startedTransfer,
-            "handle_complete_transfer",
+            TRANSFER_TOPICS.HANDLE_COMPLETE_TRANSFER,
           );
         return completedTransfer;
       } else {
         const failedTransfer: TransferType =
           await this.handleKafkaTransferEvents(
             startedTransfer,
-            "handle_failure_transfer",
+            TRANSFER_TOPICS.HANDLE_FAILURE_TRANSFER,
           );
         return failedTransfer;
       }
@@ -326,7 +319,7 @@ export class BanksService implements OnModuleInit {
   }
   async handleKafkaTransferEvents(
     data: any,
-    topic: string,
+    topic: TRANSFER_TOPICS,
   ): Promise<TransferType> {
     return new Promise((resolve, reject) => {
       this.transferClient.send(topic, data).subscribe({
@@ -346,7 +339,7 @@ export class BanksService implements OnModuleInit {
   }
   async handleKafkaAccountEvents(
     data: any,
-    topic: string,
+    topic: ACCOUNT_TOPICS,
   ): Promise<EVENT_RESULTS | AccountType> {
     return new Promise((resolve, reject) => {
       this.transferClient.send(topic, data).subscribe({
