@@ -14,9 +14,10 @@ import { ClientKafka } from "@nestjs/microservices";
 import { TransferCouldNotCreatedException } from "./exceptions/index";
 import { TRANSFER_STATUSES } from "./constants/transfer.constants";
 import { TransferStateFactory } from "./transfer-state.factory";
+import { ITransferService } from "./interfaces/transfer-service.intrerface";
 
 @Injectable()
-export class TransfersService implements OnModuleInit {
+export class TransfersService implements ITransferService, OnModuleInit {
   private readonly logger = new Logger(TransfersService.name);
   constructor(
     @Inject("TRANSFER_STATE_FACTORY")
@@ -96,7 +97,7 @@ export class TransfersService implements OnModuleInit {
     transferDTO,
   }: {
     transferDTO: TransferDTO;
-  }) {
+  }): Promise<TransferDTO> {
     const { transferStateFactory } = this;
     const transfer: TransferDTO = await this.getTransfer({
       transferId: transferDTO._id.toString(),
