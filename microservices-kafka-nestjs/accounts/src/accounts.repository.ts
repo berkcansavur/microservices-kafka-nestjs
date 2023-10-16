@@ -76,7 +76,7 @@ export class AccountsRepository {
         _id: accountId,
       },
       {
-        $set: {
+        $push: {
           actionLogs: {
             action,
             ...(message ? { message } : undefined),
@@ -163,15 +163,11 @@ export class AccountsRepository {
   }
   async updateAccountBalance({
     accountId,
-    action,
     amount,
-    message,
     currencyType,
   }: {
     accountId: string;
     amount: number;
-    action: ACCOUNT_ACTIONS;
-    message?: string;
     currencyType: CURRENCY_TYPES;
   }): Promise<Account | null> {
     const { AccountModel } = this;
@@ -197,12 +193,6 @@ export class AccountsRepository {
           $inc: {
             "balance.$.amount": amount,
           },
-          $push: {
-            actionLogs: {
-              action,
-              ...(message ? { message } : undefined),
-            },
-          },
         },
         {
           new: true,
@@ -222,10 +212,6 @@ export class AccountsRepository {
             balance: {
               currencyType,
               amount,
-            },
-            actionLogs: {
-              action,
-              ...(message ? { message } : undefined),
             },
           },
         },

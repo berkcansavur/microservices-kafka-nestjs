@@ -72,7 +72,7 @@ export class TransferCouldNotCompletedException extends BankAppException {
   constructor(data?: string | object) {
     super(
       "Transfer could not completed",
-      6000,
+      7000,
       HttpStatus.BAD_REQUEST,
       JSON.stringify(data),
       "TransferCouldNotCompletedException",
@@ -85,12 +85,41 @@ export class AccountIsNotAvailableException extends BankAppException {
   constructor(data?: string | object) {
     super(
       "Account is not available",
-      6000,
+      7400,
       HttpStatus.BAD_REQUEST,
       JSON.stringify(data),
       "AccountIsNotAvailableException",
     );
     this.name = "AccountIsNotAvailableException";
     Object.setPrototypeOf(this, AccountIsNotAvailableException.prototype);
+  }
+}
+export class AccountLogsAreNotFoundException extends BankAppException {
+  constructor(data?: string | object) {
+    super(
+      "Account actions are could not be found",
+      8000,
+      HttpStatus.NOT_FOUND,
+      JSON.stringify(data),
+      "AccountLogsAreNotFoundException",
+    );
+    this.name = "AccountLogsAreNotFoundException";
+    Object.setPrototypeOf(this, AccountLogsAreNotFoundException.prototype);
+  }
+}
+export class AccountsBalanceCouldNotRetrievedException extends BankAppException {
+  constructor(data?: string | object) {
+    super(
+      "Account balance is could not retrieved",
+      8100,
+      HttpStatus.BAD_REQUEST,
+      JSON.stringify(data),
+      "AccountsBalanceCouldNotRetrievedException",
+    );
+    this.name = "AccountsBalanceCouldNotRetrievedException";
+    Object.setPrototypeOf(
+      this,
+      AccountsBalanceCouldNotRetrievedException.prototype,
+    );
   }
 }
