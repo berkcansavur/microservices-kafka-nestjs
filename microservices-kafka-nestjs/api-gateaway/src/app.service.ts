@@ -167,6 +167,15 @@ export class AppService implements OnModuleInit {
     );
     return account;
   }
+  async sendGetAccountsBalanceRequest(accountId: string) {
+    const { logger } = this;
+    logger.debug("[AppService] getAccountsBalance DTO: ", accountId);
+    const account = await this.handleKafkaAccountEvents(
+      accountId,
+      ACCOUNT_TOPICS.GET_ACCOUNTS_BALANCE,
+    );
+    return account;
+  }
   async handleKafkaAccountEvents(
     data: any,
     topic: ACCOUNT_TOPICS,

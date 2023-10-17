@@ -12,7 +12,7 @@ import {
 import { InjectMapper } from "@automapper/nestjs";
 import { Mapper } from "@automapper/core";
 import { EVENT_RESULTS } from "./constants/account.constants";
-import { ActionLog } from "./schemas/account.schema";
+import { ActionLog, Balance } from "./schemas/account.schema";
 
 @Controller("/accounts")
 export class AccountsController {
@@ -90,16 +90,18 @@ export class AccountsController {
     const account: AccountDTO = await accountsService.getAccount({ accountId });
     return account;
   }
-  @MessagePattern("get_account")
+  @MessagePattern("get_accounts_balance")
   @UsePipes(new ParseIncomingRequest())
-  async getAccountsBalance(accountId: string) {
+  async getAccountsBalance(accountId: string): Promise<Balance[]> {
     const { accountsService, logger } = this;
     logger.debug(
       `[AccountsController] makeMoneyTransfer incoming request data: ${JSON.stringify(
         accountId,
       )}`,
     );
-    const account: AccountDTO = await accountsService.getAccount({ accountId });
+    const account: Balance[] = await accountsService.getAccountBalance({
+      accountId,
+    });
     return account;
   }
   @MessagePattern("get_accounts_last_actions")

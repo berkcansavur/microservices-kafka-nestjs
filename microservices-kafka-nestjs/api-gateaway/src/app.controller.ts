@@ -88,15 +88,11 @@ export class AppController {
       actionCount,
     });
   }
-  // @Get("/getAccountsLastActions")
-  // getAccountsLastActions(
-  //   @Body() createCustomerRepresentativeDTO: CreateCustomerRepresentativeDTO,
-  // ) {
-  //   const { appService } = this;
-  //   return appService.sendCreateCustomerRepresentativeRequest(
-  //     createCustomerRepresentativeDTO,
-  //   );
-  // }
+  @Get("/getAccountsBalance")
+  getAccountsBalance(@Body() accountId: string) {
+    const { appService } = this;
+    return appService.sendGetAccountsBalanceRequest(accountId);
+  }
   @Get("/getAccountsBalanceOfCurrencyType")
   getAccountsBalanceOfCurrencyType(
     @Body() createCustomerRepresentativeDTO: CreateCustomerRepresentativeDTO,
