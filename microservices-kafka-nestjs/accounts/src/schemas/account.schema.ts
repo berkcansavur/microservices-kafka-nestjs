@@ -5,7 +5,10 @@ import {
   ACCOUNT_STATUS,
   CURRENCY_TYPES,
 } from "src/constants/account.constants";
-
+@Schema({
+  _id: false,
+  versionKey: false,
+})
 export class ActionLog {
   @Prop({ type: Number, enum: ACCOUNT_ACTIONS, required: true })
   action: number;

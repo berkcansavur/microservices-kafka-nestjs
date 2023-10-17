@@ -6,7 +6,7 @@ import {
   CreateMoneyTransferDTO,
   TransferDTO,
 } from "./dtos/account.dtos";
-import { Account } from "./schemas/account.schema";
+import { Account, ActionLog, Balance } from "./schemas/account.schema";
 import { InjectMapper } from "@automapper/nestjs";
 import { Mapper } from "@automapper/core";
 import {
@@ -16,13 +16,16 @@ import {
   EVENT_RESULTS,
 } from "./constants/account.constants";
 import { AccountLogic } from "./logic/account.logic";
-import { TransferCouldNotCompletedException } from "./exceptions/index";
-import { Utils } from "./utils/utils";
+import {
+  AccountIsNotFoundException,
+  AccountLogsAreNotFoundException,
+  AccountsBalanceCouldNotRetrievedException,
+  TransferCouldNotCompletedException,
+} from "./exceptions/index";
 
 @Injectable()
 export class AccountService implements OnModuleInit {
   private readonly logger = new Logger(AccountService.name);
-  private readonly utils: Utils;
   constructor(
     private readonly accountsRepository: AccountsRepository,
     @InjectMapper() private readonly AccountsMapper: Mapper,
@@ -81,8 +84,6 @@ export class AccountService implements OnModuleInit {
       const updatedAccount = await accountsRepository.updateAccountBalance({
         accountId,
         amount: amount,
-        action: actionType,
-        message: `User ${transactionPerformerId} transferred money to your account.`,
         currencyType: currencyType,
       });
       return AccountsMapper.map<Account, AccountDTO>(
@@ -95,8 +96,6 @@ export class AccountService implements OnModuleInit {
       const updatedAccount = await accountsRepository.updateAccountBalance({
         accountId,
         amount: -amount,
-        action: actionType,
-        message: `Money has been transferred from your account to account.`,
         currencyType: currencyType,
       });
       return AccountsMapper.map<Account, AccountDTO>(
@@ -169,7 +168,7 @@ export class AccountService implements OnModuleInit {
           await this.createAccountAction({
             accountId: toAccountId,
             action: ACCOUNT_ACTIONS.TRANSFER_COMPLETED,
-            message: `Transfer Id: ${transferId}`,
+            message: `${amount} ${currencyType}s is transferred to account by transfer: ${transferId}`,
             transactionPerformerId: userId,
           });
         }
@@ -187,9 +186,9 @@ export class AccountService implements OnModuleInit {
       .then(async (result) => {
         if (result) {
           await this.createAccountAction({
-            accountId: toAccountId,
+            accountId: fromAccountId,
             action: ACCOUNT_ACTIONS.TRANSFER_COMPLETED,
-            message: `Transfer Id: ${transferId}`,
+            message: `${amount} ${currencyType}s is transferred from your account by transfer: ${transferId}`,
             transactionPerformerId: userId,
           });
         }
@@ -239,6 +238,69 @@ export class AccountService implements OnModuleInit {
       return AVAILABILITY_RESULT.ACCOUNT_IS_NOT_AVAILABLE;
     } else {
       return AVAILABILITY_RESULT.ACCOUNT_IS_AVAILABLE;
+    }
+  }
+  async getAccountBalance({
+    accountId,
+  }: {
+    accountId: string;
+  }): Promise<Balance[]> {
+    const { accountsRepository } = this;
+    try {
+      const account = await accountsRepository.getAccount({ accountId });
+      if (!account) {
+        throw new AccountIsNotFoundException({ message: accountId });
+      }
+      const balances = account.balance;
+      return balances;
+    } catch (error) {
+      throw new AccountsBalanceCouldNotRetrievedException({ message: error });
+    }
+  }
+  async getAccountsBalanceOfCurrencyType({
+    accountId,
+    currencyType,
+  }: {
+    accountId: string;
+    currencyType: CURRENCY_TYPES;
+  }): Promise<Balance> {
+    const { accountsRepository } = this;
+    try {
+      const account = await accountsRepository.getAccount({ accountId });
+      if (!account) {
+        throw new AccountIsNotFoundException({ message: accountId });
+      }
+      const balances = account.balance;
+      const balance = balances.find(
+        (balance) => balance.currencyType === currencyType,
+      );
+      if (!balance) {
+        throw new AccountsBalanceCouldNotRetrievedException({
+          message: `${account.accountName} has no balance on this ${currencyType} currency type`,
+        });
+      }
+      return balance;
+    } catch (error) {
+      throw new AccountsBalanceCouldNotRetrievedException({ message: error });
+    }
+  }
+  async getAccountsLastActions({
+    accountId,
+    actionCount,
+  }: {
+    accountId: string;
+    actionCount: number;
+  }): Promise<ActionLog[]> {
+    const { accountsRepository } = this;
+    try {
+      const account = await accountsRepository.getAccount({ accountId });
+      if (!account) {
+        throw new AccountIsNotFoundException({ message: accountId });
+      }
+      const actionLogs = account.actionLogs.slice(-actionCount).reverse();
+      return actionLogs;
+    } catch (error) {
+      throw new AccountLogsAreNotFoundException({ message: error });
     }
   }
 }
