@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Logger } from "@nestjs/common";
+import { Body, Controller, Post, Logger, Get } from "@nestjs/common";
 import { AppService } from "./app.service";
 import {
   IncomingTransferRequestDTO,
@@ -68,6 +68,37 @@ export class AppController {
   }
   @Post("/createBankCustomerRepresentative")
   createCustomerRepresentative(
+    @Body() createCustomerRepresentativeDTO: CreateCustomerRepresentativeDTO,
+  ) {
+    const { appService } = this;
+    return appService.sendCreateCustomerRepresentativeRequest(
+      createCustomerRepresentativeDTO,
+    );
+  }
+  @Get("/getAccount")
+  getAccount(@Body() accountId: string) {
+    const { appService } = this;
+    return appService.sendGetAccountRequest(accountId);
+  }
+  @Get("/getAccountsLastActions")
+  getAccountsLastActions(@Body() accountId: string, actionCount: number) {
+    const { appService } = this;
+    return appService.sendGetAccountsLastActionsRequest({
+      accountId,
+      actionCount,
+    });
+  }
+  // @Get("/getAccountsLastActions")
+  // getAccountsLastActions(
+  //   @Body() createCustomerRepresentativeDTO: CreateCustomerRepresentativeDTO,
+  // ) {
+  //   const { appService } = this;
+  //   return appService.sendCreateCustomerRepresentativeRequest(
+  //     createCustomerRepresentativeDTO,
+  //   );
+  // }
+  @Get("/getAccountsBalanceOfCurrencyType")
+  getAccountsBalanceOfCurrencyType(
     @Body() createCustomerRepresentativeDTO: CreateCustomerRepresentativeDTO,
   ) {
     const { appService } = this;

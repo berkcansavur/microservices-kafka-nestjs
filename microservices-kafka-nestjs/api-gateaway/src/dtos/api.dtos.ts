@@ -151,24 +151,24 @@ export class AccountDTO {
   _id: string;
 
   @IsMongoId()
-  userId: string;
+  userId?: string;
 
   @IsString()
-  accountName: string;
+  accountName?: string;
 
   @IsNumber()
-  accountNumber: number;
+  accountNumber?: number;
 
   @IsNumber()
-  interest: number;
+  interest?: number;
 
-  balance: any;
+  balance?: any;
 
   @IsNumber()
   @IsNotEmpty()
-  status: number;
+  status?: number;
 
-  actionLogs: any;
+  actionLogs?: any;
 }
 export class CreateCustomerDTO {
   @IsNotEmpty()

@@ -297,7 +297,7 @@ export class AccountService implements OnModuleInit {
       if (!account) {
         throw new AccountIsNotFoundException({ message: accountId });
       }
-      const actionLogs = account.actionLogs.slice(0, actionCount).reverse();
+      const actionLogs = account.actionLogs.slice(-actionCount).reverse();
       return actionLogs;
     } catch (error) {
       throw new AccountLogsAreNotFoundException({ message: error });
