@@ -117,7 +117,7 @@ export class AccountsController {
       )}`,
     );
     const accountLogs: ActionLog[] =
-      await accountsService.getAccountsLastActions({
+      await accountsService.getAccountsLastBalanceActions({
         accountId: data.accountId,
         actionCount: data.actionCount,
       });

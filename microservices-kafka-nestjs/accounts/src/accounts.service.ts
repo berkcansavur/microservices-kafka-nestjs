@@ -284,7 +284,7 @@ export class AccountService implements OnModuleInit {
       throw new AccountsBalanceCouldNotRetrievedException({ message: error });
     }
   }
-  async getAccountsLastActions({
+  async getAccountsLastBalanceActions({
     accountId,
     actionCount,
   }: {
