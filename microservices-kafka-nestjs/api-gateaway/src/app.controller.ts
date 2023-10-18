@@ -95,11 +95,13 @@ export class AppController {
   }
   @Get("/getAccountsBalanceOfCurrencyType")
   getAccountsBalanceOfCurrencyType(
-    @Body() createCustomerRepresentativeDTO: CreateCustomerRepresentativeDTO,
+    @Body() accountId: string,
+    currencyType: string,
   ) {
     const { appService } = this;
-    return appService.sendCreateCustomerRepresentativeRequest(
-      createCustomerRepresentativeDTO,
-    );
+    return appService.sendGetAccountsCurrencyBalanceRequest({
+      accountId,
+      currencyType,
+    });
   }
 }

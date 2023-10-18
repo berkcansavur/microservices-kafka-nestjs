@@ -176,6 +176,21 @@ export class AppService implements OnModuleInit {
     );
     return account;
   }
+  async sendGetAccountsCurrencyBalanceRequest(data: {
+    accountId: string;
+    currencyType: string;
+  }) {
+    const { logger } = this;
+    logger.debug(
+      "[AppService] sendGetAccountsCurrencyBalanceRequest data: ",
+      data,
+    );
+    const account = await this.handleKafkaAccountEvents(
+      data,
+      ACCOUNT_TOPICS.GET_ACCOUNTS_CURRENCY_BALANCE,
+    );
+    return account;
+  }
   async handleKafkaAccountEvents(
     data: any,
     topic: ACCOUNT_TOPICS,

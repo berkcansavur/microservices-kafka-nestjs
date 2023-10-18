@@ -13,4 +13,5 @@ export enum ACCOUNT_TOPICS {
   GET_ACCOUNT = "get_account",
   GET_ACCOUNTS_LAST_ACTIONS = "get_accounts_last_actions",
   GET_ACCOUNTS_BALANCE = "get_accounts_balance",
+  GET_ACCOUNTS_CURRENCY_BALANCE = "get_accounts_currency_balance",
 }

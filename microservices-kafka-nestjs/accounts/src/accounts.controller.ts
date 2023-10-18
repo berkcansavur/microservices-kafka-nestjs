@@ -11,7 +11,7 @@ import {
 } from "./dtos/account.dtos";
 import { InjectMapper } from "@automapper/nestjs";
 import { Mapper } from "@automapper/core";
-import { EVENT_RESULTS } from "./constants/account.constants";
+import { CURRENCY_TYPES, EVENT_RESULTS } from "./constants/account.constants";
 import { ActionLog, Balance } from "./schemas/account.schema";
 
 @Controller("/accounts")
@@ -113,7 +113,7 @@ export class AccountsController {
     const { accountsService, logger } = this;
     logger.debug(
       `[AccountsController] makeMoneyTransfer incoming request data: ${JSON.stringify(
-        data.accountId,
+        { data },
       )}`,
     );
     const accountLogs: ActionLog[] =
@@ -122,5 +122,24 @@ export class AccountsController {
         actionCount: data.actionCount,
       });
     return accountLogs;
+  }
+  @MessagePattern("get_accounts_currency_balance")
+  @UsePipes(new ParseIncomingRequest())
+  async getAccountsBalanceOfCurrencyType(data: {
+    accountId: string;
+    currencyType: string;
+  }): Promise<Balance> {
+    const { accountsService, logger } = this;
+    logger.debug(
+      `[AccountsController] makeMoneyTransfer incoming request data: ${JSON.stringify(
+        data,
+      )}`,
+    );
+    const account: Balance =
+      await accountsService.getAccountsBalanceOfCurrencyType({
+        accountId: data.accountId,
+        currencyType: data.currencyType as CURRENCY_TYPES,
+      });
+    return account;
   }
 }
