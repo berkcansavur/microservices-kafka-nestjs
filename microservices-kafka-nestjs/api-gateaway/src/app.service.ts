@@ -148,7 +148,7 @@ export class AppService implements OnModuleInit {
   }
   async sendGetAccountRequest(accountId: string) {
     const { logger } = this;
-    logger.debug("[AppService] getAccountsBalance DTO: ", accountId);
+    logger.debug("[AppService] getAccounts DTO: ", accountId);
     const account = await this.handleKafkaAccountEvents(
       accountId,
       ACCOUNT_TOPICS.GET_ACCOUNT,
@@ -160,7 +160,7 @@ export class AppService implements OnModuleInit {
     actionCount: number;
   }) {
     const { logger } = this;
-    logger.debug("[AppService] getAccountsBalance DTO: ", data);
+    logger.debug("[AppService] GetAccountsLastActions DTO: ", data);
     const account = await this.handleKafkaAccountEvents(
       data,
       ACCOUNT_TOPICS.GET_ACCOUNTS_LAST_ACTIONS,
@@ -198,11 +198,9 @@ export class AppService implements OnModuleInit {
     return new Promise((resolve, reject) => {
       this.accountClient.send(topic, data).subscribe({
         next: (response: any) => {
-          console.log(`[${topic}] Response:`, response);
           resolve(response);
         },
         error: (error) => {
-          console.error(`[${topic}] Error:`, error);
           reject(error);
         },
       });
