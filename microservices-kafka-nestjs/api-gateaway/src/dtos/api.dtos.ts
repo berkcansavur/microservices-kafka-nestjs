@@ -109,33 +109,64 @@ export class CreateBankDTO {
   departmentDirectors: object[];
 }
 export class CreateDirectorDTO {
+  @ApiProperty({
+    description: "Bank directors name",
+    required: true,
+    example: "James",
+  })
   @IsNotEmpty()
   @IsString()
   directorName: string;
 
+  @ApiProperty({
+    description: "Bank directors surname",
+    required: true,
+    example: "Miller",
+  })
   @IsNotEmpty()
   @IsString()
   directorSurname: string;
 
+  @ApiProperty({
+    description: "Bank directors age",
+    required: true,
+    example: 32,
+  })
   @IsNotEmpty()
   @IsNumber()
   directorAge: number;
 }
 export class CreateCustomerRepresentativeDTO {
+  @ApiProperty({
+    description: "Bank customer representatives name",
+    required: true,
+    example: "James",
+  })
   @IsNotEmpty()
   @IsString()
   customerRepresentativeName: string;
 
+  @ApiProperty({
+    description: "Bank customer representatives surname",
+    required: true,
+    example: "Miller",
+  })
   @IsNotEmpty()
   @IsString()
   customerRepresentativeSurname: string;
 
+  @ApiProperty({
+    description: "Bank customer representatives age",
+    required: true,
+    example: 32,
+  })
   @IsNotEmpty()
   @IsNumber()
   customerRepresentativeAge: number;
 }
 
 export class CreateAccountDTO {
+  @ApiProperty({})
   @IsNotEmpty()
   @IsMongoId()
   userId: string;
@@ -156,18 +187,38 @@ export class CreateAccountDTO {
   interest?: number;
 }
 export class CreateDepartmentDirectorDTO {
+  @ApiProperty({
+    description: "Bank department director name",
+    required: true,
+    example: "James",
+  })
   @IsNotEmpty()
   @IsString()
   departmentDirectorName: string;
 
+  @ApiProperty({
+    description: "Bank department directors surname",
+    required: true,
+    example: "Miller",
+  })
   @IsNotEmpty()
   @IsString()
   departmentDirectorSurname: string;
 
+  @ApiProperty({
+    description: "Bank department directors age",
+    required: true,
+    example: 32,
+  })
   @IsNotEmpty()
   @IsNumber()
   departmentDirectorAge: number;
 
+  @ApiProperty({
+    description: "Bank department directors department",
+    required: true,
+    example: "Purchasing Department",
+  })
   @IsNotEmpty()
   @IsString()
   department: string;
