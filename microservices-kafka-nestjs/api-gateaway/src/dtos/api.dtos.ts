@@ -1,3 +1,4 @@
+import { ApiProperty } from "@nestjs/swagger";
 import {
   IsString,
   IsNumber,
@@ -8,18 +9,43 @@ import {
   Length,
 } from "class-validator";
 export class CreateTransferDTO {
+  @ApiProperty({
+    description: "Currency type of the inserted money.",
+    required: true,
+    example: "DOLLAR",
+  })
   @IsString()
   currencyType: string;
 
+  @ApiProperty({
+    description: "User Id of the user",
+    required: true,
+    example: "6530a356aaf92d72d1f0f367",
+  })
   @IsMongoId()
   userId: string;
 
+  @ApiProperty({
+    description: "Account Id of the moneys retrieved account  ",
+    required: true,
+    example: "6530a356aaf92d72d1f0f367",
+  })
   @IsMongoId()
   fromAccount: string;
 
+  @ApiProperty({
+    description: "Account Id of the moneys transferred account  ",
+    required: true,
+    example: "6530a356aaf92d72d1f0f367",
+  })
   @IsMongoId()
   toAccount: string;
 
+  @ApiProperty({
+    description: "Amount of the money that transferred to toAccount",
+    required: true,
+    example: 500,
+  })
   @IsNumber()
   amount: number;
 }

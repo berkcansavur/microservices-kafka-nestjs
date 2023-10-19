@@ -11,8 +11,10 @@ import {
   CreateCustomerRepresentativeDTO,
   CreateDepartmentDirectorDTO,
 } from "./dtos/api.dtos";
+import { ApiTags } from "@nestjs/swagger";
 
 @Controller()
+@ApiTags("App")
 export class AppController {
   private readonly logger = new Logger(AppController.name);
   constructor(private readonly appService: AppService) {}
