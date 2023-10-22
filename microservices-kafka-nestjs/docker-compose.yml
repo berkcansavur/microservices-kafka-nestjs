@@ -5,6 +5,7 @@ services:
     container_name: zookeeper
     ports:
       - "2181:2181"
+      
   kafka:
     image: bitnami/kafka:latest
     container_name: kafka
@@ -18,20 +19,20 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
     restart: unless-stopped
+
   mongo:
     image: mongo:latest
     container_name: mongo
     ports:
       - "27017:27017"
     restart: unless-stopped
-  # Other microservices can be defined here
+
   accounts:
     depends_on: 
       - kafka
     build:
       context: ./accounts
     restart: unless-stopped
-    # Other service structres
 
   banks:
     depends_on: 
@@ -39,7 +40,6 @@ services:
     build:
       context: ./banks
     restart: unless-stopped
-    # Other service structres
 
   transfers:
     depends_on: 
@@ -47,7 +47,6 @@ services:
     build:
       context: ./transfers
     restart: unless-stopped
-    # Other service structres
 
   api-gateaway:
     depends_on: 
