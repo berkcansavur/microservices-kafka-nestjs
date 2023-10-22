@@ -19,6 +19,7 @@ This project is an example of a microservices architecture for a banking applica
 - Kafka: Event-driven microservices communication.
 - MongoDB: Database storage.
 - Node.js: Fast and efficient execution.
+- Docker: A platform for simplifying application development, collaboration, and deployment across different platforms and users. It ensures consistent and reproducible environments for your application.
 
 ## General Information
 
@@ -45,8 +46,8 @@ Refer to the README.md file in each microservice's directory for detailed instru
 To get started with the project, follow these steps:
 
 1. Clone the repository.
-2. Navigate to each microservice's directory and follow the instructions in their respective README.md files.
-3. Install and configure Kafka server and Java in your environment.
+3. Go to your main directory and type docker-compose up -d and hit enter in terminal.
+4. To stop and remove docker containers that run type docker-compose down and hit enter in terminal.
 
 Feel free to reach out for any issues or questions.
 
