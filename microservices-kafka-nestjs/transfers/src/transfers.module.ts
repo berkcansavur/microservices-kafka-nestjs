@@ -21,7 +21,7 @@ import { TransferStateFactory } from "factories/transfer-state.factory";
         options: {
           client: {
             clientId: "banks",
-            brokers: ["localhost:9092"],
+            brokers: ["kafka:9092"],
           },
           consumer: {
             groupId: "banks-consumer",
@@ -34,7 +34,7 @@ import { TransferStateFactory } from "factories/transfer-state.factory";
         options: {
           client: {
             clientId: "bank-accounts",
-            brokers: ["localhost:9092"],
+            brokers: ["kafka:9092"],
           },
           consumer: {
             groupId: "accounts-consumer",
