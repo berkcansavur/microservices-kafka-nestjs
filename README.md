@@ -39,7 +39,7 @@ The project follows a microservices architecture, with each microservice focused
 
 ## How to Run
 
-Refer to the README.md file in each microservice's directory for detailed instructions on running the application. Ensure that Kafka server and Java are installed and correctly configured in the environment for the application to work.
+If you want to start application in your own local you need to ensure that Kafka server, Zookeeper Server, Mongo server, Typescript superset, Google Chrome V8 and Java are installed and correctly configured in the environment for the application to work.
 
 ## Getting Started
 
