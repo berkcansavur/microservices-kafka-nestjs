@@ -23,7 +23,7 @@ import { AccountActionFactory } from "./factories/account-action.factory";
         options: {
           client: {
             clientId: "banks",
-            brokers: ["localhost:9092"],
+            brokers: ["kafka:9092"],
           },
           consumer: {
             groupId: "banks-consumer",

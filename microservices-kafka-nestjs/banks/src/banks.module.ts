@@ -30,7 +30,7 @@ import { CustomersRepository } from "./repositories/customer.repository";
         options: {
           client: {
             clientId: "bank-transfers",
-            brokers: ["localhost:9092"],
+            brokers: ["kafka:9092"],
           },
           consumer: {
             groupId: "transfers-consumer",
@@ -43,7 +43,7 @@ import { CustomersRepository } from "./repositories/customer.repository";
         options: {
           client: {
             clientId: "bank-accounts",
-            brokers: ["localhost:9092"],
+            brokers: ["kafka:9092"],
           },
           consumer: {
             groupId: "accounts-consumer",
