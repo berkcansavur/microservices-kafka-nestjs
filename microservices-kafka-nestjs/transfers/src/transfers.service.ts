@@ -14,7 +14,7 @@ import { ClientKafka } from "@nestjs/microservices";
 import { TransferCouldNotCreatedException } from "./exceptions/index";
 import { TRANSFER_STATUSES } from "./constants/transfer.constants";
 import { ITransferService } from "./interfaces/transfer-service.intrerface";
-import { TransferStateFactory } from "factories/transfer-state.factory";
+import { TransferStateFactory } from "src/factories/transfer-state.factory";
 
 @Injectable()
 export class TransfersService implements ITransferService, OnModuleInit {

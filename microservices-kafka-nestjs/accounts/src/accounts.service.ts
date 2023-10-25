@@ -1,4 +1,4 @@
-import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
+import { Inject, Injectable, Logger } from "@nestjs/common";
 import { AccountsRepository } from "./accounts.repository";
 import {
   AccountDTO,
@@ -11,29 +11,33 @@ import { InjectMapper } from "@automapper/nestjs";
 import { Mapper } from "@automapper/core";
 import {
   ACCOUNT_ACTIONS,
+  ACCOUNT_STATUS,
   AVAILABILITY_RESULT,
   CURRENCY_TYPES,
   EVENT_RESULTS,
 } from "./constants/account.constants";
 import { AccountLogic } from "./logic/account.logic";
+import { AccountStateFactory } from "./factories/account-state.factory";
 import {
+  AccountCouldNotCreatedException,
   AccountIsNotFoundException,
   AccountLogsAreNotFoundException,
+  AccountStatusCouldNotUpdatedException,
   AccountsBalanceCouldNotRetrievedException,
-  TransferCouldNotCompletedException,
 } from "./exceptions/index";
+import { AccountActionFactory } from "./factories/account-action.factory";
 
 @Injectable()
-export class AccountService implements OnModuleInit {
+export class AccountService {
   private readonly logger = new Logger(AccountService.name);
   constructor(
+    @Inject("ACCOUNT_ACTION_FACTORY")
+    private readonly accountActionFactory: AccountActionFactory,
+    @Inject("ACCOUNT_STATE_FACTORY")
+    private readonly accountStateFactory: AccountStateFactory,
     private readonly accountsRepository: AccountsRepository,
     @InjectMapper() private readonly AccountsMapper: Mapper,
   ) {}
-  async onModuleInit() {
-    // this.bankClient.subscribeToResponseOf("transfer_approval");
-    // await this.bankClient.connect();
-  }
   async getAccount({ accountId }: { accountId: string }): Promise<AccountDTO> {
     const { accountsRepository, logger } = this;
     logger.debug("[AccountService getAccount]", { accountId });
@@ -46,19 +50,30 @@ export class AccountService implements OnModuleInit {
   }: {
     createAccountDTO: CreateAccountDTO;
   }): Promise<AccountDTO> {
-    const { accountsRepository, logger, AccountsMapper } = this;
+    const { accountsRepository, logger, accountStateFactory } = this;
     logger.debug("[AccountService createAccount]", { createAccountDTO });
-    const createdAccount: Account = await accountsRepository.createAccount({
-      createAccountDTO: createAccountDTO,
-    });
-    if (!createdAccount) {
-      throw new Error("Account is not created");
+    try {
+      const createdAccount: Account = await accountsRepository.createAccount({
+        createAccountDTO: createAccountDTO,
+      });
+      if (!createdAccount) {
+        throw new AccountCouldNotCreatedException(createAccountDTO);
+      }
+      const statusUpdatedCreatedAccount = await (
+        await accountStateFactory.getAccountState(ACCOUNT_STATUS.CREATED)
+      ).created(createdAccount);
+      if (statusUpdatedCreatedAccount) {
+        return (
+          await accountStateFactory.getAccountState(ACCOUNT_STATUS.AVAILABLE)
+        ).available(statusUpdatedCreatedAccount);
+      } else {
+        throw new AccountStatusCouldNotUpdatedException(
+          statusUpdatedCreatedAccount._id,
+        );
+      }
+    } catch (error) {
+      throw new Error("Account is could not created");
     }
-    return AccountsMapper.map<Account, AccountDTO>(
-      createdAccount,
-      Account,
-      AccountDTO,
-    );
   }
   private async updateBalanceOfAccount({
     accountId,
@@ -66,31 +81,42 @@ export class AccountService implements OnModuleInit {
     currencyType,
     actionType,
     transactionPerformerId,
+    actionFunc,
   }: {
     accountId: string;
     amount: number;
     currencyType: CURRENCY_TYPES;
     actionType: ACCOUNT_ACTIONS;
     transactionPerformerId: string;
+    actionFunc?: () => Promise<void>;
   }): Promise<AccountDTO> {
-    const { accountsRepository, logger, AccountsMapper } = this;
+    const { accountsRepository, logger, accountStateFactory } = this;
     logger.debug("[AccountService] updateBalanceOfAccount", {
       accountId,
       amount,
       currencyType,
       transactionPerformerId,
     });
+    const account: Account = await accountsRepository.getAccount({ accountId });
+    const updatedStateInTransaction = await (
+      await accountStateFactory.getAccountState(ACCOUNT_STATUS.IN_TRANSACTION)
+    ).inTransaction(account);
+    if (!updatedStateInTransaction) {
+      throw new AccountStatusCouldNotUpdatedException();
+    }
     if (actionType === ACCOUNT_ACTIONS.MONEY_TRANSFERRED_TO_ACCOUNT) {
       const updatedAccount = await accountsRepository.updateAccountBalance({
         accountId,
         amount: amount,
         currencyType: currencyType,
       });
-      return AccountsMapper.map<Account, AccountDTO>(
-        updatedAccount,
-        Account,
-        AccountDTO,
-      );
+      if (actionFunc) {
+        await actionFunc();
+      }
+      const statusUpdatedAccount: AccountDTO = await (
+        await accountStateFactory.getAccountState(ACCOUNT_STATUS.AVAILABLE)
+      ).available(updatedAccount);
+      return statusUpdatedAccount;
     }
     if (actionType === ACCOUNT_ACTIONS.MONEY_TRANSFERRED_FROM_ACCOUNT) {
       const updatedAccount = await accountsRepository.updateAccountBalance({
@@ -98,42 +124,14 @@ export class AccountService implements OnModuleInit {
         amount: -amount,
         currencyType: currencyType,
       });
-      return AccountsMapper.map<Account, AccountDTO>(
-        updatedAccount,
-        Account,
-        AccountDTO,
-      );
+      if (actionFunc) {
+        await actionFunc();
+      }
+      const statusUpdatedAccount: AccountDTO = await (
+        await accountStateFactory.getAccountState(ACCOUNT_STATUS.AVAILABLE)
+      ).available(updatedAccount);
+      return statusUpdatedAccount;
     }
-  }
-  async createAccountAction({
-    accountId,
-    transactionPerformerId,
-    action,
-    message,
-  }: {
-    accountId: string;
-    transactionPerformerId: string;
-    action: ACCOUNT_ACTIONS;
-    message?: string;
-  }): Promise<AccountDTO> {
-    const { accountsRepository, logger, AccountsMapper } = this;
-    logger.debug("[AccountService] createAccountAction", {
-      accountId,
-      transactionPerformerId,
-      action,
-      message,
-    });
-    const updatedAccount: Account = await accountsRepository.addAction({
-      accountId,
-      userId: transactionPerformerId,
-      action,
-      message,
-    });
-    return AccountsMapper.map<Account, AccountDTO>(
-      updatedAccount,
-      Account,
-      AccountDTO,
-    );
   }
   async handleTransferAcrossAccounts({
     createMoneyTransferDTO,
@@ -148,7 +146,7 @@ export class AccountService implements OnModuleInit {
       amount,
       currencyType,
     } = createMoneyTransferDTO;
-    const { logger } = this;
+    const { logger, accountActionFactory } = this;
     logger.debug("[AccountService] handleTransferAcrossAccounts", {
       toAccountId,
       fromAccountId,
@@ -162,41 +160,50 @@ export class AccountService implements OnModuleInit {
       currencyType,
       actionType: ACCOUNT_ACTIONS.MONEY_TRANSFERRED_TO_ACCOUNT,
       transactionPerformerId: userId,
-    })
-      .then(async (result) => {
-        if (result) {
-          await this.createAccountAction({
-            accountId: toAccountId,
-            action: ACCOUNT_ACTIONS.TRANSFER_COMPLETED,
-            message: `${amount} ${currencyType}s is transferred to account by transfer: ${transferId}`,
-            transactionPerformerId: userId,
-          });
-        }
-      })
-      .catch(() => {
-        throw new TransferCouldNotCompletedException();
+      actionFunc: async () => {
+        await (
+          await accountActionFactory.getAccountAction(
+            ACCOUNT_ACTIONS.MONEY_TRANSFERRED_TO_ACCOUNT,
+          )
+        ).moneyTransferToAccount(
+          toAccountId,
+          userId,
+          amount,
+          currencyType,
+          transferId,
+        );
+      },
+    });
+
+    if (fromAccountId) {
+      const updatedFromAccount = await this.updateBalanceOfAccount({
+        accountId: fromAccountId,
+        amount,
+        currencyType,
+        actionType: ACCOUNT_ACTIONS.MONEY_TRANSFERRED_FROM_ACCOUNT,
+        transactionPerformerId: userId,
+        actionFunc: async () => {
+          await (
+            await accountActionFactory.getAccountAction(
+              ACCOUNT_ACTIONS.MONEY_TRANSFERRED_FROM_ACCOUNT,
+            )
+          ).moneyTransferFromAccount(
+            fromAccountId,
+            userId,
+            amount,
+            currencyType,
+            transferId,
+          );
+        },
       });
-    const updatedFromAccount = await this.updateBalanceOfAccount({
-      accountId: fromAccountId,
-      amount,
-      currencyType,
-      actionType: ACCOUNT_ACTIONS.MONEY_TRANSFERRED_FROM_ACCOUNT,
-      transactionPerformerId: userId,
-    })
-      .then(async (result) => {
-        if (result) {
-          await this.createAccountAction({
-            accountId: fromAccountId,
-            action: ACCOUNT_ACTIONS.TRANSFER_COMPLETED,
-            message: `${amount} ${currencyType}s is transferred from your account by transfer: ${transferId}`,
-            transactionPerformerId: userId,
-          });
-        }
-      })
-      .catch(() => {
-        throw new TransferCouldNotCompletedException();
-      });
-    if (updatedFromAccount !== null && updatedToAccount !== null) {
+      if (updatedFromAccount !== null && updatedToAccount !== null) {
+        return EVENT_RESULTS.SUCCESS;
+      } else {
+        return EVENT_RESULTS.FAILED;
+      }
+    }
+
+    if (updatedToAccount !== null) {
       return EVENT_RESULTS.SUCCESS;
     } else {
       return EVENT_RESULTS.FAILED;

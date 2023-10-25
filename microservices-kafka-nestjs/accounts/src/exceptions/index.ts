@@ -28,6 +28,23 @@ export class AccountStatusIsNotValidException extends BankAppException {
     Object.setPrototypeOf(this, AccountStatusIsNotValidException.prototype);
   }
 }
+export class AccountStatusCouldNotUpdatedException extends BankAppException {
+  constructor(data?: string | object) {
+    super(
+      "Account status is not valid",
+      19015,
+      HttpStatus.NOT_FOUND,
+      JSON.stringify(data),
+      "AccountStatusCouldNotUpdatedException",
+    );
+
+    this.name = "AccountStatusCouldNotUpdatedException";
+    Object.setPrototypeOf(
+      this,
+      AccountStatusCouldNotUpdatedException.prototype,
+    );
+  }
+}
 export class InvalidEventResultCode extends BankAppException {
   constructor(data?: string | object) {
     super(
@@ -121,5 +138,31 @@ export class AccountsBalanceCouldNotRetrievedException extends BankAppException 
       this,
       AccountsBalanceCouldNotRetrievedException.prototype,
     );
+  }
+}
+export class AccountActionCouldNotAddedException extends BankAppException {
+  constructor(data?: string | object) {
+    super(
+      "Account action is could not added",
+      8200,
+      HttpStatus.BAD_REQUEST,
+      JSON.stringify(data),
+      "AccountActionCouldNotAddedException",
+    );
+    this.name = "AccountActionCouldNotAddedException";
+    Object.setPrototypeOf(this, AccountActionCouldNotAddedException.prototype);
+  }
+}
+export class AccountActionIsNotValidException extends BankAppException {
+  constructor(data?: string | object) {
+    super(
+      "Account action is not valid",
+      8300,
+      HttpStatus.BAD_REQUEST,
+      JSON.stringify(data),
+      "AccountActionIsNotValidException",
+    );
+    this.name = "AccountActionIsNotValidException";
+    Object.setPrototypeOf(this, AccountActionIsNotValidException.prototype);
   }
 }

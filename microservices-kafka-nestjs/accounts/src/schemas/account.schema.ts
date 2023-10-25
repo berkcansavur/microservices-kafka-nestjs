@@ -10,13 +10,13 @@ import {
   versionKey: false,
 })
 export class ActionLog {
-  @Prop({ type: Number, enum: ACCOUNT_ACTIONS, required: true })
+  @Prop({ type: Number, enum: ACCOUNT_ACTIONS, required: false })
   action: number;
 
   @Prop({ type: String, required: false })
   message?: string;
 
-  @Prop({ type: mSchema.Types.ObjectId, required: true })
+  @Prop({ type: mSchema.Types.ObjectId, required: false })
   user?: string;
 
   @Prop({ type: Date, default: Date.now })
@@ -69,7 +69,6 @@ export class Account {
     type: Number,
     enum: ACCOUNT_STATUS,
     default: ACCOUNT_STATUS.CREATED,
-    required: true,
   })
   status: number;
 

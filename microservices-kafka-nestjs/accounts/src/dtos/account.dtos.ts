@@ -5,7 +5,7 @@ import { ActionLog, Balance } from "src/schemas/account.schema";
 export class CreateAccountDTO {
   @IsNotEmpty()
   @IsMongoId()
-  userId: string;
+  userId: Types.ObjectId;
 
   @IsNotEmpty()
   @IsNumber()
@@ -22,18 +22,17 @@ export class CreateAccountDTO {
   @IsNumber()
   interest: number;
 
-  balance: Balance[];
+  balance?: Balance[];
 
-  @IsNotEmpty()
   @IsNumber()
-  status: number;
+  status?: number;
 
   actionLogs: ActionLog[];
 }
 export class CreateAccountIncomingRequestDTO {
   @IsMongoId()
   @IsNotEmpty()
-  userId: string;
+  userId: Types.ObjectId;
 
   @IsNumber()
   @IsNotEmpty()
