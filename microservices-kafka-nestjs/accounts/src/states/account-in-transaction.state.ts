@@ -54,7 +54,7 @@ export class AccountInTransactionState implements IAccountState {
     const inTransactionAccount: Account =
       await accountsRepository.updateAccountStatus({
         accountId: accountDTO._id.toString(),
-        status: ACCOUNT_STATUS.AVAILABLE,
+        status: ACCOUNT_STATUS.IN_TRANSACTION,
         action: ACCOUNT_ACTIONS.ACCOUNT_STATUS_UPDATED,
         message: `Account is in transaction`,
         userId: accountDTO.userId.toString(),

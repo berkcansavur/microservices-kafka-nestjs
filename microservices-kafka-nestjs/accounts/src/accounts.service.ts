@@ -86,24 +86,30 @@ export class AccountService {
     actionType: ACCOUNT_ACTIONS;
     transactionPerformerId: string;
   }): Promise<AccountDTO> {
-    const { accountsRepository, logger, AccountsMapper } = this;
+    const { accountsRepository, logger, accountStateFactory } = this;
     logger.debug("[AccountService] updateBalanceOfAccount", {
       accountId,
       amount,
       currencyType,
       transactionPerformerId,
     });
+    const account: Account = await accountsRepository.getAccount({ accountId });
+    const updatedStateInTransaction = await (
+      await accountStateFactory.getAccountState(ACCOUNT_STATUS.IN_TRANSACTION)
+    ).inTransaction(account);
+    if (!updatedStateInTransaction) {
+      throw new AccountStatusCouldNotUpdatedException();
+    }
     if (actionType === ACCOUNT_ACTIONS.MONEY_TRANSFERRED_TO_ACCOUNT) {
       const updatedAccount = await accountsRepository.updateAccountBalance({
         accountId,
         amount: amount,
         currencyType: currencyType,
       });
-      return AccountsMapper.map<Account, AccountDTO>(
-        updatedAccount,
-        Account,
-        AccountDTO,
-      );
+      const statusUpdatedAccount: AccountDTO = await (
+        await accountStateFactory.getAccountState(ACCOUNT_STATUS.AVAILABLE)
+      ).available(updatedAccount);
+      return statusUpdatedAccount;
     }
     if (actionType === ACCOUNT_ACTIONS.MONEY_TRANSFERRED_FROM_ACCOUNT) {
       const updatedAccount = await accountsRepository.updateAccountBalance({
@@ -111,11 +117,10 @@ export class AccountService {
         amount: -amount,
         currencyType: currencyType,
       });
-      return AccountsMapper.map<Account, AccountDTO>(
-        updatedAccount,
-        Account,
-        AccountDTO,
-      );
+      const statusUpdatedAccount: AccountDTO = await (
+        await accountStateFactory.getAccountState(ACCOUNT_STATUS.AVAILABLE)
+      ).available(updatedAccount);
+      return statusUpdatedAccount;
     }
   }
   async createAccountAction({
@@ -189,27 +194,35 @@ export class AccountService {
       .catch(() => {
         throw new TransferCouldNotCompletedException();
       });
-    const updatedFromAccount = await this.updateBalanceOfAccount({
-      accountId: fromAccountId,
-      amount,
-      currencyType,
-      actionType: ACCOUNT_ACTIONS.MONEY_TRANSFERRED_FROM_ACCOUNT,
-      transactionPerformerId: userId,
-    })
-      .then(async (result) => {
-        if (result) {
-          await this.createAccountAction({
-            accountId: fromAccountId,
-            action: ACCOUNT_ACTIONS.TRANSFER_COMPLETED,
-            message: `${amount} ${currencyType}s is transferred from your account by transfer: ${transferId}`,
-            transactionPerformerId: userId,
-          });
-        }
+    if (fromAccountId) {
+      const updatedFromAccount = await this.updateBalanceOfAccount({
+        accountId: fromAccountId,
+        amount,
+        currencyType,
+        actionType: ACCOUNT_ACTIONS.MONEY_TRANSFERRED_FROM_ACCOUNT,
+        transactionPerformerId: userId,
       })
-      .catch(() => {
-        throw new TransferCouldNotCompletedException();
-      });
-    if (updatedFromAccount !== null && updatedToAccount !== null) {
+        .then(async (result) => {
+          if (result) {
+            await this.createAccountAction({
+              accountId: fromAccountId,
+              action: ACCOUNT_ACTIONS.TRANSFER_COMPLETED,
+              message: `${amount} ${currencyType}s is transferred from your account by transfer: ${transferId}`,
+              transactionPerformerId: userId,
+            });
+          }
+        })
+        .catch(() => {
+          throw new TransferCouldNotCompletedException();
+        });
+      if (updatedFromAccount !== null && updatedToAccount !== null) {
+        return EVENT_RESULTS.SUCCESS;
+      } else {
+        return EVENT_RESULTS.FAILED;
+      }
+    }
+
+    if (updatedToAccount !== null) {
       return EVENT_RESULTS.SUCCESS;
     } else {
       return EVENT_RESULTS.FAILED;
