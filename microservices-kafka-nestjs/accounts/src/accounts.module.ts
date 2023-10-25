@@ -10,7 +10,9 @@ import { Account, AccountSchema } from "./schemas/account.schema";
 import { AccountsRepository } from "./accounts.repository";
 import { AccountProfile } from "./mapper/account.profile";
 import { AccountStateMap } from "./states/account-state.map";
-import { AccountStateFactory } from "./factories/account-state-factory";
+import { AccountStateFactory } from "./factories/account-state.factory";
+import { AccountActionMap } from "./actions/account-action.map";
+import { AccountActionFactory } from "./factories/account-action.factory";
 
 @Module({
   imports: [
@@ -47,6 +49,11 @@ import { AccountStateFactory } from "./factories/account-state-factory";
     {
       provide: "ACCOUNT_STATE_FACTORY",
       useClass: AccountStateFactory,
+    },
+    AccountActionMap,
+    {
+      provide: "ACCOUNT_ACTION_FACTORY",
+      useClass: AccountActionFactory,
     },
   ],
   controllers: [AccountsController],

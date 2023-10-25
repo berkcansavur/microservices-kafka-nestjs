@@ -153,3 +153,16 @@ export class AccountActionCouldNotAddedException extends BankAppException {
     Object.setPrototypeOf(this, AccountActionCouldNotAddedException.prototype);
   }
 }
+export class AccountActionIsNotValidException extends BankAppException {
+  constructor(data?: string | object) {
+    super(
+      "Account action is not valid",
+      8300,
+      HttpStatus.BAD_REQUEST,
+      JSON.stringify(data),
+      "AccountActionIsNotValidException",
+    );
+    this.name = "AccountActionIsNotValidException";
+    Object.setPrototypeOf(this, AccountActionIsNotValidException.prototype);
+  }
+}
