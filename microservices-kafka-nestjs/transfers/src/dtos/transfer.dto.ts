@@ -93,45 +93,18 @@ export class CreateTransferRequestDTO {
   @IsMongoId()
   userId: string;
 
-  // @IsMongoId()
+  @IsString()
   fromAccount: string;
 
-  // @IsMongoId()
+  @IsString()
   toAccount: string;
 
   @IsNumber()
   amount: number;
-}
-export class TransferReportDTO {
-  _id?: Types.ObjectId;
-  transfer: string;
-  createdAt: Date;
-  updatedAt: Date;
 }
 export class CompleteTransferRequestDTO {
   @IsNotEmpty()
   @IsString()
   @IsMongoId()
   userId: string;
-}
-export class SaveTransferReportRequestDTO {
-  @IsNotEmpty()
-  @IsMongoId()
-  @IsString()
-  userId: string;
-
-  @IsNotEmpty()
-  transferReport: TransferReportDTO;
-}
-export class GetTransferApproval {
-  constructor(
-    public readonly status: string,
-    public readonly id: string,
-  ) {}
-  toString() {
-    return JSON.stringify({
-      id: this.id,
-      status: this.status,
-    });
-  }
 }

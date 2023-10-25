@@ -1,4 +1,4 @@
-import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { AccountsRepository } from "./accounts.repository";
 import {
   AccountDTO,
@@ -24,16 +24,12 @@ import {
 } from "./exceptions/index";
 
 @Injectable()
-export class AccountService implements OnModuleInit {
+export class AccountService {
   private readonly logger = new Logger(AccountService.name);
   constructor(
     private readonly accountsRepository: AccountsRepository,
     @InjectMapper() private readonly AccountsMapper: Mapper,
   ) {}
-  async onModuleInit() {
-    // this.bankClient.subscribeToResponseOf("transfer_approval");
-    // await this.bankClient.connect();
-  }
   async getAccount({ accountId }: { accountId: string }): Promise<AccountDTO> {
     const { accountsRepository, logger } = this;
     logger.debug("[AccountService getAccount]", { accountId });
