@@ -26,9 +26,10 @@ import {
   AccountsBalanceCouldNotRetrievedException,
 } from "./exceptions/index";
 import { AccountActionFactory } from "./factories/account-action.factory";
+import { IAccountService } from "./interfaces/account-service.interface";
 
 @Injectable()
-export class AccountService {
+export class AccountService implements IAccountService {
   private readonly logger = new Logger(AccountService.name);
   constructor(
     @Inject("ACCOUNT_ACTION_FACTORY")
