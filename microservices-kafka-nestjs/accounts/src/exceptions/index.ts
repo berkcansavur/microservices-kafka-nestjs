@@ -123,3 +123,16 @@ export class AccountsBalanceCouldNotRetrievedException extends BankAppException 
     );
   }
 }
+export class AccountActionCouldNotAddedException extends BankAppException {
+  constructor(data?: string | object) {
+    super(
+      "Account action is could not added",
+      8200,
+      HttpStatus.BAD_REQUEST,
+      JSON.stringify(data),
+      "AccountActionCouldNotAddedException",
+    );
+    this.name = "AccountActionCouldNotAddedException";
+    Object.setPrototypeOf(this, AccountActionCouldNotAddedException.prototype);
+  }
+}

@@ -17,6 +17,8 @@ import {
 } from "./constants/account.constants";
 import { AccountLogic } from "./logic/account.logic";
 import {
+  AccountActionCouldNotAddedException,
+  AccountCouldNotCreatedException,
   AccountIsNotFoundException,
   AccountLogsAreNotFoundException,
   AccountsBalanceCouldNotRetrievedException,
@@ -42,19 +44,32 @@ export class AccountService {
   }: {
     createAccountDTO: CreateAccountDTO;
   }): Promise<AccountDTO> {
-    const { accountsRepository, logger, AccountsMapper } = this;
+    const { accountsRepository, logger } = this;
     logger.debug("[AccountService createAccount]", { createAccountDTO });
-    const createdAccount: Account = await accountsRepository.createAccount({
-      createAccountDTO: createAccountDTO,
-    });
-    if (!createdAccount) {
+    try {
+      const createdAccount: Account = await accountsRepository
+        .createAccount({
+          createAccountDTO: createAccountDTO,
+        })
+        .catch(() => {
+          throw new AccountCouldNotCreatedException({
+            message: createAccountDTO,
+          });
+        });
+      const actionAddedAccount: AccountDTO = await this.createAccountAction({
+        accountId: createdAccount._id.toString(),
+        action: ACCOUNT_ACTIONS.CREATED,
+        message: `Account is successfully created by ${createAccountDTO.userId}`,
+        transactionPerformerId: createAccountDTO.userId.toString(),
+      }).catch(() => {
+        throw new AccountActionCouldNotAddedException({
+          message: createdAccount,
+        });
+      });
+      return actionAddedAccount;
+    } catch (error) {
       throw new Error("Account is not created");
     }
-    return AccountsMapper.map<Account, AccountDTO>(
-      createdAccount,
-      Account,
-      AccountDTO,
-    );
   }
   private async updateBalanceOfAccount({
     accountId,
