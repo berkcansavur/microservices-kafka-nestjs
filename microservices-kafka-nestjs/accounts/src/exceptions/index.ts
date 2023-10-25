@@ -28,6 +28,23 @@ export class AccountStatusIsNotValidException extends BankAppException {
     Object.setPrototypeOf(this, AccountStatusIsNotValidException.prototype);
   }
 }
+export class AccountStatusCouldNotUpdatedException extends BankAppException {
+  constructor(data?: string | object) {
+    super(
+      "Account status is not valid",
+      19015,
+      HttpStatus.NOT_FOUND,
+      JSON.stringify(data),
+      "AccountStatusCouldNotUpdatedException",
+    );
+
+    this.name = "AccountStatusCouldNotUpdatedException";
+    Object.setPrototypeOf(
+      this,
+      AccountStatusCouldNotUpdatedException.prototype,
+    );
+  }
+}
 export class InvalidEventResultCode extends BankAppException {
   constructor(data?: string | object) {
     super(

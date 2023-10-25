@@ -10,7 +10,7 @@ import { ClientsModule, Transport } from "@nestjs/microservices";
 import { ConfigModule } from "@nestjs/config";
 import { AutomapperModule } from "@automapper/nestjs";
 import { classes } from "@automapper/classes";
-import { TransferStateFactory } from "factories/transfer-state.factory";
+import { TransferStateFactory } from "src/factories/transfer-state.factory";
 
 @Module({
   imports: [
@@ -21,7 +21,7 @@ import { TransferStateFactory } from "factories/transfer-state.factory";
         options: {
           client: {
             clientId: "banks",
-            brokers: ["kafka:9092"],
+            brokers: ["localhost:9092"],
           },
           consumer: {
             groupId: "banks-consumer",
@@ -34,7 +34,7 @@ import { TransferStateFactory } from "factories/transfer-state.factory";
         options: {
           client: {
             clientId: "bank-accounts",
-            brokers: ["kafka:9092"],
+            brokers: ["localhost:9092"],
           },
           consumer: {
             groupId: "accounts-consumer",

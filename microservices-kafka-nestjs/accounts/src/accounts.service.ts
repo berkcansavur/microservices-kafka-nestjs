@@ -1,4 +1,4 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Inject, Injectable, Logger } from "@nestjs/common";
 import { AccountsRepository } from "./accounts.repository";
 import {
   AccountDTO,
@@ -11,16 +11,18 @@ import { InjectMapper } from "@automapper/nestjs";
 import { Mapper } from "@automapper/core";
 import {
   ACCOUNT_ACTIONS,
+  ACCOUNT_STATUS,
   AVAILABILITY_RESULT,
   CURRENCY_TYPES,
   EVENT_RESULTS,
 } from "./constants/account.constants";
 import { AccountLogic } from "./logic/account.logic";
+import { AccountStateFactory } from "./factories/account-state-factory";
 import {
-  AccountActionCouldNotAddedException,
   AccountCouldNotCreatedException,
   AccountIsNotFoundException,
   AccountLogsAreNotFoundException,
+  AccountStatusCouldNotUpdatedException,
   AccountsBalanceCouldNotRetrievedException,
   TransferCouldNotCompletedException,
 } from "./exceptions/index";
@@ -29,6 +31,8 @@ import {
 export class AccountService {
   private readonly logger = new Logger(AccountService.name);
   constructor(
+    @Inject("ACCOUNT_STATE_FACTORY")
+    private readonly accountStateFactory: AccountStateFactory,
     private readonly accountsRepository: AccountsRepository,
     @InjectMapper() private readonly AccountsMapper: Mapper,
   ) {}
@@ -44,31 +48,29 @@ export class AccountService {
   }: {
     createAccountDTO: CreateAccountDTO;
   }): Promise<AccountDTO> {
-    const { accountsRepository, logger } = this;
+    const { accountsRepository, logger, accountStateFactory } = this;
     logger.debug("[AccountService createAccount]", { createAccountDTO });
     try {
-      const createdAccount: Account = await accountsRepository
-        .createAccount({
-          createAccountDTO: createAccountDTO,
-        })
-        .catch(() => {
-          throw new AccountCouldNotCreatedException({
-            message: createAccountDTO,
-          });
-        });
-      const actionAddedAccount: AccountDTO = await this.createAccountAction({
-        accountId: createdAccount._id.toString(),
-        action: ACCOUNT_ACTIONS.CREATED,
-        message: `Account is successfully created by ${createAccountDTO.userId}`,
-        transactionPerformerId: createAccountDTO.userId.toString(),
-      }).catch(() => {
-        throw new AccountActionCouldNotAddedException({
-          message: createdAccount,
-        });
+      const createdAccount: Account = await accountsRepository.createAccount({
+        createAccountDTO: createAccountDTO,
       });
-      return actionAddedAccount;
+      if (!createdAccount) {
+        throw new AccountCouldNotCreatedException(createAccountDTO);
+      }
+      const statusUpdatedCreatedAccount = await (
+        await accountStateFactory.getAccountState(ACCOUNT_STATUS.CREATED)
+      ).created(createdAccount);
+      if (statusUpdatedCreatedAccount) {
+        return (
+          await accountStateFactory.getAccountState(ACCOUNT_STATUS.AVAILABLE)
+        ).available(statusUpdatedCreatedAccount);
+      } else {
+        throw new AccountStatusCouldNotUpdatedException(
+          statusUpdatedCreatedAccount._id,
+        );
+      }
     } catch (error) {
-      throw new Error("Account is not created");
+      throw new Error("Account is could not created");
     }
   }
   private async updateBalanceOfAccount({

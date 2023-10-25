@@ -9,6 +9,8 @@ import { classes } from "@automapper/classes";
 import { Account, AccountSchema } from "./schemas/account.schema";
 import { AccountsRepository } from "./accounts.repository";
 import { AccountProfile } from "./mapper/account.profile";
+import { AccountStateMap } from "./states/account-state.map";
+import { AccountStateFactory } from "./factories/account-state-factory";
 
 @Module({
   imports: [
@@ -19,7 +21,7 @@ import { AccountProfile } from "./mapper/account.profile";
         options: {
           client: {
             clientId: "banks",
-            brokers: ["kafka:9092"],
+            brokers: ["localhost:9092"],
           },
           consumer: {
             groupId: "banks-consumer",
@@ -37,7 +39,16 @@ import { AccountProfile } from "./mapper/account.profile";
     }),
     MongooseModule.forFeature([{ name: Account.name, schema: AccountSchema }]),
   ],
-  providers: [AccountService, AccountsRepository, AccountProfile],
+  providers: [
+    AccountService,
+    AccountsRepository,
+    AccountProfile,
+    AccountStateMap,
+    {
+      provide: "ACCOUNT_STATE_FACTORY",
+      useClass: AccountStateFactory,
+    },
+  ],
   controllers: [AccountsController],
 })
 export class AccountsModule {}
