@@ -5,10 +5,7 @@ import {
   CreateTransferDTO,
   MoneyTransferDTO,
   CreateCustomerDTO,
-  CreateBankCustomerRepresentativeDTO,
   CreateBankDTO,
-  CreateBankDirectorDTO,
-  CreateBankDepartmentDirectorDTO,
 } from "src/dtos/bank.dto";
 import { BanksRepository } from "./repositories/banks.repository";
 import { ClientKafka } from "@nestjs/microservices";
@@ -18,11 +15,6 @@ import { CustomersService } from "./customers/customers.service";
 import { BanksLogic } from "./logic/banks.logic";
 import { AccountType, TransferType } from "./types/bank.types";
 import { Bank } from "./schemas/banks.schema";
-import {
-  BankCustomerRepresentative,
-  BankDepartmentDirector,
-  BankDirector,
-} from "./schemas/employee-schema";
 import { EVENT_RESULTS } from "./constants/banks.constants";
 import { ACCOUNT_TOPICS, TRANSFER_TOPICS } from "./constants/kafka.constants";
 @Injectable()
@@ -241,64 +233,6 @@ export class BanksService implements OnModuleInit {
     } catch (error) {
       throw new Error(`Error in handleCreateMoneyTransferToAccount: ${error}`);
     }
-  }
-  async handleCreateBankDirector({
-    createBankDirectorDTO,
-  }: {
-    createBankDirectorDTO: CreateBankDirectorDTO;
-  }): Promise<BankDirector> {
-    const { logger, banksRepository } = this;
-    logger.debug(
-      "[BanksService] handleCreateBankDirector DTO: ",
-      createBankDirectorDTO,
-    );
-    const bankDirector: BankDirector = await banksRepository.createBankDirector(
-      {
-        createBankDirectorDTO,
-      },
-    );
-    if (!BanksLogic.isObjectValid(bankDirector)) {
-      throw new Error("BankDirector could not be created");
-    }
-    return bankDirector;
-  }
-  async handleCreateBankDepartmentDirector({
-    createBankDepartmentDirectorDTO,
-  }: {
-    createBankDepartmentDirectorDTO: CreateBankDepartmentDirectorDTO;
-  }): Promise<BankDepartmentDirector> {
-    const { logger, banksRepository } = this;
-    logger.debug(
-      "[BanksService] handleCreateBankDepartmentDirector DTO: ",
-      createBankDepartmentDirectorDTO,
-    );
-    const bankDepartmentDirector: BankDepartmentDirector =
-      await banksRepository.createDepartmentDirector({
-        createBankDepartmentDirectorDTO,
-      });
-    if (!BanksLogic.isObjectValid(bankDepartmentDirector)) {
-      throw new Error("BankDirector could not be created");
-    }
-    return bankDepartmentDirector;
-  }
-  async handleCreateBankCustomerRepresentative({
-    createBankCustomerRepresentativeDTO,
-  }: {
-    createBankCustomerRepresentativeDTO: CreateBankCustomerRepresentativeDTO;
-  }): Promise<BankCustomerRepresentative> {
-    const { logger, banksRepository } = this;
-    logger.debug(
-      "[BanksService] handleCreateBankDirector DTO: ",
-      createBankCustomerRepresentativeDTO,
-    );
-    const bankCustomerRepresentative: BankCustomerRepresentative =
-      await banksRepository.createCustomerRepresentative({
-        createBankCustomerRepresentativeDTO,
-      });
-    if (!BanksLogic.isObjectValid(bankCustomerRepresentative)) {
-      throw new Error("BankDirector could not be created");
-    }
-    return bankCustomerRepresentative;
   }
   async handleCreateBank({
     createBankDTO,

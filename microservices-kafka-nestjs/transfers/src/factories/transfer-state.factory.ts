@@ -2,10 +2,11 @@ import { Inject, Injectable, Type } from "@nestjs/common";
 import { ModuleRef } from "@nestjs/core";
 import { TRANSFER_STATUSES } from "src/constants/transfer.constants";
 import { TransferStatusIsNotValidException } from "src/exceptions";
+import { ITransferStateFactory } from "src/interfaces/transfer-state-factory.interface";
 import { ITransferState } from "src/interfaces/transfer-state.interface";
 
 @Injectable()
-export class TransferStateFactory {
+export class TransferStateFactory implements ITransferStateFactory {
   constructor(
     private readonly moduleReference: ModuleRef,
     @Inject("TRANSFER_STATE")
