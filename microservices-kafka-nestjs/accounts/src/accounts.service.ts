@@ -7,8 +7,6 @@ import {
   TransferDTO,
 } from "./dtos/account.dtos";
 import { Account, ActionLog, Balance } from "./schemas/account.schema";
-import { InjectMapper } from "@automapper/nestjs";
-import { Mapper } from "@automapper/core";
 import {
   ACCOUNT_ACTIONS,
   ACCOUNT_STATUS,
@@ -26,9 +24,10 @@ import {
   AccountsBalanceCouldNotRetrievedException,
 } from "./exceptions/index";
 import { AccountActionFactory } from "./factories/account-action.factory";
+import { IAccountService } from "./interfaces/account-service.interface";
 
 @Injectable()
-export class AccountService {
+export class AccountService implements IAccountService {
   private readonly logger = new Logger(AccountService.name);
   constructor(
     @Inject("ACCOUNT_ACTION_FACTORY")
@@ -36,7 +35,6 @@ export class AccountService {
     @Inject("ACCOUNT_STATE_FACTORY")
     private readonly accountStateFactory: AccountStateFactory,
     private readonly accountsRepository: AccountsRepository,
-    @InjectMapper() private readonly AccountsMapper: Mapper,
   ) {}
   async getAccount({ accountId }: { accountId: string }): Promise<AccountDTO> {
     const { accountsRepository, logger } = this;

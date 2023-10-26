@@ -13,11 +13,16 @@ import {
   MoneyTransferDTO,
   TransferDTO,
 } from "./dtos/bank.dto";
+import { EMPLOYEE_MODEL_TYPES } from "./types/employee.types";
+import { EmployeesService } from "./employees.service";
 
 @Controller("/banks")
 export class BanksController {
   private readonly logger = new Logger(BanksController.name);
-  constructor(private readonly bankService: BanksService) {}
+  constructor(
+    private readonly bankService: BanksService,
+    private readonly employeeService: EmployeesService,
+  ) {}
 
   @MessagePattern("create-account-event")
   @UsePipes(new ParseIncomingRequest())
@@ -82,8 +87,9 @@ export class BanksController {
         data,
       )}`,
     );
-    return await this.bankService.handleCreateBankDirector({
-      createBankDirectorDTO: data,
+    return await this.employeeService.createEmployee({
+      employeeType: EMPLOYEE_MODEL_TYPES.BANK_DIRECTOR,
+      createEmployeeDTO: data,
     });
   }
   @MessagePattern("create-bank-department-director-event")
@@ -97,8 +103,9 @@ export class BanksController {
         data,
       )}`,
     );
-    return await this.bankService.handleCreateBankDepartmentDirector({
-      createBankDepartmentDirectorDTO: data,
+    return await this.employeeService.createEmployee({
+      employeeType: EMPLOYEE_MODEL_TYPES.BANK_DEPARTMENT_DIRECTOR,
+      createEmployeeDTO: data,
     });
   }
   @MessagePattern("create-bank-customer-representative-event")
@@ -112,8 +119,9 @@ export class BanksController {
         data,
       )}`,
     );
-    return await this.bankService.handleCreateBankCustomerRepresentative({
-      createBankCustomerRepresentativeDTO: data,
+    return await this.employeeService.createEmployee({
+      employeeType: EMPLOYEE_MODEL_TYPES.BANK_CUSTOMER_REPRESENTATIVE,
+      createEmployeeDTO: data,
     });
   }
   @MessagePattern("create-bank-event")
