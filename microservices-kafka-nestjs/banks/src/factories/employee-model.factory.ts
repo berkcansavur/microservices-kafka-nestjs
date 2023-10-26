@@ -1,7 +1,7 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { IEmployeeModelFactory } from "src/interfaces/employee-model-factory.interface";
 import { EMPLOYEE_MODEL_TYPES } from "src/types/employee.types";
-import { EmployeeModelMap } from "../src/employee-models/employee-model.map";
+import { EmployeeModelMap } from "../employee-models/employee-model.map";
 
 @Injectable()
 export class EmployeeModelFactory implements IEmployeeModelFactory {

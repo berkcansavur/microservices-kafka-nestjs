@@ -17,8 +17,9 @@ import { AccountType, TransferType } from "./types/bank.types";
 import { Bank } from "./schemas/banks.schema";
 import { EVENT_RESULTS } from "./constants/banks.constants";
 import { ACCOUNT_TOPICS, TRANSFER_TOPICS } from "./constants/kafka.constants";
+import { IBankServiceInterface } from "./interfaces/banks-service.interface";
 @Injectable()
-export class BanksService implements OnModuleInit {
+export class BanksService implements OnModuleInit, IBankServiceInterface {
   private readonly logger = new Logger(BanksService.name);
   private readonly utils = new Utils();
   constructor(
@@ -253,7 +254,7 @@ export class BanksService implements OnModuleInit {
     }
     return bank;
   }
-  async handleKafkaTransferEvents(
+  private async handleKafkaTransferEvents(
     data: any,
     topic: TRANSFER_TOPICS,
   ): Promise<TransferType> {
@@ -273,7 +274,7 @@ export class BanksService implements OnModuleInit {
       });
     });
   }
-  async handleKafkaAccountEvents(
+  private async handleKafkaAccountEvents(
     data: any,
     topic: ACCOUNT_TOPICS,
   ): Promise<EVENT_RESULTS | AccountType> {

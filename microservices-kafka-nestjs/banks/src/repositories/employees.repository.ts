@@ -1,5 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { EmployeeModelFactory } from "factories/employee-model.factory";
+import { EmployeeModelFactory } from "src/factories/employee-model.factory";
 import {
   CreateBankCustomerRepresentativeDTO,
   CreateBankDepartmentDirectorDTO,

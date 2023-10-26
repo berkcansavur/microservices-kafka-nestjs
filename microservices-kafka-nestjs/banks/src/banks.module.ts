@@ -21,7 +21,7 @@ import {
 import { CustomersService } from "./customers/customers.service";
 import { CustomersRepository } from "./repositories/customer.repository";
 import { EmployeeModelMap } from "./employee-models/employee-model.map";
-import { EmployeeModelFactory } from "factories/employee-model.factory";
+import { EmployeeModelFactory } from "src/factories/employee-model.factory";
 import { EmployeesService } from "./employees.service";
 import { EmployeesRepository } from "./repositories/employees.repository";
 

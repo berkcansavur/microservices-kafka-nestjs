@@ -12,9 +12,10 @@ import {
 } from "./schemas/employee-schema";
 import { BanksLogic } from "./logic/banks.logic";
 import { EMPLOYEE_MODEL_TYPES } from "./types/employee.types";
+import { IEmployeeServiceInterface } from "./interfaces/employee-service.interface";
 
 @Injectable()
-export class EmployeesService {
+export class EmployeesService implements IEmployeeServiceInterface {
   private readonly logger = new Logger(EmployeesService.name);
   constructor(private readonly employeesRepository: EmployeesRepository) {}
   async createEmployee({
