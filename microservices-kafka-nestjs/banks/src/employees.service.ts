@@ -9,6 +9,7 @@ import {
   BankCustomerRepresentative,
   BankDepartmentDirector,
   BankDirector,
+  PrivateCustomer,
 } from "./schemas/employee-schema";
 import { BanksLogic } from "./logic/banks.logic";
 import { EMPLOYEE_MODEL_TYPES } from "./types/employee.types";
@@ -19,11 +20,16 @@ import {
   EmployeeIsNotFoundException,
 } from "./exceptions";
 import { Customer } from "./schemas/customers.schema";
+import { InjectMapper } from "@automapper/nestjs";
+import { Mapper } from "@automapper/core";
 
 @Injectable()
 export class EmployeesService implements IEmployeeServiceInterface {
   private readonly logger = new Logger(EmployeesService.name);
-  constructor(private readonly employeesRepository: EmployeesRepository) {}
+  constructor(
+    private readonly employeesRepository: EmployeesRepository,
+    @InjectMapper() private readonly BankMapper: Mapper,
+  ) {}
   async createEmployee({
     employeeType,
     createEmployeeDTO,
@@ -78,7 +84,12 @@ export class EmployeesService implements IEmployeeServiceInterface {
     customerRepresentativeId: string;
     customer: Customer;
   }): Promise<BankCustomerRepresentative> {
-    const { logger, employeesRepository } = this;
+    const { logger, employeesRepository, BankMapper } = this;
+    const mappedCustomer = BankMapper.map<Customer, PrivateCustomer>(
+      customer,
+      Customer,
+      PrivateCustomer,
+    );
     logger.debug(
       "[EmployeesService] addCustomerToCustomerRepresentative : ",
       customerRepresentativeId,
@@ -87,7 +98,7 @@ export class EmployeesService implements IEmployeeServiceInterface {
     const updatedCustomerRepresentative =
       await employeesRepository.addCustomerToCustomerRepresentative({
         customerRepresentativeId,
-        customer,
+        customer: mappedCustomer,
       });
     if (!BanksLogic.isObjectValid(updatedCustomerRepresentative)) {
       throw new EmployeeCouldNotUpdatedException({

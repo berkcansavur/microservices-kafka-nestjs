@@ -24,6 +24,7 @@ import { EmployeeModelMap } from "./employee-models/employee-model.map";
 import { EmployeeModelFactory } from "src/factories/employee-model.factory";
 import { EmployeesService } from "./employees.service";
 import { EmployeesRepository } from "./repositories/employees.repository";
+import { BankProfile } from "./mapper/bank-profile";
 
 @Module({
   imports: [
@@ -91,6 +92,7 @@ import { EmployeesRepository } from "./repositories/employees.repository";
       provide: "EMPLOYEE_MODEL_FACTORY",
       useClass: EmployeeModelFactory,
     },
+    BankProfile,
   ],
 
   controllers: [BanksController],
