@@ -1,6 +1,11 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Types, Schema as mSchema } from "mongoose";
-import { BANK_ACTIONS } from "src/constants/banks.constants";
+import {
+  BANK_ACTIONS,
+  EVENT_RESULTS,
+  TRANSACTION_TYPES,
+} from "src/constants/banks.constants";
+import { Customer, CustomerSchema } from "./customers.schema";
 @Schema({
   _id: false,
   versionKey: false,
@@ -83,7 +88,29 @@ export type BankDepartmentDirectorDocument = BankDepartmentDirector & Document;
 export const BankDepartmentDirectorSchema = SchemaFactory.createForClass(
   BankDepartmentDirector,
 );
+@Schema({
+  _id: false,
+  versionKey: false,
+  timestamps: false,
+})
+export class Transaction {
+  @Prop({ type: String, enum: Object.values(TRANSACTION_TYPES) })
+  transactionType: string;
 
+  @Prop({ type: String, enum: Object.values(EVENT_RESULTS) })
+  result: string;
+
+  @Prop({ type: mSchema.Types.ObjectId })
+  customer?: string;
+
+  @Prop({ type: mSchema.Types.ObjectId })
+  transfer?: string;
+
+  @Prop({ type: Date, default: Date.now })
+  occurredAt: Date;
+}
+
+const TransactionSchema = SchemaFactory.createForClass(Transaction);
 @Schema({
   timestamps: true,
   versionKey: false,
@@ -104,11 +131,20 @@ export class BankCustomerRepresentative {
   @Prop({ type: mSchema.Types.ObjectId, ref: "Bank" })
   bank: Types.ObjectId;
 
+  @Prop({ type: CustomerSchema, ref: "Customer" })
+  customers: Customer[];
+
   @Prop({
     type: [{ type: ActionLogSchema, ref: "ActionLog" }],
     default: [{ action: BANK_ACTIONS.CREATED }],
   })
   actionLogs: ActionLog[];
+
+  @Prop({
+    type: [{ TransactionSchema, ref: "Transaction" }],
+    required: false,
+  })
+  transactions: Transaction[];
 }
 export type BankCustomerRepresentativeDocument = BankCustomerRepresentative &
   Document;

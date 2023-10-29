@@ -1,7 +1,7 @@
 // const createBankAppErrorResponse  = (exception:)
 
-import { HttpStatus } from '@nestjs/common';
-import { BaseCustomException } from './base-custom.exception';
+import { HttpStatus } from "@nestjs/common";
+import { BaseCustomException } from "./base-custom.exception";
 
 const createBankAppErrorResponse = (exception: BankAppException) => {
   const error = exception?.constructor.name;
@@ -26,7 +26,7 @@ export class BankAppException extends BaseCustomException {
   ) {
     super(message, code, statusCode, data);
 
-    this.name = 'BankAppException';
+    this.name = "BankAppException";
     Object.setPrototypeOf(this, BankAppException.prototype);
   }
   public createErrorResponse() {

@@ -13,6 +13,10 @@ import {
 import { BanksLogic } from "./logic/banks.logic";
 import { EMPLOYEE_MODEL_TYPES } from "./types/employee.types";
 import { IEmployeeServiceInterface } from "./interfaces/employee-service.interface";
+import {
+  EmployeeCouldNotCreatedException,
+  EmployeeIsNotFoundException,
+} from "./exceptions";
 
 @Injectable()
 export class EmployeesService implements IEmployeeServiceInterface {
@@ -37,7 +41,9 @@ export class EmployeesService implements IEmployeeServiceInterface {
       createEmployeeDTO: createEmployeeDTO,
     })) as BankDirector | BankDepartmentDirector | BankCustomerRepresentative;
     if (!BanksLogic.isObjectValid(employee)) {
-      throw new Error("Employee could not be created");
+      throw new EmployeeCouldNotCreatedException({
+        message: { employeeType, createEmployeeDTO },
+      });
     }
     return employee;
   }
@@ -57,7 +63,9 @@ export class EmployeesService implements IEmployeeServiceInterface {
       employeeModelType: employeeType,
     })) as BankDirector | BankDepartmentDirector | BankCustomerRepresentative;
     if (!BanksLogic.isObjectValid(employee)) {
-      throw new Error("Employee could not be created");
+      throw new EmployeeIsNotFoundException({
+        message: { employeeType, employeeId },
+      });
     }
     return employee;
   }

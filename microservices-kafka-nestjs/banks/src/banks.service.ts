@@ -18,6 +18,14 @@ import { Bank } from "./schemas/banks.schema";
 import { EVENT_RESULTS } from "./constants/banks.constants";
 import { ACCOUNT_TOPICS, TRANSFER_TOPICS } from "./constants/kafka.constants";
 import { IBankServiceInterface } from "./interfaces/banks-service.interface";
+import {
+  AccountCouldNotAddedToCustomerException,
+  AccountCouldNotCreatedException,
+  InvalidBankBranchCodeException,
+  MoneyTransferCouldNotSucceedException,
+  InvalidAccountTypeException,
+  BankCouldNotCreatedException,
+} from "./exceptions";
 @Injectable()
 export class BanksService implements OnModuleInit, IBankServiceInterface {
   private readonly logger = new Logger(BanksService.name);
@@ -59,12 +67,14 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
     logger.debug("[BanksService] create account DTO: ", createAccountDTO);
     let accountNumber = utils.generateRandomNumber();
     if (!BanksLogic.isAccountTypeIsValid({ accountDTO: createAccountDTO })) {
-      throw new Error("Account type is not valid");
+      throw new InvalidAccountTypeException({
+        data: createAccountDTO.accountType,
+      });
     }
     if (!BanksLogic.isValidBankBranchCode(createAccountDTO.bankBranchCode)) {
-      throw new Error(
-        "Invalid Bank Branch Code: " + createAccountDTO.bankBranchCode,
-      );
+      throw new InvalidBankBranchCodeException({
+        data: createAccountDTO.bankBranchCode,
+      });
     }
     const branchCode = utils.getBanksBranchCode(
       createAccountDTO.bankBranchCode,
@@ -92,11 +102,13 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
           accountId: accountId,
         });
       if (!BanksLogic.isObjectValid(updatedCustomerAccounts)) {
-        throw new Error("Account could not added to customer");
+        throw new AccountCouldNotAddedToCustomerException({
+          data: createAccountDTO.userId,
+        });
       }
       return createdAccount;
     } catch (error) {
-      throw new Error("Account creation failed");
+      throw new AccountCouldNotCreatedException({ errorData: error });
     }
   }
   async handleCreateCustomer({
@@ -144,9 +156,7 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
           );
         return approvePendingTransfer;
       } catch (error) {
-        throw new Error(
-          `Error in handleCreateTransferAcrossAccounts: ${error}`,
-        );
+        throw new MoneyTransferCouldNotSucceedException({ errorData: error });
       }
     }
     try {
@@ -185,7 +195,7 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
         return failedTransfer;
       }
     } catch (error) {
-      throw new Error(`Error in handleCreateTransferAcrossAccounts: ${error}`);
+      throw new MoneyTransferCouldNotSucceedException({ errorData: error });
     }
   }
   async handleCreateMoneyTransferToAccount({
@@ -232,7 +242,7 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
         return failedTransfer;
       }
     } catch (error) {
-      throw new Error(`Error in handleCreateMoneyTransferToAccount: ${error}`);
+      throw new MoneyTransferCouldNotSucceedException({ errorData: error });
     }
   }
   async handleCreateBank({
@@ -250,7 +260,7 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
     });
 
     if (!BanksLogic.isObjectValid(bank)) {
-      throw new Error("BankDirector could not be created");
+      throw new BankCouldNotCreatedException({ data: createBankDTO });
     }
     return bank;
   }
@@ -261,14 +271,14 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
     return new Promise((resolve, reject) => {
       this.transferClient.send(topic, data).subscribe({
         next: (response: any) => {
-          console.log(`[${topic}] Response:`, response);
+          this.logger.debug(`[${topic}] Response:`, response);
           if (!BanksLogic.isObjectValid(response)) {
             throw new Error("Retrieved data is not an object");
           }
           resolve(response);
         },
         error: (error) => {
-          console.error(`[${topic}] Error:`, error);
+          this.logger.error(`[${topic}] Error:`, error);
           reject(error);
         },
       });
@@ -281,14 +291,14 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
     return new Promise((resolve, reject) => {
       this.transferClient.send(topic, data).subscribe({
         next: (response: any) => {
-          console.log(`[${topic}] Response:`, response);
+          this.logger.debug(`[${topic}] Response:`, response);
           if (!BanksLogic.isObjectValid(response)) {
             throw new Error("Retrieved data is not an object");
           }
           resolve(response);
         },
         error: (error) => {
-          console.error(`[${topic}] Error:`, error);
+          this.logger.error(`[${topic}] Error:`, error);
           reject(error);
         },
       });
