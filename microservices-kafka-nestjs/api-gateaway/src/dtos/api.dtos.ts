@@ -448,3 +448,21 @@ export class CreateCustomerDTO {
   @Length(8, 20)
   password: string;
 }
+
+export class AddCustomerToRepresentativeDTO {
+  @ApiProperty({
+    description: "Customers id",
+    required: true,
+    example: "6530a356aaf92d72d1f0f367",
+  })
+  @IsMongoId()
+  customerId: string;
+
+  @ApiProperty({
+    description: "Customer representatives id",
+    required: true,
+    example: "6530a356aaf92d72d1f0f367",
+  })
+  @IsMongoId()
+  customerRepresentativeId: string;
+}

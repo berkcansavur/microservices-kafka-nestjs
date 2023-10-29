@@ -1,8 +1,5 @@
-import { Converter } from '@automapper/core';
-import {
-  ReturnTransferDTO,
-  TransferDTO,
-} from 'src/dtos/transfer.dto';
+import { Converter } from "@automapper/core";
+import { ReturnTransferDTO, TransferDTO } from "src/dtos/transfer.dto";
 
 type ApprovedTransferEventConverterParams = TransferDTO & {
   userId: string;

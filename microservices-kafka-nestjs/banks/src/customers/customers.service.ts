@@ -9,6 +9,13 @@ export class CustomersService {
   private readonly logger = new Logger(CustomersService.name);
   constructor(private readonly customersRepository: CustomersRepository) {}
 
+  async getCustomer({ customerId }: { customerId: string }): Promise<Customer> {
+    const { customersRepository } = this;
+    const customer: Customer = await customersRepository.getCustomer({
+      customerId,
+    });
+    return customer;
+  }
   async createCustomerAuth({
     customerNumber,
     password,
@@ -31,7 +38,7 @@ export class CustomersService {
     createCustomerDTOWithCustomerNumber,
   }: {
     createCustomerDTOWithCustomerNumber: createCustomerDTOWithCustomerNumber;
-  }) {
+  }): Promise<Customer> {
     const { logger, customersRepository } = this;
     logger.debug("create customer DTO: ", createCustomerDTOWithCustomerNumber);
     const customer: Customer = await customersRepository.createCustomer({
@@ -59,7 +66,7 @@ export class CustomersService {
   }: {
     customerId: string;
     accountId: string;
-  }) {
+  }): Promise<Customer> {
     const { logger, customersRepository } = this;
     logger.debug(
       "addAccountToCustomer customerId: ",

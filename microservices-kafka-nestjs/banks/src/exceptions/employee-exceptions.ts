@@ -18,12 +18,25 @@ export class EmployeeCouldNotCreatedException extends BankAppException {
   constructor(data?: string | object) {
     super(
       "Employee could not created ",
-      1000,
+      1001,
       HttpStatus.NOT_FOUND,
       JSON.stringify(data),
       "EmployeeCouldNotCreatedException",
     );
     this.name = "EmployeeCouldNotCreatedException";
     Object.setPrototypeOf(this, EmployeeCouldNotCreatedException.prototype);
+  }
+}
+export class EmployeeCouldNotUpdatedException extends BankAppException {
+  constructor(data?: string | object) {
+    super(
+      "Employee could not updated ",
+      1002,
+      HttpStatus.NOT_FOUND,
+      JSON.stringify(data),
+      "EmployeeCouldNotUpdatedException",
+    );
+    this.name = "EmployeeCouldNotUpdatedException";
+    Object.setPrototypeOf(this, EmployeeCouldNotUpdatedException.prototype);
   }
 }

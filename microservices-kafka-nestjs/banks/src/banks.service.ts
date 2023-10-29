@@ -26,6 +26,8 @@ import {
   InvalidAccountTypeException,
   BankCouldNotCreatedException,
 } from "./exceptions";
+import { BankCustomerRepresentative } from "./schemas/employee-schema";
+import { EmployeesService } from "./employees.service";
 @Injectable()
 export class BanksService implements OnModuleInit, IBankServiceInterface {
   private readonly logger = new Logger(BanksService.name);
@@ -35,6 +37,7 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
     @Inject("TRANSFER_SERVICE") private readonly transferClient: ClientKafka,
     private readonly banksRepository: BanksRepository,
     private readonly customersService: CustomersService,
+    private readonly employeesService: EmployeesService,
   ) {}
 
   async onModuleInit() {
@@ -263,6 +266,29 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
       throw new BankCouldNotCreatedException({ data: createBankDTO });
     }
     return bank;
+  }
+  async handleAddCustomerToCustomerRepresentative({
+    customerId,
+    customerRepresentativeId,
+  }: {
+    customerId: string;
+    customerRepresentativeId: string;
+  }): Promise<BankCustomerRepresentative> {
+    const { logger, customersService, employeesService } = this;
+    logger.debug(
+      "[BanksService] handleCreateBankDirector DTO: ",
+      customerId,
+      customerRepresentativeId,
+    );
+    const customer = await customersService.getCustomer({
+      customerId,
+    });
+    const updatedCustomerRepresentative =
+      await employeesService.addCustomerToCustomerRepresentative({
+        customerRepresentativeId,
+        customer,
+      });
+    return updatedCustomerRepresentative;
   }
   private async handleKafkaTransferEvents(
     data: any,

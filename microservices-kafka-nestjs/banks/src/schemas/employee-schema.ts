@@ -5,7 +5,6 @@ import {
   EVENT_RESULTS,
   TRANSACTION_TYPES,
 } from "src/constants/banks.constants";
-import { Customer, CustomerSchema } from "./customers.schema";
 @Schema({
   _id: false,
   versionKey: false,
@@ -115,6 +114,41 @@ const TransactionSchema = SchemaFactory.createForClass(Transaction);
   timestamps: true,
   versionKey: false,
 })
+export class PrivateCustomer {
+  @Prop({ type: mSchema.Types.ObjectId, auto: true })
+  _id: Types.ObjectId;
+
+  @Prop({ type: String, required: true })
+  customerName: string;
+
+  @Prop({ type: String, required: true })
+  customerSurname: string;
+
+  @Prop({ type: Number, required: true })
+  customerNumber: number;
+
+  @Prop({ type: Number, required: true })
+  customerAge: number;
+
+  @Prop({ type: String, required: true })
+  customerEmail: string;
+
+  @Prop({ type: [{ type: mSchema.Types.ObjectId }], default: [] })
+  accounts: mSchema.Types.ObjectId[];
+
+  @Prop({ type: Date })
+  createdAt: Date;
+
+  @Prop({ type: Date })
+  updatedAt: Date;
+}
+export type PrivateCustomerDocument = PrivateCustomer & Document;
+export const PrivateCustomerSchema =
+  SchemaFactory.createForClass(PrivateCustomer);
+@Schema({
+  timestamps: true,
+  versionKey: false,
+})
 export class BankCustomerRepresentative {
   @Prop({ type: mSchema.Types.ObjectId, auto: true })
   _id: Types.ObjectId;
@@ -131,8 +165,8 @@ export class BankCustomerRepresentative {
   @Prop({ type: mSchema.Types.ObjectId, ref: "Bank" })
   bank: Types.ObjectId;
 
-  @Prop({ type: CustomerSchema, ref: "Customer" })
-  customers: Customer[];
+  @Prop({ type: PrivateCustomerSchema, ref: "PrivateCustomer" })
+  customers: PrivateCustomer[];
 
   @Prop({
     type: [{ type: ActionLogSchema, ref: "ActionLog" }],
@@ -141,7 +175,7 @@ export class BankCustomerRepresentative {
   actionLogs: ActionLog[];
 
   @Prop({
-    type: [{ TransactionSchema, ref: "Transaction" }],
+    type: [{ type: TransactionSchema, ref: "Transaction" }],
     required: false,
   })
   transactions: Transaction[];

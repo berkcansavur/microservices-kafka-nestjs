@@ -9,6 +9,7 @@ import {
   BankCustomerRepresentativeDocument,
   BankDepartmentDirectorDocument,
   BankDirectorDocument,
+  PrivateCustomer,
 } from "src/schemas/employee-schema";
 import { EMPLOYEE_MODEL_TYPES } from "src/types/employee.types";
 
@@ -56,5 +57,34 @@ export class EmployeesRepository {
         ...createEmployeeDTO,
       })
     ).toObject();
+  }
+  async addCustomerToCustomerRepresentative({
+    customerRepresentativeId,
+    customer,
+  }: {
+    customerRepresentativeId: string;
+    customer: PrivateCustomer;
+  }): Promise<BankCustomerRepresentativeDocument> {
+    const { employeeModelsFactory } = this;
+    const employeeModel = await employeeModelsFactory.getEmployeeModel(
+      EMPLOYEE_MODEL_TYPES.BANK_CUSTOMER_REPRESENTATIVE,
+    );
+    const updatedCustomerRepresentative = await employeeModel
+      .findOneAndUpdate(
+        {
+          _id: customerRepresentativeId,
+        },
+        {
+          $push: {
+            customers: {
+              ...customer,
+            },
+          },
+        },
+        { new: true },
+      )
+      .lean()
+      .exec();
+    return updatedCustomerRepresentative;
   }
 }

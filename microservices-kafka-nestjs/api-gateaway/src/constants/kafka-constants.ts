@@ -8,6 +8,7 @@ export enum BANK_TOPICS {
   CREATE_BANK_DEPARTMENT_DIRECTOR_EVENT = "create-bank-department-director-event",
   CREATE_BANK_CUSTOMER_REPRESENTATIVE_EVENT = "create-bank-customer-representative-event",
   CREATE_CUSTOMER_EVENT = "create-customer-event",
+  ADD_CUSTOMER_TO_BANKS_CUSTOMER_REPRESENTATIVE_EVENT = "add-customer-to-banks-customer-representative-event",
 }
 export enum ACCOUNT_TOPICS {
   GET_ACCOUNT = "get_account",

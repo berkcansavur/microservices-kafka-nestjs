@@ -15,8 +15,10 @@ import { EMPLOYEE_MODEL_TYPES } from "./types/employee.types";
 import { IEmployeeServiceInterface } from "./interfaces/employee-service.interface";
 import {
   EmployeeCouldNotCreatedException,
+  EmployeeCouldNotUpdatedException,
   EmployeeIsNotFoundException,
 } from "./exceptions";
+import { Customer } from "./schemas/customers.schema";
 
 @Injectable()
 export class EmployeesService implements IEmployeeServiceInterface {
@@ -68,5 +70,30 @@ export class EmployeesService implements IEmployeeServiceInterface {
       });
     }
     return employee;
+  }
+  async addCustomerToCustomerRepresentative({
+    customerRepresentativeId,
+    customer,
+  }: {
+    customerRepresentativeId: string;
+    customer: Customer;
+  }): Promise<BankCustomerRepresentative> {
+    const { logger, employeesRepository } = this;
+    logger.debug(
+      "[EmployeesService] addCustomerToCustomerRepresentative : ",
+      customerRepresentativeId,
+      customer,
+    );
+    const updatedCustomerRepresentative =
+      await employeesRepository.addCustomerToCustomerRepresentative({
+        customerRepresentativeId,
+        customer,
+      });
+    if (!BanksLogic.isObjectValid(updatedCustomerRepresentative)) {
+      throw new EmployeeCouldNotUpdatedException({
+        data: { customerRepresentativeId },
+      });
+    }
+    return updatedCustomerRepresentative;
   }
 }

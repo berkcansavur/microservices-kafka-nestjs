@@ -3,6 +3,7 @@ import { BanksService } from "./banks.service";
 import { MessagePattern } from "@nestjs/microservices";
 import { ParseIncomingRequest } from "src/pipes/serialize-request-data.pipe";
 import {
+  AddCustomerToRepresentativeDTO,
   CreateAccountDTO,
   CreateBankCustomerRepresentativeDTO,
   CreateBankDTO,
@@ -148,6 +149,22 @@ export class BanksController {
     );
     return await this.bankService.handleCreateMoneyTransferToAccount({
       createTransferDTO: data,
+    });
+  }
+  @MessagePattern("add-customer-to-banks-customer-representative-event")
+  @UsePipes(new ParseIncomingRequest())
+  async AddCustomerToCustomerRepresentative(
+    data: AddCustomerToRepresentativeDTO,
+  ) {
+    const { logger } = this;
+    logger.debug(
+      `[BanksController] Banks approveTransfer Incoming Data: ${JSON.stringify(
+        data,
+      )}`,
+    );
+    return await this.bankService.handleAddCustomerToCustomerRepresentative({
+      customerId: data.customerId,
+      customerRepresentativeId: data.customerRepresentativeId,
     });
   }
 }

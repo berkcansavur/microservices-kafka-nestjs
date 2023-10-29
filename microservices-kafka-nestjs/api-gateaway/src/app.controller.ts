@@ -12,6 +12,7 @@ import {
   CreateDepartmentDirectorDTO,
 } from "./dtos/api.dtos";
 import { ApiTags } from "@nestjs/swagger";
+import { AddCustomerToRepresentativeDTO } from "./dtos/api.dtos";
 
 @Controller()
 @ApiTags("App")
@@ -76,6 +77,15 @@ export class AppController {
     return appService.sendCreateCustomerRepresentativeRequest(
       createCustomerRepresentativeDTO,
     );
+  }
+  @Post("/addCustomerToRepresentative")
+  addCustomerToRepresentative(
+    @Body() addCustomerToRepresentativeDTO: AddCustomerToRepresentativeDTO,
+  ) {
+    const { appService } = this;
+    return appService.sendAddCustomerToRepresentativeRequest({
+      addCustomerToRepresentativeDTO,
+    });
   }
   @Get("/getAccount")
   getAccount(@Body() accountId: string) {
