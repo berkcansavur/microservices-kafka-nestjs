@@ -1,6 +1,7 @@
 import { Inject, Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { ClientKafka } from "@nestjs/microservices";
 import {
+  AddCustomerToRepresentativeDTO,
   CreateAccountDTO,
   CreateBankDTO,
   CreateCustomerDTO,
@@ -131,6 +132,21 @@ export class AppService implements OnModuleInit {
     return this.bankClient.send(
       BANK_TOPICS.CREATE_BANK_CUSTOMER_REPRESENTATIVE_EVENT,
       createCustomerRepresentativeRequestDTO,
+    );
+  }
+  async sendAddCustomerToRepresentativeRequest({
+    addCustomerToRepresentativeDTO,
+  }: {
+    addCustomerToRepresentativeDTO: AddCustomerToRepresentativeDTO;
+  }) {
+    const { logger } = this;
+    logger.debug(
+      "[AppService] sendAddCustomerToRepresentativeRequest data: ",
+      addCustomerToRepresentativeDTO,
+    );
+    return this.bankClient.send(
+      BANK_TOPICS.ADD_CUSTOMER_TO_BANKS_CUSTOMER_REPRESENTATIVE_EVENT,
+      addCustomerToRepresentativeDTO,
     );
   }
   sendCreateDepartmentDirectorRequest(

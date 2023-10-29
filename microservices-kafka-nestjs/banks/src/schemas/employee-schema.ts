@@ -1,6 +1,10 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Types, Schema as mSchema } from "mongoose";
-import { BANK_ACTIONS } from "src/constants/banks.constants";
+import {
+  BANK_ACTIONS,
+  EVENT_RESULTS,
+  TRANSACTION_TYPES,
+} from "src/constants/banks.constants";
 @Schema({
   _id: false,
   versionKey: false,
@@ -83,7 +87,64 @@ export type BankDepartmentDirectorDocument = BankDepartmentDirector & Document;
 export const BankDepartmentDirectorSchema = SchemaFactory.createForClass(
   BankDepartmentDirector,
 );
+@Schema({
+  _id: false,
+  versionKey: false,
+  timestamps: false,
+})
+export class Transaction {
+  @Prop({ type: String, enum: Object.values(TRANSACTION_TYPES) })
+  transactionType: string;
 
+  @Prop({ type: String, enum: Object.values(EVENT_RESULTS) })
+  result: string;
+
+  @Prop({ type: mSchema.Types.ObjectId })
+  customer?: string;
+
+  @Prop({ type: mSchema.Types.ObjectId })
+  transfer?: string;
+
+  @Prop({ type: Date, default: Date.now })
+  occurredAt: Date;
+}
+
+const TransactionSchema = SchemaFactory.createForClass(Transaction);
+@Schema({
+  timestamps: true,
+  versionKey: false,
+})
+export class PrivateCustomer {
+  @Prop({ type: mSchema.Types.ObjectId, auto: true })
+  _id: Types.ObjectId;
+
+  @Prop({ type: String, required: true })
+  customerName: string;
+
+  @Prop({ type: String, required: true })
+  customerSurname: string;
+
+  @Prop({ type: Number, required: true })
+  customerNumber: number;
+
+  @Prop({ type: Number, required: true })
+  customerAge: number;
+
+  @Prop({ type: String, required: true })
+  customerEmail: string;
+
+  @Prop({ type: [{ type: mSchema.Types.ObjectId }], default: [] })
+  accounts: mSchema.Types.ObjectId[];
+
+  @Prop({ type: Date })
+  createdAt: Date;
+
+  @Prop({ type: Date })
+  updatedAt: Date;
+}
+export type PrivateCustomerDocument = PrivateCustomer & Document;
+export const PrivateCustomerSchema =
+  SchemaFactory.createForClass(PrivateCustomer);
 @Schema({
   timestamps: true,
   versionKey: false,
@@ -104,11 +165,20 @@ export class BankCustomerRepresentative {
   @Prop({ type: mSchema.Types.ObjectId, ref: "Bank" })
   bank: Types.ObjectId;
 
+  @Prop({ type: PrivateCustomerSchema, ref: "PrivateCustomer" })
+  customers: PrivateCustomer[];
+
   @Prop({
     type: [{ type: ActionLogSchema, ref: "ActionLog" }],
     default: [{ action: BANK_ACTIONS.CREATED }],
   })
   actionLogs: ActionLog[];
+
+  @Prop({
+    type: [{ type: TransactionSchema, ref: "Transaction" }],
+    required: false,
+  })
+  transactions: Transaction[];
 }
 export type BankCustomerRepresentativeDocument = BankCustomerRepresentative &
   Document;

@@ -241,3 +241,10 @@ export class IncomingTransferDTO {
   @IsMongoId()
   toAccount: string;
 }
+export class AddCustomerToRepresentativeDTO {
+  @IsMongoId()
+  customerId: string;
+
+  @IsMongoId()
+  customerRepresentativeId: string;
+}

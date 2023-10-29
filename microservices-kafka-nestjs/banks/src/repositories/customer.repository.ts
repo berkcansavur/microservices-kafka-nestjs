@@ -13,6 +13,15 @@ export class CustomersRepository {
     @InjectModel(CustomerAuth.name)
     private CustomerAuthModel: Model<CustomerAuthDocument>,
   ) {}
+  async getCustomer({
+    customerId,
+  }: {
+    customerId: string;
+  }): Promise<CustomerDocument> {
+    const { CustomerModel } = this;
+    const customer = await CustomerModel.findOne({ _id: customerId });
+    return customer;
+  }
   async createCustomer({
     createCustomerDTOWithCustomerNumber,
   }: {
