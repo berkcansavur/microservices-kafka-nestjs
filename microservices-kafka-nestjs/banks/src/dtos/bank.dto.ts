@@ -7,6 +7,7 @@ import {
   Length,
   Min,
 } from "class-validator";
+import { Types } from "mongoose";
 import { EMPLOYEE_TYPES } from "src/types/employee.types";
 
 export class TransferDTO {
@@ -246,4 +247,62 @@ export class CreateEmployeeRegistrationToBankDTO {
 
   @IsMongoId()
   bankId: string;
+}
+export class CustomerIdDTO {
+  @IsMongoId()
+  customerId: string;
+}
+export class PrivateAccountDTO {
+  @IsNotEmpty()
+  @IsString()
+  accountName: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  accountNumber: number;
+
+  @IsNotEmpty()
+  @IsString()
+  accountType: string;
+
+  balance: object[];
+
+  @IsNumber()
+  interest?: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  status: number;
+}
+export class AccountDTO {
+  @IsNotEmpty()
+  @IsMongoId()
+  _id: Types.ObjectId;
+
+  @IsNotEmpty()
+  @IsMongoId()
+  userId: Types.ObjectId;
+
+  @IsNotEmpty()
+  @IsNumber()
+  accountNumber: number;
+
+  @IsNotEmpty()
+  @IsString()
+  accountType: string;
+
+  @IsNotEmpty()
+  @IsString()
+  accountName: string;
+
+  @IsNumber()
+  interest: number;
+
+  balance: object[];
+
+  @IsNumber()
+  @IsNotEmpty()
+  status: number;
+
+  actionLogs: object[];
 }

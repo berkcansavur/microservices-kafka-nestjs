@@ -59,16 +59,17 @@ export class CustomersRepository {
   }
   async getAccountIds({ customerId }: { customerId: string }) {
     const { CustomerModel } = this;
-    const customerIds = await CustomerModel.findOne({
+    const customer = await CustomerModel.findOne({
       _id: customerId,
     })
       .select("accounts")
       .lean()
       .exec();
-    if (!customerIds) {
+    if (!customer) {
       return [];
     }
-    return customerIds;
+    const { accounts } = customer;
+    return accounts;
   }
   async addAccount({
     customerId,

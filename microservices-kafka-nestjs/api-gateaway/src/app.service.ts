@@ -10,6 +10,7 @@ import {
   CreateDirectorDTO,
   CreateEmployeeRegistrationToBankDTO,
   CreateTransferDTO,
+  CustomerId,
   IncomingTransferRequestDTO,
   MoneyTransferDTO,
 } from "./dtos/api.dtos";
@@ -163,7 +164,7 @@ export class AppService implements OnModuleInit {
       createDepartmentDirectorRequestDTO,
     );
   }
-  sendCreateEmployeeRegistrationToBank(
+  sendCreateEmployeeRegistrationToBankRequest(
     createEmployeeRegistrationToBankDTO: CreateEmployeeRegistrationToBankDTO,
   ) {
     const { logger } = this;
@@ -174,6 +175,17 @@ export class AppService implements OnModuleInit {
     return this.bankClient.send(
       BANK_TOPICS.CREATE_EMPLOYEE_REGISTRATION_TO_BANK_EVENT,
       createEmployeeRegistrationToBankDTO,
+    );
+  }
+  sendGetCustomersAccountsRequest(customerId: CustomerId) {
+    const { logger } = this;
+    logger.debug(
+      "[AppService] sendCreateDirectorRequest customerId: ",
+      customerId,
+    );
+    return this.bankClient.send(
+      BANK_TOPICS.GET_CUSTOMER_ACCOUNTS_EVENT,
+      customerId,
     );
   }
   async sendGetAccountRequest(accountId: string) {

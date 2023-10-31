@@ -90,6 +90,20 @@ export class AccountsController {
     const account: AccountDTO = await accountsService.getAccount({ accountId });
     return account;
   }
+  @MessagePattern("get_accounts")
+  @UsePipes(new ParseIncomingRequest())
+  async getAccounts(accountIds: string[]) {
+    const { accountsService, logger } = this;
+    logger.debug(
+      `[AccountsController] makeMoneyTransfer incoming request data: ${JSON.stringify(
+        accountIds,
+      )}`,
+    );
+    const accounts = await accountsService.getAccounts({
+      accountIds,
+    });
+    return accounts;
+  }
   @MessagePattern("get_accounts_balance")
   @UsePipes(new ParseIncomingRequest())
   async getAccountsBalance(accountId: string): Promise<Balance[]> {

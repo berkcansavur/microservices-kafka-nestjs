@@ -43,6 +43,17 @@ export class AccountService implements IAccountService {
     const account: Account = await accountsRepository.getAccount({ accountId });
     return account;
   }
+  async getAccounts({ accountIds }: { accountIds: string[] }) {
+    const { accountsRepository, logger } = this;
+    logger.debug("[AccountService] getAccounts  accountIds: ", { accountIds });
+    const accountList: Account[] = [];
+    for (const accountId of accountIds) {
+      const account = await accountsRepository.getAccount({ accountId });
+      accountList.push(account);
+    }
+    logger.debug("[AccountService] getAccounts  accountIds: ", { accountList });
+    return accountList;
+  }
   async createAccount({
     createAccountDTO,
   }: {

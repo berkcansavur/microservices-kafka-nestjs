@@ -9,18 +9,15 @@ import {
   CreateCustomerDTO,
   CreateEmployeeRegistrationToBankDTO,
   CreateTransferDTO,
+  CustomerIdDTO,
   MoneyTransferDTO,
   TransferDTO,
 } from "../dtos/bank.dto";
-import { EmployeesService } from "../services/employees.service";
 
 @Controller("/banks")
 export class BanksController {
   private readonly logger = new Logger(BanksController.name);
-  constructor(
-    private readonly bankService: BanksService,
-    private readonly employeeService: EmployeesService,
-  ) {}
+  constructor(private readonly bankService: BanksService) {}
 
   @MessagePattern("create-account-event")
   @UsePipes(new ParseIncomingRequest())
@@ -75,53 +72,6 @@ export class BanksController {
       createTransferDTO: data,
     });
   }
-
-  // @MessagePattern("create-bank-director-event")
-  // @UsePipes(new ParseIncomingRequest())
-  // async createBankDirectorEvent(data: CreateBankDirectorDTO) {
-  //   const { logger } = this;
-  //   logger.debug(
-  //     `[BanksController] Banks createBankDirectorEvent Incoming Data: ${JSON.stringify(
-  //       data,
-  //     )}`,
-  //   );
-  //   return await this.employeeService.createEmployee({
-  //     employeeType: EMPLOYEE_MODEL_TYPES.BANK_DIRECTOR,
-  //     createEmployeeDTO: data,
-  //   });
-  // }
-  // @MessagePattern("create-bank-department-director-event")
-  // @UsePipes(new ParseIncomingRequest())
-  // async createBankDepartmentDirectorEvent(
-  //   data: CreateBankDepartmentDirectorDTO,
-  // ) {
-  //   const { logger } = this;
-  //   logger.debug(
-  //     `[BanksController] Banks createBankDirectorEvent Incoming Data: ${JSON.stringify(
-  //       data,
-  //     )}`,
-  //   );
-  //   return await this.employeeService.createEmployee({
-  //     employeeType: EMPLOYEE_MODEL_TYPES.BANK_DEPARTMENT_DIRECTOR,
-  //     createEmployeeDTO: data,
-  //   });
-  // }
-  // @MessagePattern("create-bank-customer-representative-event")
-  // @UsePipes(new ParseIncomingRequest())
-  // async createBankCustomerRepresentativeEvent(
-  //   data: CreateBankCustomerRepresentativeDTO,
-  // ) {
-  //   const { logger } = this;
-  //   logger.debug(
-  //     `[BanksController] Banks createBankCustomerRepresentativeEvent Incoming Data: ${JSON.stringify(
-  //       data,
-  //     )}`,
-  //   );
-  //   return await this.employeeService.createEmployee({
-  //     employeeType: EMPLOYEE_MODEL_TYPES.BANK_CUSTOMER_REPRESENTATIVE,
-  //     createEmployeeDTO: data,
-  //   });
-  // }
   @MessagePattern("create-bank-event")
   @UsePipes(new ParseIncomingRequest())
   async createBankEvent(data: CreateBankDTO) {
@@ -180,5 +130,19 @@ export class BanksController {
       employeeId: data.employeeId,
       bankId: data.bankId,
     });
+  }
+  @MessagePattern("get-customer-accounts-event")
+  @UsePipes(new ParseIncomingRequest())
+  async getCustomersAccounts(data: CustomerIdDTO) {
+    const { logger, bankService } = this;
+    logger.debug(
+      `[BanksController] Banks approveTransfer Incoming Data: ${JSON.stringify(
+        data,
+      )}`,
+    );
+    const customer = await bankService.getCustomersAccounts({
+      customerId: data.customerId,
+    });
+    return customer;
   }
 }

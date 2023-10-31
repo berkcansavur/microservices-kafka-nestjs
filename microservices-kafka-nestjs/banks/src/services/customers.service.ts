@@ -49,16 +49,19 @@ export class CustomersService {
     }
     return customer;
   }
-  async getCustomersAccounts({ customerId }: { customerId: string }) {
+  async getCustomersAccountIds({ customerId }: { customerId: string }) {
     const { logger, customersRepository } = this;
     logger.debug("getCustomersAccounts customerId: ", customerId);
-    const accounts = await customersRepository.getAccountIds({
+    const accountIds = await customersRepository.getAccountIds({
       customerId,
     });
-    if (!accounts) {
+    if (!accountIds) {
       throw new Error("Account could not be found");
     }
-    return accounts;
+    const stringAccountIds = accountIds.map((accountId) => {
+      return accountId.toString();
+    });
+    return stringAccountIds;
   }
   async addAccountToCustomer({
     customerId,

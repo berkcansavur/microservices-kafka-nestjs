@@ -6,6 +6,8 @@ import {
   MoneyTransferDTO,
   CreateCustomerDTO,
   CreateBankDTO,
+  PrivateAccountDTO,
+  AccountDTO,
 } from "src/dtos/bank.dto";
 import { BanksRepository } from "../repositories/banks.repository";
 import { ClientKafka } from "@nestjs/microservices";
@@ -31,6 +33,8 @@ import {
 import { BankCustomerRepresentative } from "../schemas/employee-schema";
 import { EmployeesService } from "./employees.service";
 import { EMPLOYEE_TYPES } from "../types/employee.types";
+import { Mapper } from "@automapper/core";
+import { InjectMapper } from "@automapper/nestjs";
 @Injectable()
 export class BanksService implements OnModuleInit, IBankServiceInterface {
   private readonly logger = new Logger(BanksService.name);
@@ -41,6 +45,7 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
     private readonly banksRepository: BanksRepository,
     private readonly customersService: CustomersService,
     private readonly employeesService: EmployeesService,
+    @InjectMapper() private readonly BankMapper: Mapper,
   ) {}
 
   async onModuleInit() {
@@ -327,6 +332,49 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
     }
     return updatedBank;
   }
+  private async getAndFormatAccounts({
+    accountIds,
+  }: {
+    accountIds: string[];
+  }): Promise<PrivateAccountDTO[]> {
+    const { logger, BankMapper } = this;
+    const accounts: AccountDTO[] = (await this.handleKafkaAccountEvents(
+      accountIds,
+      ACCOUNT_TOPICS.GET_ACCOUNTS,
+    )) as AccountDTO[];
+    logger.debug("getAccountFromAccountsMicroService account: ", accounts);
+
+    const privateAccounts: PrivateAccountDTO[] = accounts.map((account) => {
+      return BankMapper.map<AccountDTO, PrivateAccountDTO>(
+        account,
+        AccountDTO,
+        PrivateAccountDTO,
+      );
+    });
+    logger.debug(
+      "getAccountFromAccountsMicroService privateAccount: ",
+      JSON.stringify(privateAccounts),
+    );
+    return privateAccounts;
+  }
+  async getCustomersAccounts({
+    customerId,
+  }: {
+    customerId: string;
+  }): Promise<PrivateAccountDTO[]> {
+    const { logger, customersService } = this;
+    logger.debug("getCustomersAccounts customerId: ", customerId);
+    const accountIds = await customersService.getCustomersAccountIds({
+      customerId,
+    });
+    if (!accountIds) {
+      throw new Error("Account could not be found");
+    }
+    const accountList = await this.getAndFormatAccounts({
+      accountIds,
+    });
+    return accountList;
+  }
   private async handleKafkaTransferEvents(
     data: any,
     topic: TRANSFER_TOPICS,
@@ -350,7 +398,7 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
   private async handleKafkaAccountEvents(
     data: any,
     topic: ACCOUNT_TOPICS,
-  ): Promise<EVENT_RESULTS | AccountType> {
+  ): Promise<EVENT_RESULTS | AccountType | AccountDTO | AccountDTO[]> {
     return new Promise((resolve, reject) => {
       this.transferClient.send(topic, data).subscribe({
         next: (response: any) => {
