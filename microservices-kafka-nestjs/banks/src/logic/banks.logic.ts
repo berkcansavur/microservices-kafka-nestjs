@@ -7,7 +7,6 @@ import {
 import { CreateAccountDTO } from "src/dtos/bank.dto";
 
 export class BanksLogic {
-  private readonly BankDummies: BankDummies;
   static isObjectValid(object: object) {
     if (!object) {
       throw new Error(`Invalid object`);
