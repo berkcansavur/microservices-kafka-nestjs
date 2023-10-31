@@ -10,6 +10,7 @@ import {
   BankDepartmentDirector,
   BankDirector,
   PrivateCustomer,
+  PrivateTransfer,
 } from "../schemas/employee-schema";
 import { BanksLogic } from "../logic/banks.logic";
 import {
@@ -27,6 +28,10 @@ import { Customer } from "../schemas/customers.schema";
 import { InjectMapper } from "@automapper/nestjs";
 import { Mapper } from "@automapper/core";
 import { Utils } from "src/utils/utils";
+import {
+  TRANSACTION_RESULTS,
+  TRANSACTION_TYPES,
+} from "src/constants/banks.constants";
 
 @Injectable()
 export class EmployeesService implements IEmployeeServiceInterface {
@@ -141,4 +146,57 @@ export class EmployeesService implements IEmployeeServiceInterface {
     });
     return updatedEmployee;
   }
+  // async approveTransfer() {
+  //   const { employeesRepository } = this;
+  //   const updatedCustomerRepresentative = await employeesRepository
+  // }
+  async addTransactionToEmployee({
+    employeeType,
+    employeeId,
+    customerId,
+    transactionType,
+    transfer,
+    result,
+    action,
+    message,
+  }: {
+    employeeType: EMPLOYEE_MODEL_TYPES;
+    employeeId: string;
+    customerId: string;
+    transactionType: TRANSACTION_TYPES;
+    transfer?: PrivateTransfer;
+    result?: TRANSACTION_RESULTS;
+    action?: EMPLOYEE_ACTIONS;
+    message?: string;
+  }): Promise<
+    BankDirector | BankDepartmentDirector | BankCustomerRepresentative
+  > {
+    const { employeesRepository } = this;
+    try {
+      const updatedEmployee =
+        await employeesRepository.addTransactionToEmployee({
+          employeeType,
+          employeeId,
+          customerId,
+          transactionType,
+          transfer,
+          result,
+          action,
+          message,
+        });
+      return updatedEmployee;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+  // async approveTransferByCustomerRepresentative({
+  //   transferId,
+  //   customerRepresentativeId,
+  // }: {
+  //   transferId: string;
+  //   customerRepresentativeId: string;
+  // }) {
+  //   const { employeesRepository } = this;
+
+  // }
 }

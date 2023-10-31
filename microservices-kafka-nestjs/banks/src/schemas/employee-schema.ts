@@ -2,10 +2,73 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Types, Schema as mSchema } from "mongoose";
 import {
   BANK_ACTIONS,
-  EVENT_RESULTS,
+  CURRENCY_TYPES,
+  TRANSACTION_RESULTS,
   TRANSACTION_TYPES,
+  TRANSFER_STATUSES,
 } from "src/constants/banks.constants";
 import { EMPLOYEE_ACTIONS } from "src/types/employee.types";
+@Schema({
+  _id: false,
+  versionKey: false,
+  timestamps: false,
+})
+export class PrivateTransfer {
+  @Prop({ type: mSchema.Types.ObjectId })
+  _id: string;
+
+  @Prop({ type: String, enum: CURRENCY_TYPES, required: true })
+  currencyType: string;
+
+  @Prop({
+    type: Number,
+    enum: TRANSFER_STATUSES,
+    default: TRANSFER_STATUSES.CREATED,
+    required: true,
+  })
+  status: number;
+
+  @Prop({ type: mSchema.Types.ObjectId, required: true })
+  userId: string;
+
+  @Prop({ type: mSchema.Types.ObjectId })
+  fromAccount?: string;
+
+  @Prop({ type: mSchema.Types.ObjectId, required: true })
+  toAccount: string;
+
+  @Prop({ type: Number, required: true })
+  amount: number;
+}
+export const PrivateTransferSchema =
+  SchemaFactory.createForClass(PrivateTransfer);
+@Schema({
+  _id: false,
+  versionKey: false,
+  timestamps: false,
+})
+export class Transaction {
+  @Prop({ type: String, enum: Object.values(TRANSACTION_TYPES) })
+  transactionType: string;
+
+  @Prop({
+    type: String,
+    enum: Object.values(TRANSACTION_RESULTS),
+    default: TRANSACTION_RESULTS.AWAITING_EVALUATION,
+  })
+  result: string;
+
+  @Prop({ type: mSchema.Types.ObjectId })
+  customer?: string;
+
+  @Prop({ type: [{ type: PrivateTransferSchema, ref: "PrivateTransfer" }] })
+  transfer?: PrivateTransfer;
+
+  @Prop({ type: Date, default: Date.now })
+  occurredAt: Date;
+}
+
+const TransactionSchema = SchemaFactory.createForClass(Transaction);
 @Schema({
   _id: false,
   versionKey: false,
@@ -51,6 +114,12 @@ export class BankDirector {
     default: [{ action: BANK_ACTIONS.CREATED }],
   })
   actionLogs: ActionLog[];
+
+  @Prop({
+    type: [{ type: TransactionSchema, ref: "Transaction" }],
+    required: false,
+  })
+  transactions: Transaction[];
 }
 export type BankDirectorDocument = BankDirector & Document;
 export const BankDirectorSchema = SchemaFactory.createForClass(BankDirector);
@@ -83,34 +152,17 @@ export class BankDepartmentDirector {
     default: [{ action: BANK_ACTIONS.CREATED }],
   })
   actionLogs: ActionLog[];
+
+  @Prop({
+    type: [{ type: TransactionSchema, ref: "Transaction" }],
+    required: false,
+  })
+  transactions: Transaction[];
 }
 export type BankDepartmentDirectorDocument = BankDepartmentDirector & Document;
 export const BankDepartmentDirectorSchema = SchemaFactory.createForClass(
   BankDepartmentDirector,
 );
-@Schema({
-  _id: false,
-  versionKey: false,
-  timestamps: false,
-})
-export class Transaction {
-  @Prop({ type: String, enum: Object.values(TRANSACTION_TYPES) })
-  transactionType: string;
-
-  @Prop({ type: String, enum: Object.values(EVENT_RESULTS) })
-  result: string;
-
-  @Prop({ type: mSchema.Types.ObjectId })
-  customer?: string;
-
-  @Prop({ type: mSchema.Types.ObjectId })
-  transfer?: string;
-
-  @Prop({ type: Date, default: Date.now })
-  occurredAt: Date;
-}
-
-const TransactionSchema = SchemaFactory.createForClass(Transaction);
 @Schema({
   timestamps: true,
   versionKey: false,

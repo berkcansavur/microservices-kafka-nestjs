@@ -248,7 +248,7 @@ export class CreateEmployeeRegistrationToBankDTO {
   @IsMongoId()
   bankId: string;
 }
-export class CustomerIdDTO {
+export class GetCustomersAccountsDTO {
   @IsMongoId()
   customerId: string;
 }

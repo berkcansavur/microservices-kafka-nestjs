@@ -4,7 +4,11 @@ import { Model } from "mongoose";
 import { ACCOUNT_ACTIONS } from "src/constants/banks.constants";
 import { createCustomerDTOWithCustomerNumber } from "src/dtos/bank.dto";
 import { CustomerAuth, CustomerAuthDocument } from "src/schemas/auth.schema";
-import { Customer, CustomerDocument } from "src/schemas/customers.schema";
+import {
+  Customer,
+  CustomerDocument,
+  PrivateCustomerRepresentative,
+} from "src/schemas/customers.schema";
 
 @Injectable()
 export class CustomersRepository {
@@ -101,5 +105,24 @@ export class CustomersRepository {
     )
       .lean()
       .exec();
+  }
+  async registerCustomerRepresentativeToCustomer({
+    customerId,
+    customerRepresentative,
+  }: {
+    customerId: string;
+    customerRepresentative: PrivateCustomerRepresentative;
+  }): Promise<Customer> {
+    const { CustomerModel } = this;
+    const updatedCustomer = await CustomerModel.findOneAndUpdate(
+      { _id: customerId },
+      {
+        customerRepresentative: customerRepresentative,
+      },
+      { new: true },
+    )
+      .lean()
+      .exec();
+    return updatedCustomer;
   }
 }

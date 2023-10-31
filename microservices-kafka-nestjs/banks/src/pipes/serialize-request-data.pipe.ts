@@ -100,8 +100,8 @@ export class ParseIncomingRequest implements PipeTransform {
       );
       return formattedData;
     }
-    if (value && value.customerId) {
-      const formattedData = value.customerId;
+    if (value && value.getCustomersAccountsDTO) {
+      const formattedData = value.getCustomersAccountsDTO;
       this.logger.debug(
         "[ParseIncomingRequest Pipe] Formatted request data :",
         formattedData,

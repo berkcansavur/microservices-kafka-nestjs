@@ -10,11 +10,16 @@ import {
   BankDepartmentDirectorDocument,
   BankDirectorDocument,
   PrivateCustomer,
+  PrivateTransfer,
 } from "src/schemas/employee-schema";
 import {
   EMPLOYEE_ACTIONS,
   EMPLOYEE_MODEL_TYPES,
 } from "src/types/employee.types";
+import {
+  TRANSACTION_RESULTS,
+  TRANSACTION_TYPES,
+} from "src/constants/banks.constants";
 
 @Injectable()
 export class EmployeesRepository {
@@ -126,6 +131,58 @@ export class EmployeesRepository {
         { _id: employeeId },
         {
           bank: bankId,
+          $addToSet: {
+            actionLogs: {
+              action,
+              ...(message ? { message } : undefined),
+              user: employeeId,
+            },
+          },
+        },
+        { new: true },
+      )
+      .lean()
+      .exec();
+    return updatedEmployee;
+  }
+  async addTransactionToEmployee({
+    employeeType,
+    employeeId,
+    customerId,
+    transactionType,
+    transfer,
+    result,
+    action,
+    message,
+  }: {
+    employeeType: EMPLOYEE_MODEL_TYPES;
+    employeeId: string;
+    customerId: string;
+    transactionType: TRANSACTION_TYPES;
+    transfer?: PrivateTransfer;
+    result?: TRANSACTION_RESULTS;
+    action: EMPLOYEE_ACTIONS;
+    message?: string;
+  }): Promise<
+    | BankDepartmentDirectorDocument
+    | BankCustomerRepresentativeDocument
+    | BankDirectorDocument
+  > {
+    const { employeeModelsFactory } = this;
+    const employeeModel =
+      await employeeModelsFactory.getEmployeeModel(employeeType);
+    const updatedEmployee = await employeeModel
+      .findOneAndUpdate(
+        { _id: employeeId },
+        {
+          $push: {
+            transactions: {
+              transactionType: transactionType,
+              ...(result ? { result } : undefined),
+              customer: customerId,
+              ...(transfer ? { transfer } : undefined),
+            },
+          },
           $addToSet: {
             actionLogs: {
               action,

@@ -9,7 +9,7 @@ import {
   CreateCustomerDTO,
   CreateEmployeeRegistrationToBankDTO,
   CreateTransferDTO,
-  CustomerIdDTO,
+  GetCustomersAccountsDTO,
   MoneyTransferDTO,
   TransferDTO,
 } from "../dtos/bank.dto";
@@ -105,7 +105,7 @@ export class BanksController {
   ) {
     const { logger } = this;
     logger.debug(
-      `[BanksController] Banks approveTransfer Incoming Data: ${JSON.stringify(
+      `[BanksController] Banks AddCustomerToCustomerRepresentative Incoming Data: ${JSON.stringify(
         data,
       )}`,
     );
@@ -133,10 +133,10 @@ export class BanksController {
   }
   @MessagePattern("get-customer-accounts-event")
   @UsePipes(new ParseIncomingRequest())
-  async getCustomersAccounts(data: CustomerIdDTO) {
+  async getCustomersAccounts(data: GetCustomersAccountsDTO) {
     const { logger, bankService } = this;
     logger.debug(
-      `[BanksController] Banks approveTransfer Incoming Data: ${JSON.stringify(
+      `[BanksController] Banks getCustomersAccounts Incoming Data: ${JSON.stringify(
         data,
       )}`,
     );

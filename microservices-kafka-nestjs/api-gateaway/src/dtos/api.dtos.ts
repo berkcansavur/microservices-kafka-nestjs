@@ -464,7 +464,7 @@ export class CreateEmployeeRegistrationToBankDTO {
   @IsMongoId()
   bankId: string;
 }
-export class CustomerId {
+export class GetCustomersAccountsDTO {
   @ApiProperty({
     description: "Customers id",
     required: true,

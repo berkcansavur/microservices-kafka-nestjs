@@ -12,12 +12,19 @@ import {
 import { BanksRepository } from "../repositories/banks.repository";
 import { ClientKafka } from "@nestjs/microservices";
 import { Utils } from "../utils/utils";
-import { Customer } from "../schemas/customers.schema";
+import {
+  Customer,
+  PrivateCustomerRepresentative,
+} from "../schemas/customers.schema";
 import { CustomersService } from "./customers.service";
 import { BanksLogic } from "../logic/banks.logic";
 import { AccountType, TransferType } from "../types/bank.types";
 import { Bank } from "../schemas/banks.schema";
-import { BANK_ACTIONS, EVENT_RESULTS } from "../constants/banks.constants";
+import {
+  BANK_ACTIONS,
+  EVENT_RESULTS,
+  TRANSACTION_TYPES,
+} from "../constants/banks.constants";
 import { ACCOUNT_TOPICS, TRANSFER_TOPICS } from "../constants/kafka.constants";
 import { IBankServiceInterface } from "../interfaces/banks-service.interface";
 import {
@@ -32,7 +39,7 @@ import {
 } from "../exceptions";
 import { BankCustomerRepresentative } from "../schemas/employee-schema";
 import { EmployeesService } from "./employees.service";
-import { EMPLOYEE_TYPES } from "../types/employee.types";
+import { EMPLOYEE_MODEL_TYPES, EMPLOYEE_TYPES } from "../types/employee.types";
 import { Mapper } from "@automapper/core";
 import { InjectMapper } from "@automapper/nestjs";
 @Injectable()
@@ -148,6 +155,7 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
   }: {
     createTransferDTO: CreateTransferDTO;
   }): Promise<TransferType> {
+    const { logger, employeesService, customersService } = this;
     if (
       BanksLogic.isAmountGreaterThanDesignatedAmount({
         designatedAmount: 5000,
@@ -165,6 +173,18 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
             createdTransfer,
             TRANSFER_TOPICS.HANDLE_APPROVE_PENDING_TRANSFER,
           );
+        const customer: Customer = await customersService.getCustomer({
+          customerId: createTransferDTO.userId,
+        });
+        logger.debug("[BanksService] create customer DTO: ", customer);
+
+        await employeesService.addTransactionToEmployee({
+          employeeType: EMPLOYEE_MODEL_TYPES.BANK_CUSTOMER_REPRESENTATIVE,
+          employeeId: customer.customerRepresentative._id,
+          customerId: createTransferDTO.userId,
+          transactionType: TRANSACTION_TYPES.SAME_BANK_TRANSFER,
+          transfer: approvePendingTransfer,
+        });
         return approvePendingTransfer;
       } catch (error) {
         throw new MoneyTransferCouldNotSucceedException({ errorData: error });
@@ -282,9 +302,9 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
     customerId: string;
     customerRepresentativeId: string;
   }): Promise<BankCustomerRepresentative> {
-    const { logger, customersService, employeesService } = this;
+    const { logger, customersService, employeesService, BankMapper } = this;
     logger.debug(
-      "[BanksService] handleCreateBankDirector DTO: ",
+      "[BanksService] handleAddCustomerToCustomerRepresentative DTO: ",
       customerId,
       customerRepresentativeId,
     );
@@ -296,6 +316,22 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
         customerRepresentativeId,
         customer,
       });
+    const formattedCustomerRepresentative = BankMapper.map<
+      BankCustomerRepresentative,
+      PrivateCustomerRepresentative
+    >(
+      updatedCustomerRepresentative,
+      BankCustomerRepresentative,
+      PrivateCustomerRepresentative,
+    );
+    logger.debug(
+      "[BanksService] formattedCustomerRepresentative: ",
+      formattedCustomerRepresentative,
+    );
+    await customersService.registerCustomerRepresentativeToCustomer({
+      customerId,
+      customerRepresentative: formattedCustomerRepresentative,
+    });
     return updatedCustomerRepresentative;
   }
   async handleCreateEmployeeRegistrationToBank({

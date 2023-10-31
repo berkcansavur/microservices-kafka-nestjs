@@ -11,6 +11,7 @@ import {
   CreateCustomerRepresentativeDTO,
   CreateDepartmentDirectorDTO,
   CreateEmployeeRegistrationToBankDTO,
+  GetCustomersAccountsDTO,
 } from "./dtos/api.dtos";
 import { ApiTags } from "@nestjs/swagger";
 import { AddCustomerToRepresentativeDTO } from "./dtos/api.dtos";
@@ -99,9 +100,13 @@ export class AppController {
     });
   }
   @Get("/getCustomersAccounts")
-  getCustomersAccounts(@Body() customerId: string) {
+  getCustomersAccounts(
+    @Body() getCustomersAccountsDTO: GetCustomersAccountsDTO,
+  ) {
     const { appService } = this;
-    return appService.sendGetCustomersAccountsRequest({ customerId });
+    return appService.sendGetCustomersAccountsRequest({
+      getCustomersAccountsDTO,
+    });
   }
   @Get("/getAccount")
   getAccount(@Body() accountId: string) {
