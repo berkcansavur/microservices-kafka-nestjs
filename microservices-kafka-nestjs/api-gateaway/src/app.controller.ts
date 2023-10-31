@@ -85,7 +85,7 @@ export class AppController {
     createEmployeeRegistrationToBankDTO: CreateEmployeeRegistrationToBankDTO,
   ) {
     const { appService } = this;
-    return appService.sendCreateEmployeeRegistrationToBank(
+    return appService.sendCreateEmployeeRegistrationToBankRequest(
       createEmployeeRegistrationToBankDTO,
     );
   }
@@ -97,6 +97,11 @@ export class AppController {
     return appService.sendAddCustomerToRepresentativeRequest({
       addCustomerToRepresentativeDTO,
     });
+  }
+  @Get("/getCustomersAccounts")
+  getCustomersAccounts(@Body() customerId: string) {
+    const { appService } = this;
+    return appService.sendGetCustomersAccountsRequest({ customerId });
   }
   @Get("/getAccount")
   getAccount(@Body() accountId: string) {

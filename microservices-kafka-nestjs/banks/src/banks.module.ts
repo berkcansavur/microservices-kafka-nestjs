@@ -4,7 +4,9 @@ import { MongooseModule } from "@nestjs/mongoose";
 import { Bank, BanksSchema } from "./schemas/banks.schema";
 import { Customer, CustomerSchema } from "./schemas/customers.schema";
 import { BanksRepository } from "./repositories/banks.repository";
-import { BanksController } from "./banks.controller";
+import { BanksController } from "./controllers/banks.controller";
+import { EmployeesController } from "./controllers/employees.controller";
+import { CustomersController } from "./controllers/customers.controller";
 import { ConfigModule } from "@nestjs/config";
 import { AutomapperModule } from "@automapper/nestjs";
 import { classes } from "@automapper/classes";
@@ -95,6 +97,6 @@ import { BankProfile } from "./mapper/bank-profile";
     BankProfile,
   ],
 
-  controllers: [BanksController],
+  controllers: [BanksController, EmployeesController, CustomersController],
 })
 export class BanksModule {}

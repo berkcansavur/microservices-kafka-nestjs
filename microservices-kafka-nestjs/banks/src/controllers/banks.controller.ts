@@ -1,30 +1,23 @@
 import { Controller, Logger, UsePipes } from "@nestjs/common";
-import { BanksService } from "./services/banks.service";
+import { BanksService } from "../services/banks.service";
 import { MessagePattern } from "@nestjs/microservices";
 import { ParseIncomingRequest } from "src/pipes/serialize-request-data.pipe";
 import {
   AddCustomerToRepresentativeDTO,
   CreateAccountDTO,
-  CreateBankCustomerRepresentativeDTO,
   CreateBankDTO,
-  CreateBankDepartmentDirectorDTO,
-  CreateBankDirectorDTO,
   CreateCustomerDTO,
   CreateEmployeeRegistrationToBankDTO,
   CreateTransferDTO,
+  CustomerIdDTO,
   MoneyTransferDTO,
   TransferDTO,
-} from "./dtos/bank.dto";
-import { EMPLOYEE_MODEL_TYPES } from "./types/employee.types";
-import { EmployeesService } from "./services/employees.service";
+} from "../dtos/bank.dto";
 
 @Controller("/banks")
 export class BanksController {
   private readonly logger = new Logger(BanksController.name);
-  constructor(
-    private readonly bankService: BanksService,
-    private readonly employeeService: EmployeesService,
-  ) {}
+  constructor(private readonly bankService: BanksService) {}
 
   @MessagePattern("create-account-event")
   @UsePipes(new ParseIncomingRequest())
@@ -77,53 +70,6 @@ export class BanksController {
     );
     return await this.bankService.handleCreateTransferAcrossAccounts({
       createTransferDTO: data,
-    });
-  }
-
-  @MessagePattern("create-bank-director-event")
-  @UsePipes(new ParseIncomingRequest())
-  async createBankDirectorEvent(data: CreateBankDirectorDTO) {
-    const { logger } = this;
-    logger.debug(
-      `[BanksController] Banks createBankDirectorEvent Incoming Data: ${JSON.stringify(
-        data,
-      )}`,
-    );
-    return await this.employeeService.createEmployee({
-      employeeType: EMPLOYEE_MODEL_TYPES.BANK_DIRECTOR,
-      createEmployeeDTO: data,
-    });
-  }
-  @MessagePattern("create-bank-department-director-event")
-  @UsePipes(new ParseIncomingRequest())
-  async createBankDepartmentDirectorEvent(
-    data: CreateBankDepartmentDirectorDTO,
-  ) {
-    const { logger } = this;
-    logger.debug(
-      `[BanksController] Banks createBankDirectorEvent Incoming Data: ${JSON.stringify(
-        data,
-      )}`,
-    );
-    return await this.employeeService.createEmployee({
-      employeeType: EMPLOYEE_MODEL_TYPES.BANK_DEPARTMENT_DIRECTOR,
-      createEmployeeDTO: data,
-    });
-  }
-  @MessagePattern("create-bank-customer-representative-event")
-  @UsePipes(new ParseIncomingRequest())
-  async createBankCustomerRepresentativeEvent(
-    data: CreateBankCustomerRepresentativeDTO,
-  ) {
-    const { logger } = this;
-    logger.debug(
-      `[BanksController] Banks createBankCustomerRepresentativeEvent Incoming Data: ${JSON.stringify(
-        data,
-      )}`,
-    );
-    return await this.employeeService.createEmployee({
-      employeeType: EMPLOYEE_MODEL_TYPES.BANK_CUSTOMER_REPRESENTATIVE,
-      createEmployeeDTO: data,
     });
   }
   @MessagePattern("create-bank-event")
@@ -184,5 +130,19 @@ export class BanksController {
       employeeId: data.employeeId,
       bankId: data.bankId,
     });
+  }
+  @MessagePattern("get-customer-accounts-event")
+  @UsePipes(new ParseIncomingRequest())
+  async getCustomersAccounts(data: CustomerIdDTO) {
+    const { logger, bankService } = this;
+    logger.debug(
+      `[BanksController] Banks approveTransfer Incoming Data: ${JSON.stringify(
+        data,
+      )}`,
+    );
+    const customer = await bankService.getCustomersAccounts({
+      customerId: data.customerId,
+    });
+    return customer;
   }
 }
