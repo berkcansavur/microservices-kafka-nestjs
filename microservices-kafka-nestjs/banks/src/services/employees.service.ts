@@ -1,25 +1,28 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { EmployeesRepository } from "./repositories/employees.repository";
+import { EmployeesRepository } from "../repositories/employees.repository";
 import {
   CreateBankCustomerRepresentativeDTO,
   CreateBankDepartmentDirectorDTO,
   CreateBankDirectorDTO,
-} from "./dtos/bank.dto";
+} from "../dtos/bank.dto";
 import {
   BankCustomerRepresentative,
   BankDepartmentDirector,
   BankDirector,
   PrivateCustomer,
-} from "./schemas/employee-schema";
-import { BanksLogic } from "./logic/banks.logic";
-import { EMPLOYEE_MODEL_TYPES } from "./types/employee.types";
-import { IEmployeeServiceInterface } from "./interfaces/employee-service.interface";
+} from "../schemas/employee-schema";
+import { BanksLogic } from "../logic/banks.logic";
+import {
+  EMPLOYEE_ACTIONS,
+  EMPLOYEE_MODEL_TYPES,
+} from "../types/employee.types";
+import { IEmployeeServiceInterface } from "../interfaces/employee-service.interface";
 import {
   EmployeeCouldNotCreatedException,
   EmployeeCouldNotUpdatedException,
   EmployeeIsNotFoundException,
-} from "./exceptions";
-import { Customer } from "./schemas/customers.schema";
+} from "../exceptions";
+import { Customer } from "../schemas/customers.schema";
 import { InjectMapper } from "@automapper/nestjs";
 import { Mapper } from "@automapper/core";
 
@@ -99,6 +102,7 @@ export class EmployeesService implements IEmployeeServiceInterface {
       await employeesRepository.addCustomerToCustomerRepresentative({
         customerRepresentativeId,
         customer: mappedCustomer,
+        action: EMPLOYEE_ACTIONS.CUSTOMER_ASSIGNMENT,
       });
     if (!BanksLogic.isObjectValid(updatedCustomerRepresentative)) {
       throw new EmployeeCouldNotUpdatedException({
@@ -106,5 +110,31 @@ export class EmployeesService implements IEmployeeServiceInterface {
       });
     }
     return updatedCustomerRepresentative;
+  }
+  async createBankRegistrationToUser({
+    employeeType,
+    employeeId,
+    bankId,
+  }: {
+    employeeType: EMPLOYEE_MODEL_TYPES;
+    employeeId: string;
+    bankId: string;
+  }): Promise<
+    BankDirector | BankDepartmentDirector | BankCustomerRepresentative
+  > {
+    const { logger, employeesRepository } = this;
+    logger.debug(
+      "[EmployeesService] createBankRegistrationToUser : ",
+      employeeType,
+      employeeId,
+      bankId,
+    );
+    const updatedEmployee = await employeesRepository.setBankToEmployee({
+      employeeType,
+      employeeId,
+      bankId,
+      action: EMPLOYEE_ACTIONS.BANK_REGISTRATION,
+    });
+    return updatedEmployee;
   }
 }

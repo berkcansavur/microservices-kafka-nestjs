@@ -7,17 +7,17 @@ import {
   CreateCustomerDTO,
   CreateBankDTO,
 } from "src/dtos/bank.dto";
-import { BanksRepository } from "./repositories/banks.repository";
+import { BanksRepository } from "../repositories/banks.repository";
 import { ClientKafka } from "@nestjs/microservices";
-import { Utils } from "./utils/utils";
-import { Customer } from "./schemas/customers.schema";
-import { CustomersService } from "./customers/customers.service";
-import { BanksLogic } from "./logic/banks.logic";
-import { AccountType, TransferType } from "./types/bank.types";
-import { Bank } from "./schemas/banks.schema";
-import { EVENT_RESULTS } from "./constants/banks.constants";
-import { ACCOUNT_TOPICS, TRANSFER_TOPICS } from "./constants/kafka.constants";
-import { IBankServiceInterface } from "./interfaces/banks-service.interface";
+import { Utils } from "../utils/utils";
+import { Customer } from "../schemas/customers.schema";
+import { CustomersService } from "./customers.service";
+import { BanksLogic } from "../logic/banks.logic";
+import { AccountType, TransferType } from "../types/bank.types";
+import { Bank } from "../schemas/banks.schema";
+import { BANK_ACTIONS, EVENT_RESULTS } from "../constants/banks.constants";
+import { ACCOUNT_TOPICS, TRANSFER_TOPICS } from "../constants/kafka.constants";
+import { IBankServiceInterface } from "../interfaces/banks-service.interface";
 import {
   AccountCouldNotAddedToCustomerException,
   AccountCouldNotCreatedException,
@@ -25,9 +25,12 @@ import {
   MoneyTransferCouldNotSucceedException,
   InvalidAccountTypeException,
   BankCouldNotCreatedException,
-} from "./exceptions";
-import { BankCustomerRepresentative } from "./schemas/employee-schema";
+  EmployeeCouldNotUpdatedException,
+  BankCouldNotUpdatedException,
+} from "../exceptions";
+import { BankCustomerRepresentative } from "../schemas/employee-schema";
 import { EmployeesService } from "./employees.service";
+import { EMPLOYEE_MODEL_TYPES } from "../types/employee.types";
 @Injectable()
 export class BanksService implements OnModuleInit, IBankServiceInterface {
   private readonly logger = new Logger(BanksService.name);
@@ -289,6 +292,40 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
         customer,
       });
     return updatedCustomerRepresentative;
+  }
+  async handleCreateEmployeeRegistrationToBank({
+    employeeType,
+    employeeId,
+    bankId,
+  }: {
+    employeeType: EMPLOYEE_MODEL_TYPES;
+    employeeId: string;
+    bankId: string;
+  }): Promise<Bank> {
+    const { logger, banksRepository, employeesService } = this;
+    logger.debug(
+      "[BanksService] handleCreateBankDirector DTO: ",
+      employeeType,
+      employeeId,
+      bankId,
+    );
+    const employee = await employeesService.createBankRegistrationToUser({
+      employeeType,
+      employeeId,
+      bankId,
+    });
+    if (!BanksLogic.isObjectValid(employee)) {
+      throw new EmployeeCouldNotUpdatedException({ data: employee });
+    }
+    const updatedBank = await banksRepository.addEmployeeToBank({
+      bankId,
+      employeeId,
+      action: BANK_ACTIONS.EMPLOYEE_REGISTRATION,
+    });
+    if (!BanksLogic.isObjectValid(employee)) {
+      throw new BankCouldNotUpdatedException({ data: employee });
+    }
+    return updatedBank;
   }
   private async handleKafkaTransferEvents(
     data: any,

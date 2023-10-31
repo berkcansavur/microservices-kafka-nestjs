@@ -10,6 +10,7 @@ import {
   CreateDirectorDTO,
   CreateCustomerRepresentativeDTO,
   CreateDepartmentDirectorDTO,
+  CreateEmployeeRegistrationToBankDTO,
 } from "./dtos/api.dtos";
 import { ApiTags } from "@nestjs/swagger";
 import { AddCustomerToRepresentativeDTO } from "./dtos/api.dtos";
@@ -76,6 +77,16 @@ export class AppController {
     const { appService } = this;
     return appService.sendCreateCustomerRepresentativeRequest(
       createCustomerRepresentativeDTO,
+    );
+  }
+  @Post("/createEmployeeRegistrationToBank")
+  createEmployeeRegistrationToBank(
+    @Body()
+    createEmployeeRegistrationToBankDTO: CreateEmployeeRegistrationToBankDTO,
+  ) {
+    const { appService } = this;
+    return appService.sendCreateEmployeeRegistrationToBank(
+      createEmployeeRegistrationToBankDTO,
     );
   }
   @Post("/addCustomerToRepresentative")

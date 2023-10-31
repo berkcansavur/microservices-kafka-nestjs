@@ -40,6 +40,19 @@ export class BankCouldNotCreatedException extends BankAppException {
     Object.setPrototypeOf(this, BankCouldNotCreatedException.prototype);
   }
 }
+export class BankCouldNotUpdatedException extends BankAppException {
+  constructor(data?: string | object) {
+    super(
+      "Bank could not updated.",
+      2100,
+      HttpStatus.BAD_REQUEST,
+      JSON.stringify(data),
+      "BankCouldNotUpdatedException",
+    );
+    this.name = "BankCouldNotUpdatedException";
+    Object.setPrototypeOf(this, BankCouldNotUpdatedException.prototype);
+  }
+}
 export class MoneyTransferCouldNotSucceedException extends BankAppException {
   constructor(data?: string | object) {
     super(

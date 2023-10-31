@@ -5,13 +5,14 @@ import {
   EVENT_RESULTS,
   TRANSACTION_TYPES,
 } from "src/constants/banks.constants";
+import { EMPLOYEE_ACTIONS } from "src/types/employee.types";
 @Schema({
   _id: false,
   versionKey: false,
   timestamps: false,
 })
 export class ActionLog {
-  @Prop({ type: String, enum: Object.values(BANK_ACTIONS) })
+  @Prop({ type: String, enum: Object.values(EMPLOYEE_ACTIONS) })
   action: string;
 
   @Prop({ type: String, required: false })

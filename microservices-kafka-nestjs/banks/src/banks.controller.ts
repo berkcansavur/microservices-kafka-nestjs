@@ -1,5 +1,5 @@
 import { Controller, Logger, UsePipes } from "@nestjs/common";
-import { BanksService } from "./banks.service";
+import { BanksService } from "./services/banks.service";
 import { MessagePattern } from "@nestjs/microservices";
 import { ParseIncomingRequest } from "src/pipes/serialize-request-data.pipe";
 import {
@@ -10,12 +10,13 @@ import {
   CreateBankDepartmentDirectorDTO,
   CreateBankDirectorDTO,
   CreateCustomerDTO,
+  CreateEmployeeRegistrationToBankDTO,
   CreateTransferDTO,
   MoneyTransferDTO,
   TransferDTO,
 } from "./dtos/bank.dto";
 import { EMPLOYEE_MODEL_TYPES } from "./types/employee.types";
-import { EmployeesService } from "./employees.service";
+import { EmployeesService } from "./services/employees.service";
 
 @Controller("/banks")
 export class BanksController {
@@ -165,6 +166,23 @@ export class BanksController {
     return await this.bankService.handleAddCustomerToCustomerRepresentative({
       customerId: data.customerId,
       customerRepresentativeId: data.customerRepresentativeId,
+    });
+  }
+  @MessagePattern("create-employee-registration-to-bank-event")
+  @UsePipes(new ParseIncomingRequest())
+  async createEmployeeRegistrationToBank(
+    data: CreateEmployeeRegistrationToBankDTO,
+  ) {
+    const { logger } = this;
+    logger.debug(
+      `[BanksController] Banks approveTransfer Incoming Data: ${JSON.stringify(
+        data,
+      )}`,
+    );
+    return await this.bankService.handleCreateEmployeeRegistrationToBank({
+      employeeType: data.employeeType,
+      employeeId: data.employeeId,
+      bankId: data.bankId,
     });
   }
 }

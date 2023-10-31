@@ -1,5 +1,5 @@
 import { Module } from "@nestjs/common";
-import { BanksService } from "./banks.service";
+import { BanksService } from "./services/banks.service";
 import { MongooseModule } from "@nestjs/mongoose";
 import { Bank, BanksSchema } from "./schemas/banks.schema";
 import { Customer, CustomerSchema } from "./schemas/customers.schema";
@@ -18,11 +18,11 @@ import {
   BankDepartmentDirector,
   BankDepartmentDirectorSchema,
 } from "./schemas/employee-schema";
-import { CustomersService } from "./customers/customers.service";
+import { CustomersService } from "./services/customers.service";
 import { CustomersRepository } from "./repositories/customer.repository";
 import { EmployeeModelMap } from "./employee-models/employee-model.map";
 import { EmployeeModelFactory } from "src/factories/employee-model.factory";
-import { EmployeesService } from "./employees.service";
+import { EmployeesService } from "./services/employees.service";
 import { EmployeesRepository } from "./repositories/employees.repository";
 import { BankProfile } from "./mapper/bank-profile";
 

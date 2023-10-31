@@ -8,6 +8,7 @@ import {
   IsEmail,
   Length,
 } from "class-validator";
+import { EMPLOYEE_MODEL_TYPES } from "types/app-types";
 export class CreateTransferDTO {
   @ApiProperty({
     description: "Currency type of the inserted money.",
@@ -160,33 +161,6 @@ export class CreateBankDTO {
   @IsNotEmpty()
   @IsString()
   bankName: string;
-
-  @ApiProperty({
-    description: "Bank directors id",
-    required: true,
-    example: "6530a356aaf92d72d1f0f367",
-  })
-  @IsNotEmpty()
-  @IsMongoId()
-  bankManager: string;
-
-  @ApiProperty({
-    description: "Bank customer representatives ids array",
-    required: true,
-    examples: ["6530a356aaf92d72d1f0f367", "6530a356aaf92d72d1f0f367"],
-  })
-  @IsNotEmpty()
-  @IsMongoId()
-  customerRepresentatives: object[];
-
-  @ApiProperty({
-    description: "Bank department directors ids array",
-    required: true,
-    examples: ["6530a356aaf92d72d1f0f367", "6530a356aaf92d72d1f0f367"],
-  })
-  @IsNotEmpty()
-  @IsMongoId()
-  departmentDirectors: object[];
 }
 export class CreateDirectorDTO {
   @ApiProperty({
@@ -465,4 +439,28 @@ export class AddCustomerToRepresentativeDTO {
   })
   @IsMongoId()
   customerRepresentativeId: string;
+}
+export class CreateEmployeeRegistrationToBankDTO {
+  @ApiProperty({
+    description: "Employees type",
+    required: true,
+    example: "getBankDepartmentDirectorModel",
+  })
+  employeeType: EMPLOYEE_MODEL_TYPES;
+
+  @ApiProperty({
+    description: "Employees id",
+    required: true,
+    example: "6530a356aaf92d72d1f0f367",
+  })
+  @IsMongoId()
+  employeeId: string;
+
+  @ApiProperty({
+    description: "Banks id",
+    required: true,
+    example: "6530a356aaf92d72d1f0f367",
+  })
+  @IsMongoId()
+  bankId: string;
 }
