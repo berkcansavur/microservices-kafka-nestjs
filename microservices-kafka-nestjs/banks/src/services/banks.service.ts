@@ -30,7 +30,7 @@ import {
 } from "../exceptions";
 import { BankCustomerRepresentative } from "../schemas/employee-schema";
 import { EmployeesService } from "./employees.service";
-import { EMPLOYEE_MODEL_TYPES } from "../types/employee.types";
+import { EMPLOYEE_TYPES } from "../types/employee.types";
 @Injectable()
 export class BanksService implements OnModuleInit, IBankServiceInterface {
   private readonly logger = new Logger(BanksService.name);
@@ -298,7 +298,7 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
     employeeId,
     bankId,
   }: {
-    employeeType: EMPLOYEE_MODEL_TYPES;
+    employeeType: EMPLOYEE_TYPES;
     employeeId: string;
     bankId: string;
   }): Promise<Bank> {

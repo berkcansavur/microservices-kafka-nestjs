@@ -8,7 +8,7 @@ import {
   IsEmail,
   Length,
 } from "class-validator";
-import { EMPLOYEE_MODEL_TYPES } from "types/app-types";
+import { EMPLOYEE_TYPES } from "types/app-types";
 export class CreateTransferDTO {
   @ApiProperty({
     description: "Currency type of the inserted money.",
@@ -444,9 +444,9 @@ export class CreateEmployeeRegistrationToBankDTO {
   @ApiProperty({
     description: "Employees type",
     required: true,
-    example: "getBankDepartmentDirectorModel",
+    example: "BANK_CUSTOMER_REPRESENTATIVE",
   })
-  employeeType: EMPLOYEE_MODEL_TYPES;
+  employeeType: EMPLOYEE_TYPES;
 
   @ApiProperty({
     description: "Employees id",

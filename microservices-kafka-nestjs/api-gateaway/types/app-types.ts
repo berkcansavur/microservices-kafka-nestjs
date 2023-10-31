@@ -20,8 +20,8 @@ export type ActionLog = {
   user?: string;
   occurredAt: Date;
 };
-export enum EMPLOYEE_MODEL_TYPES {
-  BANK_DIRECTOR = "getBankDirectorModel",
-  BANK_DEPARTMENT_DIRECTOR = "getBankDepartmentDirectorModel",
-  BANK_CUSTOMER_REPRESENTATIVE = "getBankCustomerRepresentativeModel",
+export enum EMPLOYEE_TYPES {
+  BANK_DIRECTOR = "BANK_DIRECTOR",
+  BANK_DEPARTMENT_DIRECTOR = "BANK_DEPARTMENT_DIRECTOR",
+  BANK_CUSTOMER_REPRESENTATIVE = "BANK_CUSTOMER_REPRESENTATIVE",
 }

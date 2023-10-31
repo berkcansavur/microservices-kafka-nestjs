@@ -15,6 +15,7 @@ import { BanksLogic } from "../logic/banks.logic";
 import {
   EMPLOYEE_ACTIONS,
   EMPLOYEE_MODEL_TYPES,
+  EMPLOYEE_TYPES,
 } from "../types/employee.types";
 import { IEmployeeServiceInterface } from "../interfaces/employee-service.interface";
 import {
@@ -25,10 +26,12 @@ import {
 import { Customer } from "../schemas/customers.schema";
 import { InjectMapper } from "@automapper/nestjs";
 import { Mapper } from "@automapper/core";
+import { Utils } from "src/utils/utils";
 
 @Injectable()
 export class EmployeesService implements IEmployeeServiceInterface {
   private readonly logger = new Logger(EmployeesService.name);
+  private readonly utils = new Utils();
   constructor(
     private readonly employeesRepository: EmployeesRepository,
     @InjectMapper() private readonly BankMapper: Mapper,
@@ -116,13 +119,14 @@ export class EmployeesService implements IEmployeeServiceInterface {
     employeeId,
     bankId,
   }: {
-    employeeType: EMPLOYEE_MODEL_TYPES;
+    employeeType: EMPLOYEE_TYPES;
     employeeId: string;
     bankId: string;
   }): Promise<
     BankDirector | BankDepartmentDirector | BankCustomerRepresentative
   > {
-    const { logger, employeesRepository } = this;
+    const { logger, employeesRepository, utils } = this;
+    const employeeModelType = utils.getEmployeeModelType(employeeType);
     logger.debug(
       "[EmployeesService] createBankRegistrationToUser : ",
       employeeType,
@@ -130,7 +134,7 @@ export class EmployeesService implements IEmployeeServiceInterface {
       bankId,
     );
     const updatedEmployee = await employeesRepository.setBankToEmployee({
-      employeeType,
+      employeeType: employeeModelType,
       employeeId,
       bankId,
       action: EMPLOYEE_ACTIONS.BANK_REGISTRATION,

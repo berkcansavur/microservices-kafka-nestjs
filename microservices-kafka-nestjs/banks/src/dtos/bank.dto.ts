@@ -7,7 +7,7 @@ import {
   Length,
   Min,
 } from "class-validator";
-import { EMPLOYEE_MODEL_TYPES } from "src/types/employee.types";
+import { EMPLOYEE_TYPES } from "src/types/employee.types";
 
 export class TransferDTO {
   @IsNotEmpty()
@@ -239,7 +239,7 @@ export class AddCustomerToRepresentativeDTO {
 }
 export class CreateEmployeeRegistrationToBankDTO {
   @IsNotEmpty()
-  employeeType: EMPLOYEE_MODEL_TYPES;
+  employeeType: EMPLOYEE_TYPES;
 
   @IsMongoId()
   employeeId: string;
