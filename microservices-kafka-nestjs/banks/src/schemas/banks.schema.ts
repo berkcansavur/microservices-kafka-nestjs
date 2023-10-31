@@ -17,6 +17,10 @@ export class Balance {
 
 const BalanceSchema = SchemaFactory.createForClass(Balance);
 
+@Schema({
+  _id: false,
+  versionKey: false,
+})
 export class ActionLog {
   @Prop({ type: String, enum: Object.values(BANK_ACTIONS) })
   action: string;
@@ -47,14 +51,8 @@ export class Bank {
   @Prop({ type: String, required: true })
   bankName: string;
 
-  @Prop({ type: mSchema.Types.ObjectId, ref: "BankDirector", required: true })
-  bankManager: Types.ObjectId;
-
-  @Prop({ type: [mSchema.Types.ObjectId], ref: "BankDepartmentDirector" })
-  departmentDirectors: Types.ObjectId[];
-
-  @Prop({ type: [mSchema.Types.ObjectId], ref: "BankCustomerRepresentative" })
-  customerRepresentatives: Types.ObjectId[];
+  @Prop({ type: [mSchema.Types.ObjectId] })
+  employees: Types.ObjectId[];
 
   @Prop({ type: BalanceSchema })
   balance: Balance[];

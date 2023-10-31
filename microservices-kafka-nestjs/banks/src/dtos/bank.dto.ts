@@ -7,6 +7,7 @@ import {
   Length,
   Min,
 } from "class-validator";
+import { EMPLOYEE_TYPES } from "src/types/employee.types";
 
 export class TransferDTO {
   @IsNotEmpty()
@@ -170,18 +171,6 @@ export class CreateBankDTO {
   @IsNotEmpty()
   @IsString()
   bankName: string;
-
-  @IsNotEmpty()
-  @IsMongoId()
-  bankManager: string;
-
-  @IsNotEmpty()
-  @IsMongoId()
-  customerRepresentatives: object[];
-
-  @IsNotEmpty()
-  @IsMongoId()
-  departmentDirectors: object[];
 }
 export class CreateTransferDTO {
   @IsString()
@@ -247,4 +236,14 @@ export class AddCustomerToRepresentativeDTO {
 
   @IsMongoId()
   customerRepresentativeId: string;
+}
+export class CreateEmployeeRegistrationToBankDTO {
+  @IsNotEmpty()
+  employeeType: EMPLOYEE_TYPES;
+
+  @IsMongoId()
+  employeeId: string;
+
+  @IsMongoId()
+  bankId: string;
 }

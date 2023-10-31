@@ -8,6 +8,7 @@ import {
   CreateCustomerRepresentativeDTO,
   CreateDepartmentDirectorDTO,
   CreateDirectorDTO,
+  CreateEmployeeRegistrationToBankDTO,
   CreateTransferDTO,
   IncomingTransferRequestDTO,
   MoneyTransferDTO,
@@ -134,7 +135,7 @@ export class AppService implements OnModuleInit {
       createCustomerRepresentativeRequestDTO,
     );
   }
-  async sendAddCustomerToRepresentativeRequest({
+  sendAddCustomerToRepresentativeRequest({
     addCustomerToRepresentativeDTO,
   }: {
     addCustomerToRepresentativeDTO: AddCustomerToRepresentativeDTO;
@@ -160,6 +161,19 @@ export class AppService implements OnModuleInit {
     return this.bankClient.send(
       BANK_TOPICS.CREATE_BANK_DEPARTMENT_DIRECTOR_EVENT,
       createDepartmentDirectorRequestDTO,
+    );
+  }
+  sendCreateEmployeeRegistrationToBank(
+    createEmployeeRegistrationToBankDTO: CreateEmployeeRegistrationToBankDTO,
+  ) {
+    const { logger } = this;
+    logger.debug(
+      "[AppService] sendCreateDirectorRequest DTO: ",
+      createEmployeeRegistrationToBankDTO,
+    );
+    return this.bankClient.send(
+      BANK_TOPICS.CREATE_EMPLOYEE_REGISTRATION_TO_BANK_EVENT,
+      createEmployeeRegistrationToBankDTO,
     );
   }
   async sendGetAccountRequest(accountId: string) {
