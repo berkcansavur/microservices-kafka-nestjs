@@ -12,6 +12,7 @@ import {
   CreateDepartmentDirectorDTO,
   CreateEmployeeRegistrationToBankDTO,
   GetCustomersAccountsDTO,
+  GetEmployeesCustomerTransactionsDTO,
 } from "./dtos/api.dtos";
 import { ApiTags } from "@nestjs/swagger";
 import { AddCustomerToRepresentativeDTO } from "./dtos/api.dtos";
@@ -135,6 +136,16 @@ export class AppController {
     return appService.sendGetAccountsCurrencyBalanceRequest({
       accountId,
       currencyType,
+    });
+  }
+  @Get("/getEmployeesCustomerRelatedTransactionsRequest")
+  getEmployeesCustomerRelatedTransactionsRequest(
+    @Body()
+    getEmployeesCustomerTransactionsDTO: GetEmployeesCustomerTransactionsDTO,
+  ) {
+    const { appService } = this;
+    return appService.sendGetEmployeesCustomerRelatedTransactionsRequest({
+      getEmployeesCustomerTransactionsDTO,
     });
   }
 }

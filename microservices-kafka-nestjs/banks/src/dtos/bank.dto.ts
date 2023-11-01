@@ -306,3 +306,15 @@ export class AccountDTO {
 
   actionLogs: object[];
 }
+export class GetEmployeesCustomerTransactionsDTO {
+  @IsNotEmpty()
+  employeeType: EMPLOYEE_TYPES;
+
+  @IsNotEmpty()
+  @IsMongoId()
+  employeeId: string;
+
+  @IsNotEmpty()
+  @IsMongoId()
+  customerId: string;
+}

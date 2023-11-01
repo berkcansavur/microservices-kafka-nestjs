@@ -473,3 +473,30 @@ export class GetCustomersAccountsDTO {
   @IsMongoId()
   customerId: string;
 }
+export class GetEmployeesCustomerTransactionsDTO {
+  @ApiProperty({
+    description: "Employee Type",
+    required: true,
+    example: "BANK_CUSTOMER_REPRESENTATIVE",
+  })
+  @IsNotEmpty()
+  employeeType: EMPLOYEE_TYPES;
+
+  @ApiProperty({
+    description: "Employees id",
+    required: true,
+    example: "6530a356aaf92d72d1f0f367",
+  })
+  @IsNotEmpty()
+  @IsMongoId()
+  employeeId: string;
+
+  @ApiProperty({
+    description: "Customers id",
+    required: true,
+    example: "6530a356aaf92d72d1f0f367",
+  })
+  @IsNotEmpty()
+  @IsMongoId()
+  customerId: string;
+}

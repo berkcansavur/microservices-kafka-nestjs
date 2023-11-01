@@ -197,4 +197,24 @@ export class EmployeesRepository {
       .exec();
     return updatedEmployee;
   }
+  async getEmployeesTransactions({
+    employeeType,
+    employeeId,
+    userId,
+  }: {
+    employeeType: EMPLOYEE_MODEL_TYPES;
+    employeeId: string;
+    userId: string;
+  }) {
+    const { employeeModelsFactory } = this;
+    const employeeModel =
+      await employeeModelsFactory.getEmployeeModel(employeeType);
+    const employee = await employeeModel.findOne({ _id: employeeId });
+
+    const { transactions } = employee;
+    const employeeTransactions = transactions.filter(
+      (transaction) => transaction.customer === userId,
+    );
+    return employeeTransactions;
+  }
 }

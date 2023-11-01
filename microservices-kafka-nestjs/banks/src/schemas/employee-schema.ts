@@ -58,7 +58,7 @@ export class Transaction {
   })
   result: string;
 
-  @Prop({ type: mSchema.Types.ObjectId })
+  @Prop({ type: String })
   customer?: string;
 
   @Prop({ type: [{ type: PrivateTransferSchema, ref: "PrivateTransfer" }] })

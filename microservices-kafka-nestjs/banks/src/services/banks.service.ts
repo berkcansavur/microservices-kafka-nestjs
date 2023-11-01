@@ -42,6 +42,8 @@ import { EmployeesService } from "./employees.service";
 import { EMPLOYEE_MODEL_TYPES, EMPLOYEE_TYPES } from "../types/employee.types";
 import { Mapper } from "@automapper/core";
 import { InjectMapper } from "@automapper/nestjs";
+import { CustomersLogic } from "src/logic/customers.logic";
+import { CustomerHasNotRepresentativeException } from "src/exceptions/customer-exception";
 @Injectable()
 export class BanksService implements OnModuleInit, IBankServiceInterface {
   private readonly logger = new Logger(BanksService.name);
@@ -177,7 +179,9 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
           customerId: createTransferDTO.userId,
         });
         logger.debug("[BanksService] create customer DTO: ", customer);
-
+        if (!CustomersLogic.isCustomerHasCustomerRepresentative(customer)) {
+          throw new CustomerHasNotRepresentativeException();
+        }
         await employeesService.addTransactionToEmployee({
           employeeType: EMPLOYEE_MODEL_TYPES.BANK_CUSTOMER_REPRESENTATIVE,
           employeeId: customer.customerRepresentative._id,

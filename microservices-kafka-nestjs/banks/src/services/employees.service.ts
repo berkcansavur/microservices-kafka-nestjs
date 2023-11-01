@@ -32,6 +32,7 @@ import {
   TRANSACTION_RESULTS,
   TRANSACTION_TYPES,
 } from "src/constants/banks.constants";
+import { Transaction } from "kafkajs";
 
 @Injectable()
 export class EmployeesService implements IEmployeeServiceInterface {
@@ -188,6 +189,32 @@ export class EmployeesService implements IEmployeeServiceInterface {
     } catch (error) {
       throw new Error(error);
     }
+  }
+  async getEmployeesCustomerTransactions({
+    employeeType,
+    employeeId,
+    customerId,
+  }: {
+    employeeType: EMPLOYEE_TYPES;
+    employeeId: string;
+    customerId: string;
+  }): Promise<Transaction[]> {
+    const { employeesRepository, utils, logger } = this;
+    logger.debug(
+      "[EmployeesService] getEmployeesCustomerTransactions : ",
+      employeeType,
+      employeeId,
+      customerId,
+    );
+    const employeeModelType = utils.getEmployeeModelType(employeeType);
+    const transactions: Transaction[] =
+      await employeesRepository.getEmployeesTransactions({
+        employeeType: employeeModelType,
+        employeeId,
+        userId: customerId,
+      });
+    logger.debug("[EmployeesService] transactions : ", transactions);
+    return transactions;
   }
   // async approveTransferByCustomerRepresentative({
   //   transferId,
