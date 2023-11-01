@@ -9,9 +9,9 @@ import {
   CreateCustomerDTO,
   CreateEmployeeRegistrationToBankDTO,
   CreateTransferDTO,
-  CustomerIdDTO,
+  GetCustomersAccountsDTO,
+  GetTransferDTO,
   MoneyTransferDTO,
-  TransferDTO,
 } from "../dtos/bank.dto";
 
 @Controller("/banks")
@@ -48,7 +48,7 @@ export class BanksController {
   }
   @MessagePattern("approve-transfer-event")
   @UsePipes(new ParseIncomingRequest())
-  async approveTransferEvent(data: TransferDTO) {
+  async approveTransferEvent(data: GetTransferDTO) {
     const { logger } = this;
     logger.debug(
       `[BanksController] Banks approveTransfer Incoming Data: ${JSON.stringify(
@@ -56,7 +56,8 @@ export class BanksController {
       )}`,
     );
     return await this.bankService.handleApproveTransfer({
-      transferDTO: data,
+      transferId: data.transferId,
+      employeeId: data.employeeId,
     });
   }
   @MessagePattern("create-transfer-across-accounts-event")
@@ -105,7 +106,7 @@ export class BanksController {
   ) {
     const { logger } = this;
     logger.debug(
-      `[BanksController] Banks approveTransfer Incoming Data: ${JSON.stringify(
+      `[BanksController] Banks AddCustomerToCustomerRepresentative Incoming Data: ${JSON.stringify(
         data,
       )}`,
     );
@@ -133,10 +134,10 @@ export class BanksController {
   }
   @MessagePattern("get-customer-accounts-event")
   @UsePipes(new ParseIncomingRequest())
-  async getCustomersAccounts(data: CustomerIdDTO) {
+  async getCustomersAccounts(data: GetCustomersAccountsDTO) {
     const { logger, bankService } = this;
     logger.debug(
-      `[BanksController] Banks approveTransfer Incoming Data: ${JSON.stringify(
+      `[BanksController] Banks getCustomersAccounts Incoming Data: ${JSON.stringify(
         data,
       )}`,
     );

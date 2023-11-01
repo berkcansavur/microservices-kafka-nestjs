@@ -4,6 +4,7 @@ import {
   CreateBankCustomerRepresentativeDTO,
   CreateBankDepartmentDirectorDTO,
   CreateBankDirectorDTO,
+  GetEmployeesCustomerTransactionsDTO,
 } from "src/dtos/bank.dto";
 import { ParseIncomingRequest } from "src/pipes/serialize-request-data.pipe";
 import { EmployeesService } from "src/services/employees.service";
@@ -57,6 +58,23 @@ export class EmployeesController {
     return await this.employeeService.createEmployee({
       employeeType: EMPLOYEE_MODEL_TYPES.BANK_CUSTOMER_REPRESENTATIVE,
       createEmployeeDTO: data,
+    });
+  }
+  @MessagePattern("get-employees-customer-related-transactions")
+  @UsePipes(new ParseIncomingRequest())
+  async getEmployeesCustomerRelatedTransactions(
+    data: GetEmployeesCustomerTransactionsDTO,
+  ) {
+    const { logger, employeeService } = this;
+    logger.debug(
+      `[BanksController] Banks createBankCustomerRepresentativeEvent Incoming Data: ${JSON.stringify(
+        data,
+      )}`,
+    );
+    return await employeeService.getEmployeesCustomerTransactions({
+      employeeType: data.employeeType,
+      employeeId: data.employeeId,
+      customerId: data.customerId,
     });
   }
 }

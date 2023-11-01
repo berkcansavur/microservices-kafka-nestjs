@@ -4,14 +4,17 @@ import {
   CreateCustomerDTO,
   CreateTransferDTO,
   MoneyTransferDTO,
-  TransferDTO,
 } from "src/dtos/bank.dto";
 import { Bank } from "src/schemas/banks.schema";
 import { Customer } from "src/schemas/customers.schema";
 import { AccountType, TransferType } from "src/types/bank.types";
 
 export interface IBankServiceInterface {
-  handleApproveTransfer({ transferDTO }: { transferDTO: TransferDTO });
+  handleApproveTransfer({
+    transferId,
+  }: {
+    transferId: string;
+  }): Promise<TransferType>;
   handleCreateAccount({
     createAccountDTO,
   }: {

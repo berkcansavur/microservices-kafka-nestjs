@@ -10,6 +10,8 @@ import {
   BankDepartmentDirector,
   BankDirector,
   PrivateCustomer,
+  PrivateTransfer,
+  Transaction,
 } from "../schemas/employee-schema";
 import { BanksLogic } from "../logic/banks.logic";
 import {
@@ -27,6 +29,10 @@ import { Customer } from "../schemas/customers.schema";
 import { InjectMapper } from "@automapper/nestjs";
 import { Mapper } from "@automapper/core";
 import { Utils } from "src/utils/utils";
+import {
+  TRANSACTION_RESULTS,
+  TRANSACTION_TYPES,
+} from "src/constants/banks.constants";
 
 @Injectable()
 export class EmployeesService implements IEmployeeServiceInterface {
@@ -140,5 +146,109 @@ export class EmployeesService implements IEmployeeServiceInterface {
       action: EMPLOYEE_ACTIONS.BANK_REGISTRATION,
     });
     return updatedEmployee;
+  }
+  // async approveTransfer() {
+  //   const { employeesRepository } = this;
+  //   const updatedCustomerRepresentative = await employeesRepository
+  // }
+  async addTransactionToEmployee({
+    employeeType,
+    employeeId,
+    customerId,
+    transactionType,
+    transfer,
+    result,
+    action,
+    message,
+  }: {
+    employeeType: EMPLOYEE_MODEL_TYPES;
+    employeeId: string;
+    customerId: string;
+    transactionType: TRANSACTION_TYPES;
+    transfer?: PrivateTransfer;
+    result?: TRANSACTION_RESULTS;
+    action?: EMPLOYEE_ACTIONS;
+    message?: string;
+  }): Promise<
+    BankDirector | BankDepartmentDirector | BankCustomerRepresentative
+  > {
+    const { employeesRepository } = this;
+    try {
+      const updatedEmployee =
+        await employeesRepository.addTransactionToEmployee({
+          employeeType,
+          employeeId,
+          customerId,
+          transactionType,
+          transfer,
+          result,
+          action,
+          message,
+        });
+      return updatedEmployee;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+  async getEmployeesCustomerTransactions({
+    employeeType,
+    employeeId,
+    customerId,
+  }: {
+    employeeType: EMPLOYEE_TYPES;
+    employeeId: string;
+    customerId: string;
+  }): Promise<Transaction[]> {
+    const { employeesRepository, utils, logger } = this;
+    logger.debug(
+      "[EmployeesService] getEmployeesCustomerTransactions : ",
+      employeeType,
+      employeeId,
+      customerId,
+    );
+    const employeeModelType = utils.getEmployeeModelType(employeeType);
+    const transactions: Transaction[] =
+      await employeesRepository.getEmployeesTransactions({
+        employeeType: employeeModelType,
+        employeeId,
+        userId: customerId,
+      });
+    logger.debug("[EmployeesService] transactions : ", transactions);
+    return transactions;
+  }
+  async updateEmployeesCustomerTransactionsResult({
+    employeeType,
+    transferId,
+    employeeId,
+    transfer,
+    result,
+    action,
+  }: {
+    employeeType: EMPLOYEE_TYPES;
+    transferId: string;
+    employeeId: string;
+    transfer?: PrivateTransfer;
+    result?: TRANSACTION_RESULTS;
+    action?: EMPLOYEE_ACTIONS;
+  }): Promise<Transaction> {
+    const { employeesRepository, utils, logger } = this;
+    const employeeModelType = utils.getEmployeeModelType(employeeType);
+    const updatedEmployee =
+      await employeesRepository.updateEmployeesTransactionResult({
+        employeeType: employeeModelType,
+        employeeId,
+        transfer,
+        result,
+        action,
+        message: `Transaction that has transfer ${transferId} of customer ${transfer.userId} is updated with transfer result ${result}`,
+      });
+    const transaction = updatedEmployee.transactions.find((transaction) => {
+      transaction.transfer._id === transferId;
+    });
+    logger.debug(
+      "[EmployeesService] updateEmployeesCustomerTransactionsResult : ",
+      transaction,
+    );
+    return transaction;
   }
 }

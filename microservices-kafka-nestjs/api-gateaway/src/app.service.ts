@@ -10,8 +10,9 @@ import {
   CreateDirectorDTO,
   CreateEmployeeRegistrationToBankDTO,
   CreateTransferDTO,
-  CustomerId,
-  IncomingTransferRequestDTO,
+  GetCustomersAccountsDTO,
+  GetEmployeesCustomerTransactionsDTO,
+  GetTransferDTO,
   MoneyTransferDTO,
 } from "./dtos/api.dtos";
 import { ACCOUNT_TOPICS, BANK_TOPICS } from "./constants/kafka-constants";
@@ -57,7 +58,7 @@ export class AppService implements OnModuleInit {
       },
     );
   }
-  sendApproveTransferRequest(approveTransferDTO: IncomingTransferRequestDTO) {
+  sendApproveTransferRequest(approveTransferDTO: GetTransferDTO) {
     const { logger } = this;
     logger.debug(
       `[AppService] approveTransfer: ${JSON.stringify(approveTransferDTO)}`,
@@ -177,15 +178,34 @@ export class AppService implements OnModuleInit {
       createEmployeeRegistrationToBankDTO,
     );
   }
-  sendGetCustomersAccountsRequest(customerId: CustomerId) {
+  sendGetCustomersAccountsRequest({
+    getCustomersAccountsDTO,
+  }: {
+    getCustomersAccountsDTO: GetCustomersAccountsDTO;
+  }) {
     const { logger } = this;
     logger.debug(
       "[AppService] sendCreateDirectorRequest customerId: ",
-      customerId,
+      getCustomersAccountsDTO,
     );
     return this.bankClient.send(
       BANK_TOPICS.GET_CUSTOMER_ACCOUNTS_EVENT,
-      customerId,
+      getCustomersAccountsDTO,
+    );
+  }
+  sendGetEmployeesCustomerRelatedTransactionsRequest({
+    getEmployeesCustomerTransactionsDTO,
+  }: {
+    getEmployeesCustomerTransactionsDTO: GetEmployeesCustomerTransactionsDTO;
+  }) {
+    const { logger } = this;
+    logger.debug(
+      "[AppService] sendCreateDirectorRequest customerId: ",
+      getEmployeesCustomerTransactionsDTO,
+    );
+    return this.bankClient.send(
+      BANK_TOPICS.GET_EMPLOYEES_CUSTOMER_RELATED_TRANSACTIONS,
+      getEmployeesCustomerTransactionsDTO,
     );
   }
   async sendGetAccountRequest(accountId: string) {

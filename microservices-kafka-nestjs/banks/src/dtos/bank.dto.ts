@@ -31,12 +31,12 @@ export class TransferDTO {
   @IsNotEmpty()
   @IsString()
   @IsMongoId()
-  fromAccountId: string;
+  fromAccount?: string;
 
   @IsNotEmpty()
   @IsString()
   @IsMongoId()
-  toAccountId: string;
+  toAccount: string;
 
   @IsNotEmpty()
   @IsNumber()
@@ -248,9 +248,15 @@ export class CreateEmployeeRegistrationToBankDTO {
   @IsMongoId()
   bankId: string;
 }
-export class CustomerIdDTO {
+export class GetCustomersAccountsDTO {
   @IsMongoId()
   customerId: string;
+}
+export class GetTransferDTO {
+  @IsMongoId()
+  transferId: string;
+  @IsMongoId()
+  employeeId: string;
 }
 export class PrivateAccountDTO {
   @IsNotEmpty()
@@ -305,4 +311,16 @@ export class AccountDTO {
   status: number;
 
   actionLogs: object[];
+}
+export class GetEmployeesCustomerTransactionsDTO {
+  @IsNotEmpty()
+  employeeType: EMPLOYEE_TYPES;
+
+  @IsNotEmpty()
+  @IsMongoId()
+  employeeId: string;
+
+  @IsNotEmpty()
+  @IsMongoId()
+  customerId: string;
 }

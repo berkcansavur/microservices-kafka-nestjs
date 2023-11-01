@@ -2,7 +2,10 @@ import { Injectable, Logger } from "@nestjs/common";
 import { ACCOUNT_ACTIONS } from "src/constants/banks.constants";
 import { createCustomerDTOWithCustomerNumber } from "src/dtos/bank.dto";
 import { CustomersRepository } from "src/repositories/customer.repository";
-import { Customer } from "src/schemas/customers.schema";
+import {
+  Customer,
+  PrivateCustomerRepresentative,
+} from "src/schemas/customers.schema";
 
 @Injectable()
 export class CustomersService {
@@ -85,6 +88,27 @@ export class CustomersService {
     if (!updatedCustomer) {
       throw new Error("Account could not added to the customer");
     }
+    return updatedCustomer;
+  }
+  async registerCustomerRepresentativeToCustomer({
+    customerId,
+    customerRepresentative,
+  }: {
+    customerId: string;
+    customerRepresentative: PrivateCustomerRepresentative;
+  }): Promise<Customer> {
+    const { logger, customersRepository } = this;
+    logger.debug(
+      "registerCustomerRepresentativeToCustomer customerId: ",
+      customerId,
+      ", customerRepresentative: ",
+      customerRepresentative,
+    );
+    const updatedCustomer =
+      await customersRepository.registerCustomerRepresentativeToCustomer({
+        customerId,
+        customerRepresentative,
+      });
     return updatedCustomer;
   }
 }

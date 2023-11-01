@@ -7,8 +7,14 @@ import {
 } from "@automapper/core";
 import { Injectable } from "@nestjs/common";
 import { AutomapperProfile, InjectMapper } from "@automapper/nestjs";
-import { Customer } from "src/schemas/customers.schema";
-import { PrivateCustomer } from "src/schemas/employee-schema";
+import {
+  Customer,
+  PrivateCustomerRepresentative,
+} from "src/schemas/customers.schema";
+import {
+  BankCustomerRepresentative,
+  PrivateCustomer,
+} from "src/schemas/employee-schema";
 import { AccountDTO, PrivateAccountDTO } from "src/dtos/bank.dto";
 
 @Injectable()
@@ -82,6 +88,23 @@ export class BankProfile extends AutomapperProfile {
         forMember(
           (destination) => destination.accountType,
           mapFrom((source) => source.accountType),
+        ),
+      );
+      createMap<BankCustomerRepresentative, PrivateCustomerRepresentative>(
+        mapper,
+        BankCustomerRepresentative,
+        PrivateCustomerRepresentative,
+        forMember(
+          (destination) => destination._id,
+          mapFrom((source) => source._id.toString()),
+        ),
+        forMember(
+          (destination) => destination.customerRepresentativeName,
+          mapFrom((source) => source.customerRepresentativeName),
+        ),
+        forMember(
+          (destination) => destination.customerRepresentativeSurname,
+          mapFrom((source) => source.customerRepresentativeSurname),
         ),
       );
     };

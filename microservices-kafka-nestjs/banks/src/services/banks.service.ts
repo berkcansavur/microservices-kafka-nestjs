@@ -1,6 +1,5 @@
 import { Inject, Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import {
-  TransferDTO,
   CreateAccountDTO,
   CreateTransferDTO,
   MoneyTransferDTO,
@@ -12,12 +11,21 @@ import {
 import { BanksRepository } from "../repositories/banks.repository";
 import { ClientKafka } from "@nestjs/microservices";
 import { Utils } from "../utils/utils";
-import { Customer } from "../schemas/customers.schema";
+import {
+  Customer,
+  PrivateCustomerRepresentative,
+} from "../schemas/customers.schema";
 import { CustomersService } from "./customers.service";
 import { BanksLogic } from "../logic/banks.logic";
 import { AccountType, TransferType } from "../types/bank.types";
 import { Bank } from "../schemas/banks.schema";
-import { BANK_ACTIONS, EVENT_RESULTS } from "../constants/banks.constants";
+import {
+  BANK_ACTIONS,
+  EVENT_RESULTS,
+  TRANSACTION_RESULTS,
+  TRANSACTION_TYPES,
+  TRANSFER_STATUSES,
+} from "../constants/banks.constants";
 import { ACCOUNT_TOPICS, TRANSFER_TOPICS } from "../constants/kafka.constants";
 import { IBankServiceInterface } from "../interfaces/banks-service.interface";
 import {
@@ -29,12 +37,19 @@ import {
   BankCouldNotCreatedException,
   EmployeeCouldNotUpdatedException,
   BankCouldNotUpdatedException,
+  InvalidTransferStatusException,
 } from "../exceptions";
 import { BankCustomerRepresentative } from "../schemas/employee-schema";
 import { EmployeesService } from "./employees.service";
-import { EMPLOYEE_TYPES } from "../types/employee.types";
+import {
+  EMPLOYEE_ACTIONS,
+  EMPLOYEE_MODEL_TYPES,
+  EMPLOYEE_TYPES,
+} from "../types/employee.types";
 import { Mapper } from "@automapper/core";
 import { InjectMapper } from "@automapper/nestjs";
+import { CustomersLogic } from "src/logic/customers.logic";
+import { CustomerHasNotRepresentativeException } from "src/exceptions/customer-exception";
 @Injectable()
 export class BanksService implements OnModuleInit, IBankServiceInterface {
   private readonly logger = new Logger(BanksService.name);
@@ -63,11 +78,6 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
     } catch (error) {
       this.logger.error("Subscription of events are failed : ", error);
     }
-  }
-  async handleApproveTransfer({ transferDTO }: { transferDTO: TransferDTO }) {
-    const { logger, accountClient } = this;
-    logger.debug("[BanksService] handle approve transfer DTO : ", transferDTO);
-    return accountClient.send("account_availability_result", { transferDTO });
   }
   async handleCreateAccount({
     createAccountDTO,
@@ -119,6 +129,21 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
       }
       return createdAccount;
     } catch (error) {
+      if (error instanceof AccountCouldNotAddedToCustomerException) {
+        throw new AccountCouldNotAddedToCustomerException({
+          data: createAccountDTO.userId,
+        });
+      }
+      if (error instanceof InvalidBankBranchCodeException) {
+        throw new InvalidBankBranchCodeException({
+          data: createAccountDTO.bankBranchCode,
+        });
+      }
+      if (error instanceof InvalidAccountTypeException) {
+        throw new InvalidAccountTypeException({
+          data: createAccountDTO.accountType,
+        });
+      }
       throw new AccountCouldNotCreatedException({ errorData: error });
     }
   }
@@ -148,6 +173,7 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
   }: {
     createTransferDTO: CreateTransferDTO;
   }): Promise<TransferType> {
+    const { logger, employeesService, customersService } = this;
     if (
       BanksLogic.isAmountGreaterThanDesignatedAmount({
         designatedAmount: 5000,
@@ -165,8 +191,25 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
             createdTransfer,
             TRANSFER_TOPICS.HANDLE_APPROVE_PENDING_TRANSFER,
           );
+        const customer: Customer = await customersService.getCustomer({
+          customerId: createTransferDTO.userId,
+        });
+        logger.debug("[BanksService] create customer DTO: ", customer);
+        if (!CustomersLogic.isCustomerHasCustomerRepresentative(customer)) {
+          throw new CustomerHasNotRepresentativeException();
+        }
+        await employeesService.addTransactionToEmployee({
+          employeeType: EMPLOYEE_MODEL_TYPES.BANK_CUSTOMER_REPRESENTATIVE,
+          employeeId: customer.customerRepresentative._id,
+          customerId: createTransferDTO.userId,
+          transactionType: TRANSACTION_TYPES.SAME_BANK_TRANSFER,
+          transfer: approvePendingTransfer,
+        });
         return approvePendingTransfer;
       } catch (error) {
+        if (error instanceof CustomerHasNotRepresentativeException) {
+          throw new CustomerHasNotRepresentativeException();
+        }
         throw new MoneyTransferCouldNotSucceedException({ errorData: error });
       }
     }
@@ -282,9 +325,9 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
     customerId: string;
     customerRepresentativeId: string;
   }): Promise<BankCustomerRepresentative> {
-    const { logger, customersService, employeesService } = this;
+    const { logger, customersService, employeesService, BankMapper } = this;
     logger.debug(
-      "[BanksService] handleCreateBankDirector DTO: ",
+      "[BanksService] handleAddCustomerToCustomerRepresentative DTO: ",
       customerId,
       customerRepresentativeId,
     );
@@ -296,6 +339,22 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
         customerRepresentativeId,
         customer,
       });
+    const formattedCustomerRepresentative = BankMapper.map<
+      BankCustomerRepresentative,
+      PrivateCustomerRepresentative
+    >(
+      updatedCustomerRepresentative,
+      BankCustomerRepresentative,
+      PrivateCustomerRepresentative,
+    );
+    logger.debug(
+      "[BanksService] formattedCustomerRepresentative: ",
+      formattedCustomerRepresentative,
+    );
+    await customersService.registerCustomerRepresentativeToCustomer({
+      customerId,
+      customerRepresentative: formattedCustomerRepresentative,
+    });
     return updatedCustomerRepresentative;
   }
   async handleCreateEmployeeRegistrationToBank({
@@ -374,6 +433,84 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
       accountIds,
     });
     return accountList;
+  }
+  async handleApproveTransfer({
+    transferId,
+    employeeId,
+  }: {
+    transferId: string;
+    employeeId: string;
+  }): Promise<TransferType> {
+    const { logger, employeesService } = this;
+    logger.debug("handleApproveTransfer transferId: ", transferId);
+    try {
+      const transfer: TransferType = await this.handleKafkaTransferEvents(
+        transferId,
+        TRANSFER_TOPICS.HANDLE_GET_TRANSFER,
+      );
+      if (
+        !BanksLogic.isTransferStatusEqualToExpectedStatus({
+          status: transfer.status,
+          expectedStatus: TRANSFER_STATUSES.APPROVE_PENDING,
+        })
+      ) {
+        throw new InvalidTransferStatusException({
+          data: `Invalid transfer status ${transfer.status}`,
+        });
+      }
+      const approvedTransfer: TransferType =
+        await this.handleKafkaTransferEvents(
+          transfer,
+          TRANSFER_TOPICS.HANDLE_APPROVE_TRANSFER,
+        );
+      const startedTransfer: TransferType =
+        await this.handleKafkaTransferEvents(
+          approvedTransfer,
+          TRANSFER_TOPICS.HANDLE_START_TRANSFER,
+        );
+      const eventResult = (await this.handleKafkaAccountEvents(
+        startedTransfer,
+        ACCOUNT_TOPICS.MONEY_TRANSFER_ACROSS_ACCOUNTS_RESULT,
+      )) as EVENT_RESULTS;
+      if (BanksLogic.isTransferSucceed(eventResult)) {
+        const completedTransfer: TransferType =
+          await this.handleKafkaTransferEvents(
+            startedTransfer,
+            TRANSFER_TOPICS.HANDLE_COMPLETE_TRANSFER,
+          );
+        await employeesService.updateEmployeesCustomerTransactionsResult({
+          employeeType: EMPLOYEE_TYPES.BANK_CUSTOMER_REPRESENTATIVE,
+          transferId,
+          employeeId,
+          transfer: completedTransfer,
+          result: TRANSACTION_RESULTS.SUCCESS,
+          action: EMPLOYEE_ACTIONS.TRANSFER_APPROVAL_SUCCESS,
+        });
+        return completedTransfer;
+      } else {
+        const failedTransfer: TransferType =
+          await this.handleKafkaTransferEvents(
+            startedTransfer,
+            TRANSFER_TOPICS.HANDLE_FAILURE_TRANSFER,
+          );
+        await employeesService.updateEmployeesCustomerTransactionsResult({
+          employeeType: EMPLOYEE_TYPES.BANK_CUSTOMER_REPRESENTATIVE,
+          transferId,
+          employeeId,
+          transfer: failedTransfer,
+          result: TRANSACTION_RESULTS.FAILED,
+          action: EMPLOYEE_ACTIONS.TRANSFER_APPROVAL_FAIL,
+        });
+        return failedTransfer;
+      }
+    } catch (error) {
+      if (error instanceof InvalidTransferStatusException) {
+        throw new InvalidTransferStatusException({
+          data: `Invalid transfer status ${error.data}`,
+        });
+      }
+      throw new MoneyTransferCouldNotSucceedException({ errorData: error });
+    }
   }
   private async handleKafkaTransferEvents(
     data: any,

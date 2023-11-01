@@ -56,8 +56,8 @@ export class TransferApprovePendingState implements ITransferState {
     const approvePendingTransfer: Transfer =
       await transfersRepository.updateTransferStatus({
         transferId: transferDTO._id.toString(),
-        status: TRANSFER_STATUSES.APPROVED,
-        action: TRANSFER_ACTIONS.APPROVED,
+        status: TRANSFER_STATUSES.APPROVE_PENDING,
+        action: TRANSFER_ACTIONS.TRANSFER_AWAITS,
         userId: transferDTO.userId,
       });
     return TransferMapper.map<Transfer, TransferDTO>(

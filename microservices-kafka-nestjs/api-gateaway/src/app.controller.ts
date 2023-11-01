@@ -1,7 +1,6 @@
 import { Body, Controller, Post, Logger, Get } from "@nestjs/common";
 import { AppService } from "./app.service";
 import {
-  IncomingTransferRequestDTO,
   CreateTransferDTO,
   CreateAccountDTO,
   MoneyTransferDTO,
@@ -11,6 +10,9 @@ import {
   CreateCustomerRepresentativeDTO,
   CreateDepartmentDirectorDTO,
   CreateEmployeeRegistrationToBankDTO,
+  GetCustomersAccountsDTO,
+  GetEmployeesCustomerTransactionsDTO,
+  GetTransferDTO,
 } from "./dtos/api.dtos";
 import { ApiTags } from "@nestjs/swagger";
 import { AddCustomerToRepresentativeDTO } from "./dtos/api.dtos";
@@ -38,9 +40,7 @@ export class AppController {
   }
 
   @Post("/approveTransfer")
-  approveTransfer(
-    @Body() approveTransferRequestDTO: IncomingTransferRequestDTO,
-  ) {
+  approveTransfer(@Body() approveTransferRequestDTO: GetTransferDTO) {
     const { appService } = this;
     return appService.sendApproveTransferRequest(approveTransferRequestDTO);
   }
@@ -99,9 +99,13 @@ export class AppController {
     });
   }
   @Get("/getCustomersAccounts")
-  getCustomersAccounts(@Body() customerId: string) {
+  getCustomersAccounts(
+    @Body() getCustomersAccountsDTO: GetCustomersAccountsDTO,
+  ) {
     const { appService } = this;
-    return appService.sendGetCustomersAccountsRequest({ customerId });
+    return appService.sendGetCustomersAccountsRequest({
+      getCustomersAccountsDTO,
+    });
   }
   @Get("/getAccount")
   getAccount(@Body() accountId: string) {
@@ -130,6 +134,16 @@ export class AppController {
     return appService.sendGetAccountsCurrencyBalanceRequest({
       accountId,
       currencyType,
+    });
+  }
+  @Get("/getEmployeesCustomerRelatedTransactionsRequest")
+  getEmployeesCustomerRelatedTransactionsRequest(
+    @Body()
+    getEmployeesCustomerTransactionsDTO: GetEmployeesCustomerTransactionsDTO,
+  ) {
+    const { appService } = this;
+    return appService.sendGetEmployeesCustomerRelatedTransactionsRequest({
+      getEmployeesCustomerTransactionsDTO,
     });
   }
 }

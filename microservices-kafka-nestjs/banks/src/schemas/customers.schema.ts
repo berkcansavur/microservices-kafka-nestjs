@@ -6,6 +6,24 @@ import { CUSTOMER_ACTIONS } from "../constants/banks.constants";
   _id: false,
   versionKey: false,
 })
+export class PrivateCustomerRepresentative {
+  @Prop({ type: String })
+  _id: string;
+
+  @Prop({ type: String, required: true })
+  customerRepresentativeName: string;
+
+  @Prop({ type: String, required: true })
+  customerRepresentativeSurname: string;
+}
+
+const PrivateCustomerRepresentativeSchema = SchemaFactory.createForClass(
+  PrivateCustomerRepresentative,
+);
+@Schema({
+  _id: false,
+  versionKey: false,
+})
 export class ActionLog {
   @Prop({ type: Number, enum: CUSTOMER_ACTIONS, required: true })
   action: number;
@@ -53,6 +71,15 @@ export class Customer {
 
   @Prop({ type: [{ type: mSchema.Types.ObjectId }], default: [] })
   accounts: mSchema.Types.ObjectId[];
+
+  @Prop({
+    type: PrivateCustomerRepresentativeSchema,
+    ref: "PrivateCustomerRepresentative",
+  })
+  customerRepresentative?: PrivateCustomerRepresentative;
+
+  @Prop({ type: mSchema.Types.ObjectId, ref: "Bank" })
+  bank: Types.ObjectId;
 
   @Prop({ type: [{ type: ActionLogSchema, ref: "ActionLog" }], default: [] })
   customerActions: ActionLog[];
