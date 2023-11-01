@@ -72,7 +72,7 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
         this.logger.debug(`${topic} topic is subscribed`);
       });
       accountTopics.forEach((topic) => {
-        this.transferClient.subscribeToResponseOf(topic);
+        this.accountClient.subscribeToResponseOf(topic);
         this.logger.debug(`${topic} topic is subscribed`);
       });
     } catch (error) {
@@ -537,7 +537,7 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
     topic: ACCOUNT_TOPICS,
   ): Promise<EVENT_RESULTS | AccountType | AccountDTO | AccountDTO[]> {
     return new Promise((resolve, reject) => {
-      this.transferClient.send(topic, data).subscribe({
+      this.accountClient.send(topic, data).subscribe({
         next: (response: any) => {
           this.logger.debug(`[${topic}] Response:`, response);
           if (!BanksLogic.isObjectValid(response)) {
