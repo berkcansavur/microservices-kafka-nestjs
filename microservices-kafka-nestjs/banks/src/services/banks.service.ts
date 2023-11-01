@@ -1,6 +1,5 @@
 import { Inject, Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import {
-  TransferDTO,
   CreateAccountDTO,
   CreateTransferDTO,
   MoneyTransferDTO,
@@ -72,11 +71,6 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
     } catch (error) {
       this.logger.error("Subscription of events are failed : ", error);
     }
-  }
-  async handleApproveTransfer({ transferDTO }: { transferDTO: TransferDTO }) {
-    const { logger, accountClient } = this;
-    logger.debug("[BanksService] handle approve transfer DTO : ", transferDTO);
-    return accountClient.send("account_availability_result", { transferDTO });
   }
   async handleCreateAccount({
     createAccountDTO,
@@ -414,6 +408,51 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
       accountIds,
     });
     return accountList;
+  }
+  async handleApproveTransfer({
+    transferId,
+  }: {
+    transferId: string;
+  }): Promise<TransferType> {
+    const { logger } = this;
+    logger.debug("handleApproveTransfer transferId: ", transferId);
+    try {
+      const transfer: TransferType = await this.handleKafkaTransferEvents(
+        transferId,
+        TRANSFER_TOPICS.HANDLE_GET_TRANSFER,
+      );
+      const approvedTransfer: TransferType =
+        await this.handleKafkaTransferEvents(
+          transfer,
+          TRANSFER_TOPICS.HANDLE_APPROVE_TRANSFER,
+        );
+      const startedTransfer: TransferType =
+        await this.handleKafkaTransferEvents(
+          approvedTransfer,
+          TRANSFER_TOPICS.HANDLE_START_TRANSFER,
+        );
+      const eventResult = (await this.handleKafkaAccountEvents(
+        startedTransfer,
+        ACCOUNT_TOPICS.MONEY_TRANSFER_ACROSS_ACCOUNTS_RESULT,
+      )) as EVENT_RESULTS;
+      if (BanksLogic.isTransferSucceed(eventResult)) {
+        const completedTransfer: TransferType =
+          await this.handleKafkaTransferEvents(
+            startedTransfer,
+            TRANSFER_TOPICS.HANDLE_COMPLETE_TRANSFER,
+          );
+        return completedTransfer;
+      } else {
+        const failedTransfer: TransferType =
+          await this.handleKafkaTransferEvents(
+            startedTransfer,
+            TRANSFER_TOPICS.HANDLE_FAILURE_TRANSFER,
+          );
+        return failedTransfer;
+      }
+    } catch (error) {
+      throw new MoneyTransferCouldNotSucceedException({ errorData: error });
+    }
   }
   private async handleKafkaTransferEvents(
     data: any,

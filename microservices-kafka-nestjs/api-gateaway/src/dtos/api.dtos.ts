@@ -473,6 +473,15 @@ export class GetCustomersAccountsDTO {
   @IsMongoId()
   customerId: string;
 }
+export class GetTransferDTO {
+  @ApiProperty({
+    description: "Transfers id",
+    required: true,
+    example: "6530a356aaf92d72d1f0f367",
+  })
+  @IsMongoId()
+  transferId: string;
+}
 export class GetEmployeesCustomerTransactionsDTO {
   @ApiProperty({
     description: "Employee Type",

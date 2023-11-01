@@ -10,8 +10,8 @@ import {
   CreateEmployeeRegistrationToBankDTO,
   CreateTransferDTO,
   GetCustomersAccountsDTO,
+  GetTransferDTO,
   MoneyTransferDTO,
-  TransferDTO,
 } from "../dtos/bank.dto";
 
 @Controller("/banks")
@@ -48,7 +48,7 @@ export class BanksController {
   }
   @MessagePattern("approve-transfer-event")
   @UsePipes(new ParseIncomingRequest())
-  async approveTransferEvent(data: TransferDTO) {
+  async approveTransferEvent(data: GetTransferDTO) {
     const { logger } = this;
     logger.debug(
       `[BanksController] Banks approveTransfer Incoming Data: ${JSON.stringify(
@@ -56,7 +56,7 @@ export class BanksController {
       )}`,
     );
     return await this.bankService.handleApproveTransfer({
-      transferDTO: data,
+      transferId: data.transferId,
     });
   }
   @MessagePattern("create-transfer-across-accounts-event")

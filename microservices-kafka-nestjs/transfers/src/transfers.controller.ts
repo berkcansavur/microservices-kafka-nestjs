@@ -1,4 +1,4 @@
-import { Controller, UsePipes } from "@nestjs/common";
+import { Controller, Logger, UsePipes } from "@nestjs/common";
 import { TransfersService } from "./transfers.service";
 import { MessagePattern } from "@nestjs/microservices";
 import { ParseIncomingRequest } from "src/pipes/serialize-request-data.pipe";
@@ -10,6 +10,7 @@ import {
 
 @Controller("/transfers")
 export class TransfersController {
+  private readonly logger = new Logger(TransfersController.name);
   constructor(private readonly transfersService: TransfersService) {}
 
   @MessagePattern("handle_create_transfer_across_accounts")
@@ -97,6 +98,21 @@ export class TransfersController {
       await transfersService.updateTransferStatusApprovePending({
         transferDTO: data,
       });
+    const formattedTransfer = JSON.stringify(failedTransfer, null, 2);
+    return formattedTransfer;
+  }
+  @MessagePattern("handle_get_transfer")
+  @UsePipes(new ParseIncomingRequest())
+  async getTransfer(transferId: string) {
+    const { transfersService, logger } = this;
+    logger.debug(
+      `[BanksController] Banks approveTransfer Incoming Data: ${JSON.stringify(
+        transferId,
+      )}`,
+    );
+    const failedTransfer = await transfersService.getTransfer({
+      transferId: transferId,
+    });
     const formattedTransfer = JSON.stringify(failedTransfer, null, 2);
     return formattedTransfer;
   }

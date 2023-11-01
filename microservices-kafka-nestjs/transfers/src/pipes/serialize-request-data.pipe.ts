@@ -20,7 +20,19 @@ export class ParseIncomingRequest implements PipeTransform {
       );
       return formattedData;
     }
+    if (value && value.transferId) {
+      const formattedData = value.transferId;
+      this.logger.debug(
+        "[ParseIncomingRequest Pipe] Formatted request data :",
+        formattedData,
+      );
+      return formattedData;
+    }
     if (value) {
+      this.logger.debug(
+        "[ParseIncomingRequest Pipe] Formatted request data :",
+        value,
+      );
       return value;
     }
   }

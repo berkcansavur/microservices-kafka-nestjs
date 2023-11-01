@@ -216,14 +216,4 @@ export class EmployeesService implements IEmployeeServiceInterface {
     logger.debug("[EmployeesService] transactions : ", transactions);
     return transactions;
   }
-  // async approveTransferByCustomerRepresentative({
-  //   transferId,
-  //   customerRepresentativeId,
-  // }: {
-  //   transferId: string;
-  //   customerRepresentativeId: string;
-  // }) {
-  //   const { employeesRepository } = this;
-
-  // }
 }

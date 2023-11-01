@@ -1,7 +1,6 @@
 import { Body, Controller, Post, Logger, Get } from "@nestjs/common";
 import { AppService } from "./app.service";
 import {
-  IncomingTransferRequestDTO,
   CreateTransferDTO,
   CreateAccountDTO,
   MoneyTransferDTO,
@@ -13,6 +12,7 @@ import {
   CreateEmployeeRegistrationToBankDTO,
   GetCustomersAccountsDTO,
   GetEmployeesCustomerTransactionsDTO,
+  GetTransferDTO,
 } from "./dtos/api.dtos";
 import { ApiTags } from "@nestjs/swagger";
 import { AddCustomerToRepresentativeDTO } from "./dtos/api.dtos";
@@ -40,9 +40,7 @@ export class AppController {
   }
 
   @Post("/approveTransfer")
-  approveTransfer(
-    @Body() approveTransferRequestDTO: IncomingTransferRequestDTO,
-  ) {
+  approveTransfer(@Body() approveTransferRequestDTO: GetTransferDTO) {
     const { appService } = this;
     return appService.sendApproveTransferRequest(approveTransferRequestDTO);
   }

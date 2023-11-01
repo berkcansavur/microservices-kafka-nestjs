@@ -12,7 +12,7 @@ import {
   CreateTransferDTO,
   GetCustomersAccountsDTO,
   GetEmployeesCustomerTransactionsDTO,
-  IncomingTransferRequestDTO,
+  GetTransferDTO,
   MoneyTransferDTO,
 } from "./dtos/api.dtos";
 import { ACCOUNT_TOPICS, BANK_TOPICS } from "./constants/kafka-constants";
@@ -58,7 +58,7 @@ export class AppService implements OnModuleInit {
       },
     );
   }
-  sendApproveTransferRequest(approveTransferDTO: IncomingTransferRequestDTO) {
+  sendApproveTransferRequest(approveTransferDTO: GetTransferDTO) {
     const { logger } = this;
     logger.debug(
       `[AppService] approveTransfer: ${JSON.stringify(approveTransferDTO)}`,
