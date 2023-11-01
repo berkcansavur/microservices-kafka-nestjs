@@ -3,6 +3,7 @@ import {
   ACCOUNT_TYPES,
   BANK_BRANCH_CODE,
   EVENT_RESULTS,
+  TRANSFER_STATUSES,
 } from "../constants/banks.constants";
 import { CreateAccountDTO } from "src/dtos/bank.dto";
 
@@ -49,6 +50,18 @@ export class BanksLogic {
     amount: number;
   }): boolean {
     if (amount > designatedAmount) {
+      return true;
+    }
+    return false;
+  }
+  static isTransferStatusEqualToExpectedStatus({
+    status,
+    expectedStatus,
+  }: {
+    status: TRANSFER_STATUSES;
+    expectedStatus: TRANSFER_STATUSES;
+  }): boolean {
+    if (status === expectedStatus) {
       return true;
     }
     return false;

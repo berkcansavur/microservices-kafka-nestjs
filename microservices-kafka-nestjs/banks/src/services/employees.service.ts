@@ -11,6 +11,7 @@ import {
   BankDirector,
   PrivateCustomer,
   PrivateTransfer,
+  Transaction,
 } from "../schemas/employee-schema";
 import { BanksLogic } from "../logic/banks.logic";
 import {
@@ -32,7 +33,6 @@ import {
   TRANSACTION_RESULTS,
   TRANSACTION_TYPES,
 } from "src/constants/banks.constants";
-import { Transaction } from "kafkajs";
 
 @Injectable()
 export class EmployeesService implements IEmployeeServiceInterface {
@@ -215,5 +215,40 @@ export class EmployeesService implements IEmployeeServiceInterface {
       });
     logger.debug("[EmployeesService] transactions : ", transactions);
     return transactions;
+  }
+  async updateEmployeesCustomerTransactionsResult({
+    employeeType,
+    transferId,
+    employeeId,
+    transfer,
+    result,
+    action,
+  }: {
+    employeeType: EMPLOYEE_TYPES;
+    transferId: string;
+    employeeId: string;
+    transfer?: PrivateTransfer;
+    result?: TRANSACTION_RESULTS;
+    action?: EMPLOYEE_ACTIONS;
+  }): Promise<Transaction> {
+    const { employeesRepository, utils, logger } = this;
+    const employeeModelType = utils.getEmployeeModelType(employeeType);
+    const updatedEmployee =
+      await employeesRepository.updateEmployeesTransactionResult({
+        employeeType: employeeModelType,
+        employeeId,
+        transfer,
+        result,
+        action,
+        message: `Transaction that has transfer ${transferId} of customer ${transfer.userId} is updated with transfer result ${result}`,
+      });
+    const transaction = updatedEmployee.transactions.find((transaction) => {
+      transaction.transfer._id === transferId;
+    });
+    logger.debug(
+      "[EmployeesService] updateEmployeesCustomerTransactionsResult : ",
+      transaction,
+    );
+    return transaction;
   }
 }

@@ -111,3 +111,16 @@ export class InvalidAccountTypeException extends BankAppException {
     Object.setPrototypeOf(this, InvalidAccountTypeException.prototype);
   }
 }
+export class InvalidTransferStatusException extends BankAppException {
+  constructor(data?: string | object) {
+    super(
+      "Invalid transfer status",
+      4020,
+      HttpStatus.NOT_FOUND,
+      JSON.stringify(data),
+      "InvalidTransferStatusException",
+    );
+    this.name = "InvalidTransferStatusException";
+    Object.setPrototypeOf(this, InvalidTransferStatusException.prototype);
+  }
+}

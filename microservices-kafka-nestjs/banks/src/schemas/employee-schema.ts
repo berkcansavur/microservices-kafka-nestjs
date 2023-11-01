@@ -61,7 +61,7 @@ export class Transaction {
   @Prop({ type: String })
   customer?: string;
 
-  @Prop({ type: [{ type: PrivateTransferSchema, ref: "PrivateTransfer" }] })
+  @Prop({ type: PrivateTransferSchema, ref: "PrivateTransfer" })
   transfer?: PrivateTransfer;
 
   @Prop({ type: Date, default: Date.now })

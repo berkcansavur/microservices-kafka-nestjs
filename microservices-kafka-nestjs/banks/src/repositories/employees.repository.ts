@@ -197,6 +197,50 @@ export class EmployeesRepository {
       .exec();
     return updatedEmployee;
   }
+  async updateEmployeesTransactionResult({
+    employeeType,
+    employeeId,
+    transfer,
+    result,
+    action,
+    message,
+  }: {
+    employeeType: EMPLOYEE_MODEL_TYPES;
+    employeeId: string;
+    transfer?: PrivateTransfer;
+    result?: TRANSACTION_RESULTS;
+    action: EMPLOYEE_ACTIONS;
+    message?: string;
+  }): Promise<
+    | BankDepartmentDirectorDocument
+    | BankCustomerRepresentativeDocument
+    | BankDirectorDocument
+  > {
+    const { employeeModelsFactory } = this;
+    const employeeModel =
+      await employeeModelsFactory.getEmployeeModel(employeeType);
+    const updatedEmployee = await employeeModel
+      .findOneAndUpdate(
+        { _id: employeeId, "transactions.transfer._id": transfer._id },
+        {
+          $set: {
+            "transactions.$.result": result,
+            "transactions.$.transfer": transfer,
+          },
+          $addToSet: {
+            actionLogs: {
+              action,
+              ...(message ? { message } : undefined),
+              user: employeeId,
+            },
+          },
+        },
+        { new: true },
+      )
+      .lean()
+      .exec();
+    return updatedEmployee;
+  }
   async getEmployeesTransactions({
     employeeType,
     employeeId,

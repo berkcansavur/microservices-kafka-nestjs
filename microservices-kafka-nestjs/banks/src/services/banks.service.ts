@@ -22,7 +22,9 @@ import { Bank } from "../schemas/banks.schema";
 import {
   BANK_ACTIONS,
   EVENT_RESULTS,
+  TRANSACTION_RESULTS,
   TRANSACTION_TYPES,
+  TRANSFER_STATUSES,
 } from "../constants/banks.constants";
 import { ACCOUNT_TOPICS, TRANSFER_TOPICS } from "../constants/kafka.constants";
 import { IBankServiceInterface } from "../interfaces/banks-service.interface";
@@ -35,10 +37,15 @@ import {
   BankCouldNotCreatedException,
   EmployeeCouldNotUpdatedException,
   BankCouldNotUpdatedException,
+  InvalidTransferStatusException,
 } from "../exceptions";
 import { BankCustomerRepresentative } from "../schemas/employee-schema";
 import { EmployeesService } from "./employees.service";
-import { EMPLOYEE_MODEL_TYPES, EMPLOYEE_TYPES } from "../types/employee.types";
+import {
+  EMPLOYEE_ACTIONS,
+  EMPLOYEE_MODEL_TYPES,
+  EMPLOYEE_TYPES,
+} from "../types/employee.types";
 import { Mapper } from "@automapper/core";
 import { InjectMapper } from "@automapper/nestjs";
 import { CustomersLogic } from "src/logic/customers.logic";
@@ -122,6 +129,21 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
       }
       return createdAccount;
     } catch (error) {
+      if (error instanceof AccountCouldNotAddedToCustomerException) {
+        throw new AccountCouldNotAddedToCustomerException({
+          data: createAccountDTO.userId,
+        });
+      }
+      if (error instanceof InvalidBankBranchCodeException) {
+        throw new InvalidBankBranchCodeException({
+          data: createAccountDTO.bankBranchCode,
+        });
+      }
+      if (error instanceof InvalidAccountTypeException) {
+        throw new InvalidAccountTypeException({
+          data: createAccountDTO.accountType,
+        });
+      }
       throw new AccountCouldNotCreatedException({ errorData: error });
     }
   }
@@ -185,6 +207,9 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
         });
         return approvePendingTransfer;
       } catch (error) {
+        if (error instanceof CustomerHasNotRepresentativeException) {
+          throw new CustomerHasNotRepresentativeException();
+        }
         throw new MoneyTransferCouldNotSucceedException({ errorData: error });
       }
     }
@@ -411,16 +436,28 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
   }
   async handleApproveTransfer({
     transferId,
+    employeeId,
   }: {
     transferId: string;
+    employeeId: string;
   }): Promise<TransferType> {
-    const { logger } = this;
+    const { logger, employeesService } = this;
     logger.debug("handleApproveTransfer transferId: ", transferId);
     try {
       const transfer: TransferType = await this.handleKafkaTransferEvents(
         transferId,
         TRANSFER_TOPICS.HANDLE_GET_TRANSFER,
       );
+      if (
+        !BanksLogic.isTransferStatusEqualToExpectedStatus({
+          status: transfer.status,
+          expectedStatus: TRANSFER_STATUSES.APPROVE_PENDING,
+        })
+      ) {
+        throw new InvalidTransferStatusException({
+          data: `Invalid transfer status ${transfer.status}`,
+        });
+      }
       const approvedTransfer: TransferType =
         await this.handleKafkaTransferEvents(
           transfer,
@@ -441,6 +478,14 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
             startedTransfer,
             TRANSFER_TOPICS.HANDLE_COMPLETE_TRANSFER,
           );
+        await employeesService.updateEmployeesCustomerTransactionsResult({
+          employeeType: EMPLOYEE_TYPES.BANK_CUSTOMER_REPRESENTATIVE,
+          transferId,
+          employeeId,
+          transfer: completedTransfer,
+          result: TRANSACTION_RESULTS.SUCCESS,
+          action: EMPLOYEE_ACTIONS.TRANSFER_APPROVAL_SUCCESS,
+        });
         return completedTransfer;
       } else {
         const failedTransfer: TransferType =
@@ -448,9 +493,22 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
             startedTransfer,
             TRANSFER_TOPICS.HANDLE_FAILURE_TRANSFER,
           );
+        await employeesService.updateEmployeesCustomerTransactionsResult({
+          employeeType: EMPLOYEE_TYPES.BANK_CUSTOMER_REPRESENTATIVE,
+          transferId,
+          employeeId,
+          transfer: failedTransfer,
+          result: TRANSACTION_RESULTS.FAILED,
+          action: EMPLOYEE_ACTIONS.TRANSFER_APPROVAL_FAIL,
+        });
         return failedTransfer;
       }
     } catch (error) {
+      if (error instanceof InvalidTransferStatusException) {
+        throw new InvalidTransferStatusException({
+          data: `Invalid transfer status ${error.data}`,
+        });
+      }
       throw new MoneyTransferCouldNotSucceedException({ errorData: error });
     }
   }

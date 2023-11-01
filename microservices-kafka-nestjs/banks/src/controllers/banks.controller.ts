@@ -57,6 +57,7 @@ export class BanksController {
     );
     return await this.bankService.handleApproveTransfer({
       transferId: data.transferId,
+      employeeId: data.employeeId,
     });
   }
   @MessagePattern("create-transfer-across-accounts-event")

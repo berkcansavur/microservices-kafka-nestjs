@@ -255,6 +255,8 @@ export class GetCustomersAccountsDTO {
 export class GetTransferDTO {
   @IsMongoId()
   transferId: string;
+  @IsMongoId()
+  employeeId: string;
 }
 export class PrivateAccountDTO {
   @IsNotEmpty()
