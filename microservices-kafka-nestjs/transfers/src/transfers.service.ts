@@ -175,4 +175,17 @@ export class TransfersService implements ITransferService, OnModuleInit {
       )
     ).approvedPending(transfer);
   }
+  async updateTransferStatusRejected({
+    transferDTO,
+  }: {
+    transferDTO: TransferDTO;
+  }): Promise<TransferDTO> {
+    const { transferStateFactory } = this;
+    const transfer: TransferDTO = await this.getTransfer({
+      transferId: transferDTO._id.toString(),
+    });
+    return (
+      await transferStateFactory.getTransferState(TRANSFER_STATUSES.REJECTED)
+    ).rejected(transfer);
+  }
 }

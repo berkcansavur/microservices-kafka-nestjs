@@ -8,6 +8,7 @@ export enum TRANSFER_TOPICS {
   HANDLE_START_TRANSFER = "handle_start_transfer",
   HANDLE_APPROVE_TRANSFER = "handle_approve_transfer",
   HANDLE_APPROVE_PENDING_TRANSFER = "handle_approve_pending_transfer",
+  HANDLE_REJECT_TRANSFER = "handle_reject_transfer",
   HANDLE_GET_TRANSFER = "handle_get_transfer",
 }
 export enum ACCOUNT_TOPICS {

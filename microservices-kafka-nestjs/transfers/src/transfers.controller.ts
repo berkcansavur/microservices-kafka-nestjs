@@ -101,6 +101,17 @@ export class TransfersController {
     const formattedTransfer = JSON.stringify(failedTransfer, null, 2);
     return formattedTransfer;
   }
+  @MessagePattern("handle_reject_transfer")
+  @UsePipes(new ParseIncomingRequest())
+  async rejectTransfer(data: TransferDTO) {
+    const { transfersService } = this;
+    const rejectedTransfer =
+      await transfersService.updateTransferStatusRejected({
+        transferDTO: data,
+      });
+    const formattedTransfer = JSON.stringify(rejectedTransfer, null, 2);
+    return formattedTransfer;
+  }
   @MessagePattern("handle_get_transfer")
   @UsePipes(new ParseIncomingRequest())
   async getTransfer(transferId: string) {

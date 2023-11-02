@@ -60,6 +60,20 @@ export class BanksController {
       employeeId: data.employeeId,
     });
   }
+  @MessagePattern("reject-transfer-event")
+  @UsePipes(new ParseIncomingRequest())
+  async rejectTransferEvent(data: GetTransferDTO) {
+    const { logger } = this;
+    logger.debug(
+      `[BanksController] Banks approveTransfer Incoming Data: ${JSON.stringify(
+        data,
+      )}`,
+    );
+    return await this.bankService.handleRejectTransfer({
+      transferId: data.transferId,
+      employeeId: data.employeeId,
+    });
+  }
   @MessagePattern("create-transfer-across-accounts-event")
   @UsePipes(new ParseIncomingRequest())
   async createTransferEvent(data: CreateTransferDTO) {

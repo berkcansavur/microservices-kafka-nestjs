@@ -94,4 +94,9 @@ export class TransferFailedState implements ITransferState {
       TransferDTO,
     );
   }
+  rejected(transferDTO: TransferDTO): Promise<TransferDTO> {
+    throw new Error(
+      `Transfer status is invalid: ${JSON.stringify(transferDTO)}`,
+    );
+  }
 }

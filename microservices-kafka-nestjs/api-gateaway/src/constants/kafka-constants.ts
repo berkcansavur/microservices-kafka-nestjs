@@ -1,6 +1,7 @@
 export enum BANK_TOPICS {
   CREATE_TRANSFER_ACROSS_ACCOUNTS_EVENT = "create-transfer-across-accounts-event",
   APPROVE_TRANSFER_EVENT = "approve-transfer-event",
+  REJECT_TRANSFER_EVENT = "reject-transfer-event",
   CREATE_ACCOUNT_EVENT = "create-account-event",
   TRANSFER_MONEY_TO_ACCOUNT_EVENT = "transfer-money-to-account-event",
   CREATE_BANK_EVENT = "create-bank-event",
