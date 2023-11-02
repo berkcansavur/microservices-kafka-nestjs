@@ -38,6 +38,7 @@ import {
   EmployeeCouldNotUpdatedException,
   BankCouldNotUpdatedException,
   InvalidTransferStatusException,
+  TransferCouldNotRejectedException,
 } from "../exceptions";
 import { BankCustomerRepresentative } from "../schemas/employee-schema";
 import { EmployeesService } from "./employees.service";
@@ -506,6 +507,61 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
     } catch (error) {
       if (error instanceof InvalidTransferStatusException) {
         throw new InvalidTransferStatusException({
+          data: `Invalid transfer status ${error.data}`,
+        });
+      }
+      throw new MoneyTransferCouldNotSucceedException({ errorData: error });
+    }
+  }
+  async handleRejectTransfer({
+    transferId,
+    employeeId,
+  }: {
+    transferId: string;
+    employeeId: string;
+  }): Promise<TransferType> {
+    const { logger, employeesService } = this;
+    logger.debug("handleApproveTransfer transferId: ", transferId);
+    try {
+      const transfer: TransferType = await this.handleKafkaTransferEvents(
+        transferId,
+        TRANSFER_TOPICS.HANDLE_GET_TRANSFER,
+      );
+      if (
+        !BanksLogic.isTransferStatusEqualToExpectedStatus({
+          status: transfer.status,
+          expectedStatus: TRANSFER_STATUSES.APPROVE_PENDING,
+        })
+      ) {
+        throw new InvalidTransferStatusException({
+          data: `Invalid transfer status ${transfer.status}`,
+        });
+      }
+      const rejectedTransfer: TransferType =
+        await this.handleKafkaTransferEvents(
+          transfer,
+          TRANSFER_TOPICS.HANDLE_REJECT_TRANSFER,
+        );
+      if (!BanksLogic.isObjectValid(rejectedTransfer)) {
+        throw new TransferCouldNotRejectedException();
+      }
+      await employeesService.updateEmployeesCustomerTransactionsResult({
+        employeeType: EMPLOYEE_TYPES.BANK_CUSTOMER_REPRESENTATIVE,
+        transferId,
+        employeeId,
+        transfer: rejectedTransfer,
+        result: TRANSACTION_RESULTS.REJECTED,
+        action: EMPLOYEE_ACTIONS.TRANSFER_APPROVAL_SUCCESS,
+      });
+      return rejectedTransfer;
+    } catch (error) {
+      if (error instanceof InvalidTransferStatusException) {
+        throw new InvalidTransferStatusException({
+          data: `Invalid transfer status ${error.data}`,
+        });
+      }
+      if (error instanceof TransferCouldNotRejectedException) {
+        throw new TransferCouldNotRejectedException({
           data: `Invalid transfer status ${error.data}`,
         });
       }

@@ -124,3 +124,16 @@ export class InvalidTransferStatusException extends BankAppException {
     Object.setPrototypeOf(this, InvalidTransferStatusException.prototype);
   }
 }
+export class TransferCouldNotRejectedException extends BankAppException {
+  constructor(data?: string | object) {
+    super(
+      "Transfer could not rejected",
+      4020,
+      HttpStatus.NOT_FOUND,
+      JSON.stringify(data),
+      "TransferCouldNotRejectedException",
+    );
+    this.name = "TransferCouldNotRejectedException";
+    Object.setPrototypeOf(this, TransferCouldNotRejectedException.prototype);
+  }
+}

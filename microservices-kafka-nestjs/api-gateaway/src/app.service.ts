@@ -67,6 +67,15 @@ export class AppService implements OnModuleInit {
       approveTransferDTO,
     });
   }
+  sendRejectTransferRequest(rejectTransferDTO: GetTransferDTO) {
+    const { logger } = this;
+    logger.debug(
+      `[AppService] approveTransfer: ${JSON.stringify(rejectTransferDTO)}`,
+    );
+    return this.bankClient.send(BANK_TOPICS.REJECT_TRANSFER_EVENT, {
+      rejectTransferDTO,
+    });
+  }
   sendCreateAccountRequest(createAccountRequestDTO: CreateAccountDTO) {
     const { logger } = this;
     logger.debug(

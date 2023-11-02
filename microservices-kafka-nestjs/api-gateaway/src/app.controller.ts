@@ -44,6 +44,11 @@ export class AppController {
     const { appService } = this;
     return appService.sendApproveTransferRequest(approveTransferRequestDTO);
   }
+  @Post("/rejectTransfer")
+  rejectTransfer(@Body() rejectTransferRequestDTO: GetTransferDTO) {
+    const { appService } = this;
+    return appService.sendRejectTransferRequest(rejectTransferRequestDTO);
+  }
   @Post("/transferMoneyToAccount")
   transferMoneyToAccount(@Body() transferMoneyToAccountDTO: MoneyTransferDTO) {
     const { appService } = this;
