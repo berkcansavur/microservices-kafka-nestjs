@@ -61,7 +61,7 @@ export class Customer {
   customerAge: number;
 
   @Prop({ type: String, required: true })
-  customerEmail: string;
+  email: string;
 
   @Prop({ type: Number, required: true, length: 11 })
   customerSocialSecurityNumber: number;

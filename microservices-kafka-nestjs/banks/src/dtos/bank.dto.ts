@@ -137,6 +137,16 @@ export class CreateBankDirectorDTO {
   @IsNotEmpty()
   @IsNumber()
   directorAge: number;
+
+  @IsNotEmpty()
+  @IsString()
+  @IsEmail()
+  email: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @Length(8, 20)
+  password: string;
 }
 export class CreateBankCustomerRepresentativeDTO {
   @IsNotEmpty()
@@ -150,6 +160,16 @@ export class CreateBankCustomerRepresentativeDTO {
   @IsNotEmpty()
   @IsNumber()
   customerRepresentativeAge: number;
+
+  @IsNotEmpty()
+  @IsString()
+  @IsEmail()
+  email: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @Length(8, 20)
+  password: string;
 }
 export class CreateBankDepartmentDirectorDTO {
   @IsNotEmpty()
@@ -167,6 +187,16 @@ export class CreateBankDepartmentDirectorDTO {
   @IsNotEmpty()
   @IsString()
   department: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @IsEmail()
+  email: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @Length(8, 20)
+  password: string;
 }
 export class CreateBankDTO {
   @IsNotEmpty()

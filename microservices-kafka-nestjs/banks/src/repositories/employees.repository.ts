@@ -43,6 +43,22 @@ export class EmployeesRepository {
       await employeeModelsFactory.getEmployeeModel(employeeModelType);
     return employeeModel.findOne({ _id: employeeId }).lean().exec();
   }
+  async getEmployeeByEmail({
+    email,
+    employeeModelType,
+  }: {
+    email: string;
+    employeeModelType: EMPLOYEE_MODEL_TYPES;
+  }): Promise<
+    | BankDepartmentDirectorDocument
+    | BankCustomerRepresentativeDocument
+    | BankDirectorDocument
+  > {
+    const { employeeModelsFactory } = this;
+    const employeeModel =
+      await employeeModelsFactory.getEmployeeModel(employeeModelType);
+    return employeeModel.findOne({ email: email }).lean().exec();
+  }
   async createEmployee({
     employeeModelType,
     createEmployeeDTO,

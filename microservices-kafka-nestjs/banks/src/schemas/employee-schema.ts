@@ -106,6 +106,12 @@ export class BankDirector {
   @Prop({ type: Number, required: true })
   directorAge: number;
 
+  @Prop({ type: String, required: true })
+  email: string;
+
+  @Prop({ type: String, required: true })
+  password: string;
+
   @Prop({ type: mSchema.Types.ObjectId, ref: "Bank" })
   bank: Types.ObjectId;
 
@@ -140,6 +146,12 @@ export class BankDepartmentDirector {
 
   @Prop({ type: Number, required: true })
   departmentDirectorAge: number;
+
+  @Prop({ type: String, required: true })
+  email: string;
+
+  @Prop({ type: String, required: true })
+  password: string;
 
   @Prop({ type: String, required: true })
   department: string;
@@ -184,7 +196,7 @@ export class PrivateCustomer {
   customerAge: number;
 
   @Prop({ type: String, required: true })
-  customerEmail: string;
+  email: string;
 
   @Prop({ type: [{ type: mSchema.Types.ObjectId }], default: [] })
   accounts: mSchema.Types.ObjectId[];
@@ -214,6 +226,12 @@ export class BankCustomerRepresentative {
 
   @Prop({ type: Number, required: true })
   customerRepresentativeAge: number;
+
+  @Prop({ type: String, required: true })
+  email: string;
+
+  @Prop({ type: String, required: true })
+  password: string;
 
   @Prop({ type: mSchema.Types.ObjectId, ref: "Bank" })
   bank: Types.ObjectId;

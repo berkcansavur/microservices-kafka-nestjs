@@ -54,8 +54,12 @@ export class EmployeesService implements IEmployeeServiceInterface {
   }): Promise<
     BankDirector | BankDepartmentDirector | BankCustomerRepresentative
   > {
-    const { logger, employeesRepository } = this;
+    const { logger, employeesRepository, utils } = this;
     logger.debug("[EmployeesService] createEmployee DTO: ", createEmployeeDTO);
+    const hashedPassword = await utils.hashPassword({
+      password: createEmployeeDTO.password,
+    });
+    createEmployeeDTO.password = hashedPassword;
     const employee = (await employeesRepository.createEmployee({
       employeeModelType: employeeType,
       createEmployeeDTO: createEmployeeDTO,
@@ -85,6 +89,28 @@ export class EmployeesService implements IEmployeeServiceInterface {
     if (!BanksLogic.isObjectValid(employee)) {
       throw new EmployeeIsNotFoundException({
         message: { employeeType, employeeId },
+      });
+    }
+    return employee;
+  }
+  async findEmployeeByEmail({
+    employeeType,
+    email,
+  }: {
+    employeeType: EMPLOYEE_MODEL_TYPES;
+    email: string;
+  }): Promise<
+    BankDirector | BankDepartmentDirector | BankCustomerRepresentative
+  > {
+    const { logger, employeesRepository } = this;
+    logger.debug("[EmployeesService] getEmployee : ", email);
+    const employee = (await employeesRepository.getEmployeeByEmail({
+      email,
+      employeeModelType: employeeType,
+    })) as BankDirector | BankDepartmentDirector | BankCustomerRepresentative;
+    if (!BanksLogic.isObjectValid(employee)) {
+      throw new EmployeeIsNotFoundException({
+        message: { employeeType, email },
       });
     }
     return employee;

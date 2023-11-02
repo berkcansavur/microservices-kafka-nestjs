@@ -115,7 +115,7 @@ export class InvalidTransferStatusException extends BankAppException {
   constructor(data?: string | object) {
     super(
       "Invalid transfer status",
-      4020,
+      4030,
       HttpStatus.NOT_FOUND,
       JSON.stringify(data),
       "InvalidTransferStatusException",
@@ -128,12 +128,51 @@ export class TransferCouldNotRejectedException extends BankAppException {
   constructor(data?: string | object) {
     super(
       "Transfer could not rejected",
-      4020,
-      HttpStatus.NOT_FOUND,
+      4040,
+      HttpStatus.BAD_REQUEST,
       JSON.stringify(data),
       "TransferCouldNotRejectedException",
     );
     this.name = "TransferCouldNotRejectedException";
     Object.setPrototypeOf(this, TransferCouldNotRejectedException.prototype);
+  }
+}
+export class InvalidUserTypeException extends BankAppException {
+  constructor(data?: string | object) {
+    super(
+      "Invalid user type",
+      5100,
+      HttpStatus.BAD_REQUEST,
+      JSON.stringify(data),
+      "InvalidUserTypeException",
+    );
+    this.name = "InvalidUserTypeException";
+    Object.setPrototypeOf(this, InvalidUserTypeException.prototype);
+  }
+}
+export class UserNotFoundException extends BankAppException {
+  constructor(data?: string | object) {
+    super(
+      "User not found",
+      5200,
+      HttpStatus.NOT_FOUND,
+      JSON.stringify(data),
+      "UserNotFoundException",
+    );
+    this.name = "UserNotFoundException";
+    Object.setPrototypeOf(this, UserNotFoundException.prototype);
+  }
+}
+export class UserCouldNotValidatedException extends BankAppException {
+  constructor(data?: string | object) {
+    super(
+      "User could not validated",
+      5200,
+      HttpStatus.NOT_FOUND,
+      JSON.stringify(data),
+      "UserCouldNotValidatedException",
+    );
+    this.name = "UserCouldNotValidatedException";
+    Object.setPrototypeOf(this, UserCouldNotValidatedException.prototype);
   }
 }

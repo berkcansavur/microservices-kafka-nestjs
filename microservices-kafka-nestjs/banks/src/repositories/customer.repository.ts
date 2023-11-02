@@ -26,6 +26,15 @@ export class CustomersRepository {
     const customer = await CustomerModel.findOne({ _id: customerId });
     return customer;
   }
+  async getCustomerByEmail({
+    email,
+  }: {
+    email: string;
+  }): Promise<CustomerDocument> {
+    const { CustomerModel } = this;
+    const customer = await CustomerModel.findOne({ email: email });
+    return customer;
+  }
   async createCustomer({
     createCustomerDTOWithCustomerNumber,
   }: {

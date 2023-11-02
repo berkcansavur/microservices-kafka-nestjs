@@ -19,6 +19,13 @@ export class CustomersService {
     });
     return customer;
   }
+  async findCustomerByEmail({ email }: { email: string }): Promise<Customer> {
+    const { customersRepository } = this;
+    const customer: Customer = await customersRepository.getCustomerByEmail({
+      email,
+    });
+    return customer;
+  }
   async createCustomerAuth({
     customerNumber,
     password,
