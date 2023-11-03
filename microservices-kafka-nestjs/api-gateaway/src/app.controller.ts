@@ -25,7 +25,7 @@ import {
 } from "./dtos/api.dtos";
 import { ApiTags } from "@nestjs/swagger";
 import { AddCustomerToRepresentativeDTO } from "./dtos/api.dtos";
-import { AuthGuard } from "./auth/guards/auth.guard";
+import { AuthGuard } from "./guards/auth.guard";
 
 @Controller()
 @ApiTags("App")
