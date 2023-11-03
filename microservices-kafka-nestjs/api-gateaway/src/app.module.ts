@@ -5,9 +5,11 @@ import { ClientsModule, Transport } from "@nestjs/microservices";
 import { EmployeesController } from "./controllers/employees.controller";
 import { CustomersController } from "./controllers/customers.controller";
 import { AdminController } from "./controllers/admin.controller";
+import { JwtModule } from "@nestjs/jwt";
 
 @Module({
   imports: [
+    JwtModule.register({}),
     ClientsModule.register([
       {
         name: "BANK_SERVICE",

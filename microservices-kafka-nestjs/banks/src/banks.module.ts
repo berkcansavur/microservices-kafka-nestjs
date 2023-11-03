@@ -36,7 +36,7 @@ import { JWT_SECRET } from "./constants/banks.constants";
   imports: [
     JwtModule.register({
       secret: JWT_SECRET,
-      signOptions: { expiresIn: "3600s" },
+      signOptions: { expiresIn: "300s" },
     }),
     ClientsModule.register([
       {

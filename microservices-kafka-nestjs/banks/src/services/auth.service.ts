@@ -63,14 +63,12 @@ export class AuthService {
   }: {
     loginUserDto: LoginUserDTO;
   }): Promise<CurrentUserDTO> {
-    const { AuthMapper, logger } = this;
+    const { AuthMapper } = this;
     const { userType, email, password } = loginUserDto;
-    logger.debug("[validateUser] loginUserDto:", loginUserDto);
     const user = await this.getUserToValidate({
       email,
       userType,
     });
-    logger.debug("[validateUser] user:", user);
     if (!user) {
       throw new UserNotFoundException();
     }
@@ -91,7 +89,6 @@ export class AuthService {
           BankCustomerRepresentative,
         CurrentUserDTO,
       );
-      logger.debug("[validateUser] mappedUser:", JSON.stringify(mappedUser));
       return mappedUser;
     }
     throw new UserCouldNotValidatedException();
@@ -101,7 +98,6 @@ export class AuthService {
   }: {
     user: CurrentUserDTO;
   }): Promise<AuthenticatedUserDTO> {
-    const { logger } = this;
     const payload = {
       sub: user.userId,
       email: user.userEmail,
@@ -112,7 +108,6 @@ export class AuthService {
     authenticatedUser.userId = user.userId;
     authenticatedUser.userEmail = user.userEmail;
     authenticatedUser.userName = user.userName;
-    logger.debug("authenticatedUser: ", JSON.stringify(authenticatedUser));
     return authenticatedUser;
   }
 }
