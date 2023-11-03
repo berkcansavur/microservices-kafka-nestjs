@@ -1,6 +1,13 @@
+import { Mapper } from "@automapper/core";
+import { InjectMapper } from "@automapper/nestjs";
 import { Injectable, Logger } from "@nestjs/common";
 import { ACCOUNT_ACTIONS } from "src/constants/banks.constants";
-import { createCustomerDTOWithCustomerNumber } from "src/dtos/bank.dto";
+import { AuthenticatedUserDTO } from "src/dtos/auth.dto";
+import {
+  CustomerDTO,
+  createCustomerDTOWithCustomerNumber,
+} from "src/dtos/bank.dto";
+import { UserCouldNotValidatedException } from "src/exceptions";
 import { CustomersRepository } from "src/repositories/customer.repository";
 import {
   Customer,
@@ -10,7 +17,10 @@ import {
 @Injectable()
 export class CustomersService {
   private readonly logger = new Logger(CustomersService.name);
-  constructor(private readonly customersRepository: CustomersRepository) {}
+  constructor(
+    @InjectMapper() private readonly AuthMapper: Mapper,
+    private readonly customersRepository: CustomersRepository,
+  ) {}
 
   async getCustomer({ customerId }: { customerId: string }): Promise<Customer> {
     const { customersRepository } = this;
@@ -19,12 +29,36 @@ export class CustomersService {
     });
     return customer;
   }
-  async findCustomerByEmail({ email }: { email: string }): Promise<Customer> {
+  async getCustomerByEmail({ email }: { email: string }): Promise<Customer> {
     const { customersRepository } = this;
-    const customer: Customer = await customersRepository.getCustomerByEmail({
+    const customer: Customer = await customersRepository.findCustomerByEmail({
       email,
     });
     return customer;
+  }
+  async setCustomersAccessToken({
+    authenticatedUserDTO,
+  }: {
+    authenticatedUserDTO: AuthenticatedUserDTO;
+  }): Promise<CustomerDTO> {
+    const { logger, customersRepository, AuthMapper } = this;
+    logger.debug(
+      "[setCustomersAccessToken] authenticatedUserDTO:",
+      authenticatedUserDTO,
+    );
+    const { userId, access_token } = authenticatedUserDTO;
+    const updatedCustomer = await customersRepository.setCustomersAccessToken({
+      _id: userId,
+      accessToken: access_token,
+    });
+    if (updatedCustomer.accessToken.length < 5) {
+      throw new UserCouldNotValidatedException({ data: authenticatedUserDTO });
+    }
+    return AuthMapper.map<Customer, CustomerDTO>(
+      updatedCustomer,
+      Customer,
+      CustomerDTO,
+    );
   }
   async createCustomerAuth({
     customerNumber,
@@ -48,8 +82,8 @@ export class CustomersService {
     createCustomerDTOWithCustomerNumber,
   }: {
     createCustomerDTOWithCustomerNumber: createCustomerDTOWithCustomerNumber;
-  }): Promise<Customer> {
-    const { logger, customersRepository } = this;
+  }): Promise<CustomerDTO> {
+    const { logger, customersRepository, AuthMapper } = this;
     logger.debug("create customer DTO: ", createCustomerDTOWithCustomerNumber);
     const customer: Customer = await customersRepository.createCustomer({
       createCustomerDTOWithCustomerNumber,
@@ -57,7 +91,11 @@ export class CustomersService {
     if (!customer) {
       throw new Error("Customer could not be created");
     }
-    return customer;
+    return AuthMapper.map<Customer, CustomerDTO>(
+      customer,
+      Customer,
+      CustomerDTO,
+    );
   }
   async getCustomersAccountIds({ customerId }: { customerId: string }) {
     const { logger, customersRepository } = this;

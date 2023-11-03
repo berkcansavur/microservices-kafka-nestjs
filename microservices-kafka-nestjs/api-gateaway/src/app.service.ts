@@ -13,6 +13,7 @@ import {
   GetCustomersAccountsDTO,
   GetEmployeesCustomerTransactionsDTO,
   GetTransferDTO,
+  LoginUserDTO,
   MoneyTransferDTO,
 } from "./dtos/api.dtos";
 import { ACCOUNT_TOPICS, BANK_TOPICS } from "./constants/kafka-constants";
@@ -43,6 +44,28 @@ export class AppService implements OnModuleInit {
     } catch (error) {
       this.logger.error("Subscription of responses is failed", error);
     }
+  }
+  sendLoginCustomerRequest(loginUserDTO: LoginUserDTO) {
+    const { logger } = this;
+    logger.debug(
+      `[sendLoginCustomerRequest] loginCustomerDTO: ${JSON.stringify(
+        loginUserDTO,
+      )}`,
+    );
+    return this.bankClient.send(BANK_TOPICS.LOGIN_CUSTOMER, {
+      loginUserDTO,
+    });
+  }
+  sendLoginEmployeeRequest(loginUserDTO: LoginUserDTO) {
+    const { logger } = this;
+    logger.debug(
+      `[sendLoginCustomerRequest] loginCustomerDTO: ${JSON.stringify(
+        loginUserDTO,
+      )}`,
+    );
+    return this.bankClient.send(BANK_TOPICS.LOGIN_EMPLOYEE, {
+      loginUserDTO,
+    });
   }
   sendCreateMoneyTransferRequest(createTransferRequestDTO: CreateTransferDTO) {
     const { logger } = this;

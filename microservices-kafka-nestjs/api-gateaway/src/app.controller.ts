@@ -13,6 +13,7 @@ import {
   GetCustomersAccountsDTO,
   GetEmployeesCustomerTransactionsDTO,
   GetTransferDTO,
+  LoginUserDTO,
 } from "./dtos/api.dtos";
 import { ApiTags } from "@nestjs/swagger";
 import { AddCustomerToRepresentativeDTO } from "./dtos/api.dtos";
@@ -23,6 +24,16 @@ export class AppController {
   private readonly logger = new Logger(AppController.name);
   constructor(private readonly appService: AppService) {}
 
+  @Post("/loginCustomer")
+  loginCustomer(@Body() loginUserDTO: LoginUserDTO) {
+    const { appService } = this;
+    return appService.sendLoginCustomerRequest(loginUserDTO);
+  }
+  @Post("/loginEmployee")
+  loginEmployee(@Body() loginUserDTO: LoginUserDTO) {
+    const { appService } = this;
+    return appService.sendLoginEmployeeRequest(loginUserDTO);
+  }
   @Post("/createTransfer")
   createTransfer(@Body() createTransferRequestDTO: CreateTransferDTO) {
     const { appService } = this;

@@ -30,11 +30,17 @@ import { BankProfile } from "./mapper/bank-profile";
 import { AuthService } from "./services/auth.service";
 import { AuthProfile } from "./mapper/auth-profile";
 import { JwtModule } from "@nestjs/jwt";
+import { PassportModule } from "@nestjs/passport";
+import { LocalStrategy } from "./auth/local-strategy";
+import { JwtStrategy } from "./auth/jwt-strategy";
+import { SessionSerializer } from "./auth/session-serializer";
+import { JWT_SECRET } from "./constants/banks.constants";
 
 @Module({
   imports: [
+    PassportModule.register({ session: true }),
     JwtModule.register({
-      secret: "jwt-secret",
+      secret: JWT_SECRET,
       signOptions: { expiresIn: "3600s" },
     }),
     ClientsModule.register([
@@ -94,6 +100,9 @@ import { JwtModule } from "@nestjs/jwt";
     AuthService,
     EmployeesService,
     CustomersService,
+    LocalStrategy,
+    JwtStrategy,
+    SessionSerializer,
     BanksRepository,
     EmployeesRepository,
     CustomersRepository,

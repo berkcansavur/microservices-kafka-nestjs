@@ -8,8 +8,79 @@ import {
   Min,
 } from "class-validator";
 import { Types } from "mongoose";
-import { EMPLOYEE_TYPES } from "src/types/employee.types";
+import { USER_TYPES } from "src/constants/banks.constants";
+import { PrivateCustomerRepresentative } from "src/schemas/customers.schema";
 
+export class CustomerDTO {
+  @IsNotEmpty()
+  @IsString()
+  @IsMongoId()
+  _id: string;
+
+  @IsNotEmpty()
+  @IsString()
+  customerFullName: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  @Min(18)
+  customerAge: number;
+
+  @IsNotEmpty()
+  @IsString()
+  @IsEmail()
+  email: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  @Length(11)
+  customerSocialSecurityNumber: number;
+
+  @IsNotEmpty()
+  @IsNumber()
+  @Length(8)
+  customerNumber: number;
+
+  accounts: object[];
+
+  customerRepresentative?: PrivateCustomerRepresentative;
+
+  bank?: object;
+
+  customerActions: object[];
+
+  @IsString()
+  accessToken?: string;
+}
+export class EmployeeDTO {
+  @IsNotEmpty()
+  @IsString()
+  @IsMongoId()
+  _id: string;
+
+  @IsNotEmpty()
+  @IsString()
+  employeeFullName: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  @Min(18)
+  employeeAge: number;
+
+  @IsNotEmpty()
+  @IsString()
+  @IsEmail()
+  email: string;
+
+  actionLogs: object[];
+
+  bank?: object;
+
+  transactions: object[];
+
+  @IsString()
+  accessToken?: string;
+}
 export class TransferDTO {
   @IsNotEmpty()
   @IsString()
@@ -79,7 +150,7 @@ export class CreateCustomerDTO {
   @IsNotEmpty()
   @IsString()
   @IsEmail()
-  customerEmail: string;
+  email: string;
 
   @IsNotEmpty()
   @IsNumber()
@@ -108,7 +179,7 @@ export class createCustomerDTOWithCustomerNumber {
   @IsNotEmpty()
   @IsString()
   @IsEmail()
-  customerEmail: string;
+  email: string;
 
   @IsNotEmpty()
   @IsNumber()
@@ -270,7 +341,7 @@ export class AddCustomerToRepresentativeDTO {
 }
 export class CreateEmployeeRegistrationToBankDTO {
   @IsNotEmpty()
-  employeeType: EMPLOYEE_TYPES;
+  employeeType: USER_TYPES;
 
   @IsMongoId()
   employeeId: string;
@@ -344,7 +415,7 @@ export class AccountDTO {
 }
 export class GetEmployeesCustomerTransactionsDTO {
   @IsNotEmpty()
-  employeeType: EMPLOYEE_TYPES;
+  employeeType: USER_TYPES;
 
   @IsNotEmpty()
   @IsMongoId()

@@ -7,8 +7,38 @@ import {
   Min,
   IsEmail,
   Length,
+  IsEmpty,
 } from "class-validator";
-import { EMPLOYEE_TYPES } from "types/app-types";
+import { USER_TYPES } from "types/app-types";
+
+export class LoginUserDTO {
+  @ApiProperty({
+    description: "User type",
+    required: true,
+    example: "DOLLAR",
+  })
+  @IsString()
+  @IsEmpty()
+  userType: USER_TYPES;
+
+  @ApiProperty({
+    description: "user email",
+    required: true,
+    example: "DOLLAR",
+  })
+  @IsEmail()
+  @IsEmpty({ message: "Email is required" })
+  email: string;
+
+  @ApiProperty({
+    description: "user password",
+    required: true,
+    example: "DOLLAR",
+  })
+  @IsString()
+  @IsEmpty()
+  password: string;
+}
 export class CreateTransferDTO {
   @ApiProperty({
     description: "Currency type of the inserted money.",
@@ -460,7 +490,7 @@ export class CreateCustomerDTO {
   @IsNotEmpty()
   @IsString()
   @IsEmail()
-  customerEmail: string;
+  email: string;
 
   @ApiProperty({
     description: "Customers social security number",
@@ -506,7 +536,7 @@ export class CreateEmployeeRegistrationToBankDTO {
     required: true,
     example: "BANK_CUSTOMER_REPRESENTATIVE",
   })
-  employeeType: EMPLOYEE_TYPES;
+  employeeType: USER_TYPES;
 
   @ApiProperty({
     description: "Employees id",
@@ -557,7 +587,7 @@ export class GetEmployeesCustomerTransactionsDTO {
     example: "BANK_CUSTOMER_REPRESENTATIVE",
   })
   @IsNotEmpty()
-  employeeType: EMPLOYEE_TYPES;
+  employeeType: USER_TYPES;
 
   @ApiProperty({
     description: "Employees id",

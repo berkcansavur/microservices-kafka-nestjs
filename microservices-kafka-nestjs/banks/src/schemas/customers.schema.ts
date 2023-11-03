@@ -84,6 +84,9 @@ export class Customer {
   @Prop({ type: [{ type: ActionLogSchema, ref: "ActionLog" }], default: [] })
   customerActions: ActionLog[];
 
+  @Prop({ type: String })
+  accessToken: string;
+
   @Prop({ type: Date })
   createdAt: Date;
 

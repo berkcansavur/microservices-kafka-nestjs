@@ -11,7 +11,6 @@ import { InjectMapper } from "@automapper/nestjs";
 import { Mapper } from "@automapper/core";
 import { Utils } from "src/utils/utils";
 import { USER_TYPES } from "src/constants/banks.constants";
-import { EMPLOYEE_TYPES } from "src/types/employee.types";
 import {
   BankCustomerRepresentative,
   BankDepartmentDirector,
@@ -40,40 +39,38 @@ export class AuthService {
     userType,
   }: {
     email: string;
-    userType: USER_TYPES | EMPLOYEE_TYPES;
+    userType: USER_TYPES;
   }): Promise<
     | Customer
     | BankDepartmentDirector
     | BankDirector
     | BankCustomerRepresentative
   > {
-    const { utils, employeeService, customerService } = this;
+    const { utils, employeeService, customerService, logger } = this;
+    logger.debug("[getUserToValidate] userType:", userType, "email:", email);
     if (userType === USER_TYPES.CUSTOMER) {
-      return await customerService.findCustomerByEmail({ email });
+      return await customerService.getCustomerByEmail({ email });
     }
-    if (
-      userType === EMPLOYEE_TYPES.BANK_CUSTOMER_REPRESENTATIVE ||
-      EMPLOYEE_TYPES.BANK_DEPARTMENT_DIRECTOR ||
-      EMPLOYEE_TYPES.BANK_DIRECTOR
-    ) {
-      const employeeType = utils.getEmployeeModelType(userType);
-      return await employeeService.findEmployeeByEmail({
-        employeeType,
-        email,
-      });
-    }
+    const employeeType = utils.getEmployeeModelType(userType);
+    logger.debug("[getUserToValidate] employeeType:", employeeType);
+    return await employeeService.getEmployeeByEmail({
+      employeeType,
+      email,
+    });
   }
   async validateUser({
     loginUserDto,
   }: {
     loginUserDto: LoginUserDTO;
   }): Promise<CurrentUserDTO> {
-    const { AuthMapper } = this;
+    const { AuthMapper, logger } = this;
     const { userType, email, password } = loginUserDto;
+    logger.debug("[validateUser] loginUserDto:", loginUserDto);
     const user = await this.getUserToValidate({
       email,
       userType,
     });
+    logger.debug("[validateUser] user:", user);
     if (!user) {
       throw new UserNotFoundException();
     }
@@ -94,6 +91,7 @@ export class AuthService {
           BankCustomerRepresentative,
         CurrentUserDTO,
       );
+      logger.debug("[validateUser] mappedUser:", JSON.stringify(mappedUser));
       return mappedUser;
     }
     throw new UserCouldNotValidatedException();
@@ -101,19 +99,20 @@ export class AuthService {
   async loginWithCredentials({
     user,
   }: {
-    user: AuthenticatedUserDTO;
+    user: CurrentUserDTO;
   }): Promise<AuthenticatedUserDTO> {
-    const { jwtTokenService } = this;
+    const { logger } = this;
     const payload = {
       sub: user.userId,
       email: user.userEmail,
     };
-    const accessToken = jwtTokenService.sign(payload);
+    const accessToken = this.jwtTokenService.sign(payload);
     const authenticatedUser = new AuthenticatedUserDTO();
     authenticatedUser.access_token = accessToken;
     authenticatedUser.userId = user.userId;
     authenticatedUser.userEmail = user.userEmail;
     authenticatedUser.userName = user.userName;
+    logger.debug("authenticatedUser: ", JSON.stringify(authenticatedUser));
     return authenticatedUser;
   }
 }

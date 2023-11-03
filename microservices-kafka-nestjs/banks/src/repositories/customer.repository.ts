@@ -26,7 +26,7 @@ export class CustomersRepository {
     const customer = await CustomerModel.findOne({ _id: customerId });
     return customer;
   }
-  async getCustomerByEmail({
+  async findCustomerByEmail({
     email,
   }: {
     email: string;
@@ -42,6 +42,20 @@ export class CustomersRepository {
   }): Promise<CustomerDocument> {
     const { CustomerModel } = this;
     return CustomerModel.create({ ...createCustomerDTOWithCustomerNumber });
+  }
+  async setCustomersAccessToken({
+    _id,
+    accessToken,
+  }: {
+    _id: string;
+    accessToken: string;
+  }): Promise<CustomerDocument> {
+    const { CustomerModel } = this;
+    return await CustomerModel.findOneAndUpdate(
+      { _id },
+      { accessToken },
+      { new: true },
+    );
   }
   async createCustomerAuth({
     customerNumber,

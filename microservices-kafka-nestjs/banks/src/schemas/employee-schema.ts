@@ -126,6 +126,9 @@ export class BankDirector {
     required: false,
   })
   transactions: Transaction[];
+
+  @Prop({ type: String })
+  accessToken: string;
 }
 export type BankDirectorDocument = BankDirector & Document;
 export const BankDirectorSchema = SchemaFactory.createForClass(BankDirector);
@@ -170,6 +173,9 @@ export class BankDepartmentDirector {
     required: false,
   })
   transactions: Transaction[];
+
+  @Prop({ type: String })
+  accessToken: string;
 }
 export type BankDepartmentDirectorDocument = BankDepartmentDirector & Document;
 export const BankDepartmentDirectorSchema = SchemaFactory.createForClass(
@@ -250,6 +256,9 @@ export class BankCustomerRepresentative {
     required: false,
   })
   transactions: Transaction[];
+
+  @Prop({ type: String })
+  accessToken: string;
 }
 export type BankCustomerRepresentativeDocument = BankCustomerRepresentative &
   Document;

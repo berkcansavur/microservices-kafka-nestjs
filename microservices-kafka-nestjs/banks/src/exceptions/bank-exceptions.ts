@@ -176,3 +176,17 @@ export class UserCouldNotValidatedException extends BankAppException {
     Object.setPrototypeOf(this, UserCouldNotValidatedException.prototype);
   }
 }
+export class UserAccessTokenCouldNotAssigned extends BankAppException {
+  constructor(data?: string | object) {
+    super(
+      "Users access token could not be assigned",
+      5000,
+      HttpStatus.BAD_REQUEST,
+      JSON.stringify(data),
+      "UserAccessTokenCouldNotAssigned",
+    );
+
+    this.name = "UserAccessTokenCouldNotAssigned";
+    Object.setPrototypeOf(this, UserAccessTokenCouldNotAssigned.prototype);
+  }
+}

@@ -1,12 +1,11 @@
 import { IsEmail, IsEmpty, IsString } from "class-validator";
 import { Expose, Exclude } from "class-transformer";
 import { USER_TYPES } from "src/constants/banks.constants";
-import { EMPLOYEE_TYPES } from "src/types/employee.types";
 
 export class LoginUserDTO {
   @IsString()
   @IsEmpty()
-  userType: USER_TYPES | EMPLOYEE_TYPES;
+  userType: USER_TYPES;
 
   @IsEmail()
   @IsEmpty({ message: "Email is required" })
@@ -29,7 +28,7 @@ export class AuthenticatedUserDTO {
   @IsEmpty({
     message: "Users must be authenticated, authentication is required !",
   })
-  access_token: string;
+  access_token?: string;
 
   @Expose()
   @IsEmpty()
