@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Logger, Post } from "@nestjs/common";
+import { Body, Controller, Get, Logger, Post, UseGuards } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { AppService } from "src/app.service";
 import {
@@ -6,7 +6,9 @@ import {
   GetCustomersAccountsDTO,
   GetEmployeesCustomerTransactionsDTO,
   GetTransferDTO,
+  LoginUserDTO,
 } from "src/dtos/api.dtos";
+import { AuthGuard } from "src/guards/auth.guard";
 
 @Controller("employees")
 @ApiTags("Employees")
@@ -15,7 +17,14 @@ export class EmployeesController {
 
   constructor(private readonly appService: AppService) {}
 
+  @Post("/loginEmployee")
+  loginEmployee(@Body() loginUserDTO: LoginUserDTO) {
+    const { appService } = this;
+    return appService.sendLoginEmployeeRequest(loginUserDTO);
+  }
+
   @Post("/approveTransfer")
+  @UseGuards(AuthGuard)
   approveTransfer(@Body() approveTransferRequestDTO: GetTransferDTO) {
     const { appService, logger } = this;
     logger.debug(
@@ -25,6 +34,7 @@ export class EmployeesController {
     return appService.sendApproveTransferRequest(approveTransferRequestDTO);
   }
   @Post("/rejectTransfer")
+  @UseGuards(AuthGuard)
   rejectTransfer(@Body() rejectTransferRequestDTO: GetTransferDTO) {
     const { appService, logger } = this;
     logger.debug(
@@ -34,6 +44,7 @@ export class EmployeesController {
     return appService.sendRejectTransferRequest(rejectTransferRequestDTO);
   }
   @Post("/addCustomerToRepresentative")
+  @UseGuards(AuthGuard)
   addCustomerToRepresentative(
     @Body() addCustomerToRepresentativeDTO: AddCustomerToRepresentativeDTO,
   ) {
@@ -47,6 +58,7 @@ export class EmployeesController {
     });
   }
   @Get("/getCustomersAccounts")
+  @UseGuards(AuthGuard)
   getCustomersAccounts(
     @Body() getCustomersAccountsDTO: GetCustomersAccountsDTO,
   ) {
@@ -60,6 +72,7 @@ export class EmployeesController {
     });
   }
   @Get("/getEmployeesCustomerRelatedTransactionsRequest")
+  @UseGuards(AuthGuard)
   getEmployeesCustomerRelatedTransactionsRequest(
     @Body()
     getEmployeesCustomerTransactionsDTO: GetEmployeesCustomerTransactionsDTO,
@@ -74,6 +87,7 @@ export class EmployeesController {
     });
   }
   @Get("/getAccountsLastActions")
+  @UseGuards(AuthGuard)
   getAccountsLastActions(@Body() accountId: string, actionCount: number) {
     const { appService, logger } = this;
     logger.debug(

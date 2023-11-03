@@ -129,4 +129,3 @@ export enum USER_TYPES {
   CUSTOMER = "CUSTOMER",
   ADMIN = "ADMIN",
 }
-export const JWT_SECRET = "secretKey";

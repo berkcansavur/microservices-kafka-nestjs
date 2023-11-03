@@ -30,7 +30,7 @@ import { BankProfile } from "./mapper/bank-profile";
 import { AuthService } from "./services/auth.service";
 import { AuthProfile } from "./mapper/auth-profile";
 import { JwtModule } from "@nestjs/jwt";
-import { JWT_SECRET } from "./constants/banks.constants";
+import { JWT_SECRET } from "./constants/private.constants";
 
 @Module({
   imports: [
