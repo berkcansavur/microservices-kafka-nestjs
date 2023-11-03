@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Logger, Post } from "@nestjs/common";
+import { Body, Controller, Get, Logger, Post, UseGuards } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { AppService } from "src/app.service";
 import {
@@ -6,8 +6,10 @@ import {
   CreateCustomerDTO,
   CreateTransferDTO,
   GetCustomersAccountsDTO,
+  LoginUserDTO,
   MoneyTransferDTO,
 } from "src/dtos/api.dtos";
+import { AuthGuard } from "src/guards/auth.guard";
 
 @Controller("/customers")
 @ApiTags("Customers")
@@ -16,7 +18,13 @@ export class CustomersController {
 
   constructor(private readonly appService: AppService) {}
 
+  @Post("/loginCustomer")
+  loginCustomer(@Body() loginUserDTO: LoginUserDTO) {
+    const { appService } = this;
+    return appService.sendLoginCustomerRequest(loginUserDTO);
+  }
   @Post("/createAccount")
+  @UseGuards(AuthGuard)
   createAccount(@Body() createAccountRequestDTO: CreateAccountDTO) {
     const { appService, logger } = this;
     logger.debug(
@@ -35,6 +43,7 @@ export class CustomersController {
     return appService.sendCreateCustomerRequest(createCustomerRequestDTO);
   }
   @Get("/getCustomersAccounts")
+  @UseGuards(AuthGuard)
   getCustomersAccounts(
     @Body() getCustomersAccountsDTO: GetCustomersAccountsDTO,
   ) {
@@ -48,12 +57,14 @@ export class CustomersController {
     });
   }
   @Get("/getAccount")
+  @UseGuards(AuthGuard)
   getAccount(@Body() accountId: string) {
     const { appService, logger } = this;
     logger.debug("[getAccount] accountId: ", accountId);
     return appService.sendGetAccountRequest(accountId);
   }
   @Get("/getAccountsLastActions")
+  @UseGuards(AuthGuard)
   getAccountsLastActions(@Body() accountId: string, actionCount: number) {
     const { appService, logger } = this;
     logger.debug(
@@ -68,12 +79,14 @@ export class CustomersController {
     });
   }
   @Get("/getAccountsBalance")
+  @UseGuards(AuthGuard)
   getAccountsBalance(@Body() accountId: string) {
     const { appService, logger } = this;
     logger.debug("[getAccountsBalance] accountId: ", accountId);
     return appService.sendGetAccountsBalanceRequest(accountId);
   }
   @Get("/getAccountsBalanceOfCurrencyType")
+  @UseGuards(AuthGuard)
   getAccountsBalanceOfCurrencyType(
     @Body() accountId: string,
     currencyType: string,
@@ -86,6 +99,7 @@ export class CustomersController {
     });
   }
   @Post("/transferMoneyToAccount")
+  @UseGuards(AuthGuard)
   transferMoneyToAccount(@Body() transferMoneyToAccountDTO: MoneyTransferDTO) {
     const { appService, logger } = this;
     logger.debug(
@@ -97,6 +111,7 @@ export class CustomersController {
     );
   }
   @Post("/createTransfer")
+  @UseGuards(AuthGuard)
   createTransfer(@Body() createTransferRequestDTO: CreateTransferDTO) {
     const { appService, logger } = this;
     logger.debug(

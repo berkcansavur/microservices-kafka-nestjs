@@ -4,6 +4,7 @@ import {
   CreateBankCustomerRepresentativeDTO,
   CreateBankDepartmentDirectorDTO,
   CreateBankDirectorDTO,
+  EmployeeDTO,
 } from "../dtos/bank.dto";
 import {
   BankCustomerRepresentative,
@@ -17,13 +18,13 @@ import { BanksLogic } from "../logic/banks.logic";
 import {
   EMPLOYEE_ACTIONS,
   EMPLOYEE_MODEL_TYPES,
-  EMPLOYEE_TYPES,
 } from "../types/employee.types";
 import { IEmployeeServiceInterface } from "../interfaces/employee-service.interface";
 import {
   EmployeeCouldNotCreatedException,
   EmployeeCouldNotUpdatedException,
   EmployeeIsNotFoundException,
+  UserCouldNotValidatedException,
 } from "../exceptions";
 import { Customer } from "../schemas/customers.schema";
 import { InjectMapper } from "@automapper/nestjs";
@@ -32,7 +33,9 @@ import { Utils } from "src/utils/utils";
 import {
   TRANSACTION_RESULTS,
   TRANSACTION_TYPES,
+  USER_TYPES,
 } from "src/constants/banks.constants";
+import { AuthenticatedUserDTO } from "src/dtos/auth.dto";
 
 @Injectable()
 export class EmployeesService implements IEmployeeServiceInterface {
@@ -54,8 +57,12 @@ export class EmployeesService implements IEmployeeServiceInterface {
   }): Promise<
     BankDirector | BankDepartmentDirector | BankCustomerRepresentative
   > {
-    const { logger, employeesRepository } = this;
+    const { logger, employeesRepository, utils } = this;
     logger.debug("[EmployeesService] createEmployee DTO: ", createEmployeeDTO);
+    const hashedPassword = await utils.hashPassword({
+      password: createEmployeeDTO.password,
+    });
+    createEmployeeDTO.password = hashedPassword;
     const employee = (await employeesRepository.createEmployee({
       employeeModelType: employeeType,
       createEmployeeDTO: createEmployeeDTO,
@@ -85,6 +92,59 @@ export class EmployeesService implements IEmployeeServiceInterface {
     if (!BanksLogic.isObjectValid(employee)) {
       throw new EmployeeIsNotFoundException({
         message: { employeeType, employeeId },
+      });
+    }
+    return employee;
+  }
+  async setEmployeesAccessToken({
+    authenticatedUserDTO,
+    userType,
+  }: {
+    authenticatedUserDTO: AuthenticatedUserDTO;
+    userType: USER_TYPES;
+  }): Promise<EmployeeDTO> {
+    const { logger, employeesRepository, BankMapper, utils } = this;
+    logger.debug(
+      "[setEmployeesAccessToken] authenticatedUserDTO:",
+      authenticatedUserDTO,
+    );
+    const employeeModelType = utils.getEmployeeModelType(userType);
+    const { userId, access_token } = authenticatedUserDTO;
+    const updatedEmployee = await employeesRepository.setEmployeesAccessToken({
+      employeeModelType,
+      _id: userId,
+      accessToken: access_token,
+    });
+    if (updatedEmployee.accessToken.length < 5) {
+      throw new UserCouldNotValidatedException({ data: authenticatedUserDTO });
+    }
+    return BankMapper.map<
+      BankDirector | BankDepartmentDirector | BankCustomerRepresentative,
+      EmployeeDTO
+    >(
+      updatedEmployee,
+      BankDirector || BankDepartmentDirector || BankCustomerRepresentative,
+      EmployeeDTO,
+    );
+  }
+  async getEmployeeByEmail({
+    employeeType,
+    email,
+  }: {
+    employeeType: EMPLOYEE_MODEL_TYPES;
+    email: string;
+  }): Promise<
+    BankDirector | BankDepartmentDirector | BankCustomerRepresentative
+  > {
+    const { logger, employeesRepository } = this;
+    logger.debug("[EmployeesService] getEmployee : ", email);
+    const employee = (await employeesRepository.findEmployeeByEmail({
+      email,
+      employeeModelType: employeeType,
+    })) as BankDirector | BankDepartmentDirector | BankCustomerRepresentative;
+    if (!BanksLogic.isObjectValid(employee)) {
+      throw new EmployeeIsNotFoundException({
+        message: { employeeType, email },
       });
     }
     return employee;
@@ -125,7 +185,7 @@ export class EmployeesService implements IEmployeeServiceInterface {
     employeeId,
     bankId,
   }: {
-    employeeType: EMPLOYEE_TYPES;
+    employeeType: USER_TYPES;
     employeeId: string;
     bankId: string;
   }): Promise<
@@ -147,10 +207,6 @@ export class EmployeesService implements IEmployeeServiceInterface {
     });
     return updatedEmployee;
   }
-  // async approveTransfer() {
-  //   const { employeesRepository } = this;
-  //   const updatedCustomerRepresentative = await employeesRepository
-  // }
   async addTransactionToEmployee({
     employeeType,
     employeeId,
@@ -195,7 +251,7 @@ export class EmployeesService implements IEmployeeServiceInterface {
     employeeId,
     customerId,
   }: {
-    employeeType: EMPLOYEE_TYPES;
+    employeeType: USER_TYPES;
     employeeId: string;
     customerId: string;
   }): Promise<Transaction[]> {
@@ -224,7 +280,7 @@ export class EmployeesService implements IEmployeeServiceInterface {
     result,
     action,
   }: {
-    employeeType: EMPLOYEE_TYPES;
+    employeeType: USER_TYPES;
     transferId: string;
     employeeId: string;
     transfer?: PrivateTransfer;

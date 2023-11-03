@@ -43,6 +43,44 @@ export class EmployeesRepository {
       await employeeModelsFactory.getEmployeeModel(employeeModelType);
     return employeeModel.findOne({ _id: employeeId }).lean().exec();
   }
+  async findEmployeeByEmail({
+    email,
+    employeeModelType,
+  }: {
+    email: string;
+    employeeModelType: EMPLOYEE_MODEL_TYPES;
+  }): Promise<
+    | BankDepartmentDirectorDocument
+    | BankCustomerRepresentativeDocument
+    | BankDirectorDocument
+  > {
+    const { employeeModelsFactory } = this;
+    const employeeModel =
+      await employeeModelsFactory.getEmployeeModel(employeeModelType);
+    return employeeModel.findOne({ email: email }).lean().exec();
+  }
+  async setEmployeesAccessToken({
+    employeeModelType,
+    _id,
+    accessToken,
+  }: {
+    employeeModelType: EMPLOYEE_MODEL_TYPES;
+    _id: string;
+    accessToken: string;
+  }): Promise<
+    | BankDepartmentDirectorDocument
+    | BankCustomerRepresentativeDocument
+    | BankDirectorDocument
+  > {
+    const { employeeModelsFactory } = this;
+    const employeeModel =
+      await employeeModelsFactory.getEmployeeModel(employeeModelType);
+    return employeeModel.findOneAndUpdate(
+      { _id },
+      { accessToken },
+      { new: true },
+    );
+  }
   async createEmployee({
     employeeModelType,
     createEmployeeDTO,

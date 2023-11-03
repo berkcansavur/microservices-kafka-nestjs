@@ -7,8 +7,38 @@ import {
   Min,
   IsEmail,
   Length,
+  IsEmpty,
 } from "class-validator";
-import { EMPLOYEE_TYPES } from "types/app-types";
+import { USER_TYPES } from "types/app-types";
+
+export class LoginUserDTO {
+  @ApiProperty({
+    description: "User type",
+    required: true,
+    example: "DOLLAR",
+  })
+  @IsString()
+  @IsEmpty()
+  userType: USER_TYPES;
+
+  @ApiProperty({
+    description: "user email",
+    required: true,
+    example: "DOLLAR",
+  })
+  @IsEmail()
+  @IsEmpty({ message: "Email is required" })
+  email: string;
+
+  @ApiProperty({
+    description: "user password",
+    required: true,
+    example: "DOLLAR",
+  })
+  @IsString()
+  @IsEmpty()
+  password: string;
+}
 export class CreateTransferDTO {
   @ApiProperty({
     description: "Currency type of the inserted money.",
@@ -189,6 +219,26 @@ export class CreateDirectorDTO {
   @IsNotEmpty()
   @IsNumber()
   directorAge: number;
+
+  @ApiProperty({
+    description: "Bank directors email address",
+    required: true,
+    example: "test@test.com",
+  })
+  @IsNotEmpty()
+  @IsString()
+  @IsEmail()
+  email: string;
+
+  @ApiProperty({
+    description: "Bank directors password",
+    required: true,
+    example: "password",
+  })
+  @IsNotEmpty()
+  @IsString()
+  @Length(8, 20)
+  password: string;
 }
 export class CreateCustomerRepresentativeDTO {
   @ApiProperty({
@@ -217,6 +267,26 @@ export class CreateCustomerRepresentativeDTO {
   @IsNotEmpty()
   @IsNumber()
   customerRepresentativeAge: number;
+
+  @ApiProperty({
+    description: "Bank customer representatives email address",
+    required: true,
+    example: "test@test.com",
+  })
+  @IsNotEmpty()
+  @IsString()
+  @IsEmail()
+  email: string;
+
+  @ApiProperty({
+    description: "Bank customer representatives password",
+    required: true,
+    example: "password",
+  })
+  @IsNotEmpty()
+  @IsString()
+  @Length(8, 20)
+  password: string;
 }
 
 export class CreateAccountDTO {
@@ -300,6 +370,26 @@ export class CreateDepartmentDirectorDTO {
   @IsNotEmpty()
   @IsString()
   department: string;
+
+  @ApiProperty({
+    description: "Bank department directors email address",
+    required: true,
+    example: "test@test.com",
+  })
+  @IsNotEmpty()
+  @IsString()
+  @IsEmail()
+  email: string;
+
+  @ApiProperty({
+    description: "Bank department directors password",
+    required: true,
+    example: "password",
+  })
+  @IsNotEmpty()
+  @IsString()
+  @Length(8, 20)
+  password: string;
 }
 export class AccountDTO {
   @ApiProperty({
@@ -400,7 +490,7 @@ export class CreateCustomerDTO {
   @IsNotEmpty()
   @IsString()
   @IsEmail()
-  customerEmail: string;
+  email: string;
 
   @ApiProperty({
     description: "Customers social security number",
@@ -446,7 +536,7 @@ export class CreateEmployeeRegistrationToBankDTO {
     required: true,
     example: "BANK_CUSTOMER_REPRESENTATIVE",
   })
-  employeeType: EMPLOYEE_TYPES;
+  employeeType: USER_TYPES;
 
   @ApiProperty({
     description: "Employees id",
@@ -497,7 +587,7 @@ export class GetEmployeesCustomerTransactionsDTO {
     example: "BANK_CUSTOMER_REPRESENTATIVE",
   })
   @IsNotEmpty()
-  employeeType: EMPLOYEE_TYPES;
+  employeeType: USER_TYPES;
 
   @ApiProperty({
     description: "Employees id",

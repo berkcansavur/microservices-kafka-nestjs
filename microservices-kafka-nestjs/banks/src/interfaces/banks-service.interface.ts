@@ -3,10 +3,10 @@ import {
   CreateBankDTO,
   CreateCustomerDTO,
   CreateTransferDTO,
+  CustomerDTO,
   MoneyTransferDTO,
 } from "src/dtos/bank.dto";
 import { Bank } from "src/schemas/banks.schema";
-import { Customer } from "src/schemas/customers.schema";
 import { AccountType, TransferType } from "src/types/bank.types";
 
 export interface IBankServiceInterface {
@@ -24,7 +24,7 @@ export interface IBankServiceInterface {
     createCustomerDTO,
   }: {
     createCustomerDTO: CreateCustomerDTO;
-  }): Promise<Customer>;
+  }): Promise<CustomerDTO>;
   handleCreateTransferAcrossAccounts({
     createTransferDTO,
   }: {

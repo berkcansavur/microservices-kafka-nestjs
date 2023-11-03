@@ -61,7 +61,7 @@ export class Customer {
   customerAge: number;
 
   @Prop({ type: String, required: true })
-  customerEmail: string;
+  email: string;
 
   @Prop({ type: Number, required: true, length: 11 })
   customerSocialSecurityNumber: number;
@@ -83,6 +83,9 @@ export class Customer {
 
   @Prop({ type: [{ type: ActionLogSchema, ref: "ActionLog" }], default: [] })
   customerActions: ActionLog[];
+
+  @Prop({ type: String })
+  accessToken: string;
 
   @Prop({ type: Date })
   createdAt: Date;

@@ -106,6 +106,12 @@ export class BankDirector {
   @Prop({ type: Number, required: true })
   directorAge: number;
 
+  @Prop({ type: String, required: true })
+  email: string;
+
+  @Prop({ type: String, required: true })
+  password: string;
+
   @Prop({ type: mSchema.Types.ObjectId, ref: "Bank" })
   bank: Types.ObjectId;
 
@@ -120,6 +126,9 @@ export class BankDirector {
     required: false,
   })
   transactions: Transaction[];
+
+  @Prop({ type: String })
+  accessToken: string;
 }
 export type BankDirectorDocument = BankDirector & Document;
 export const BankDirectorSchema = SchemaFactory.createForClass(BankDirector);
@@ -142,6 +151,12 @@ export class BankDepartmentDirector {
   departmentDirectorAge: number;
 
   @Prop({ type: String, required: true })
+  email: string;
+
+  @Prop({ type: String, required: true })
+  password: string;
+
+  @Prop({ type: String, required: true })
   department: string;
 
   @Prop({ type: mSchema.Types.ObjectId, ref: "Bank" })
@@ -158,6 +173,9 @@ export class BankDepartmentDirector {
     required: false,
   })
   transactions: Transaction[];
+
+  @Prop({ type: String })
+  accessToken: string;
 }
 export type BankDepartmentDirectorDocument = BankDepartmentDirector & Document;
 export const BankDepartmentDirectorSchema = SchemaFactory.createForClass(
@@ -184,7 +202,7 @@ export class PrivateCustomer {
   customerAge: number;
 
   @Prop({ type: String, required: true })
-  customerEmail: string;
+  email: string;
 
   @Prop({ type: [{ type: mSchema.Types.ObjectId }], default: [] })
   accounts: mSchema.Types.ObjectId[];
@@ -215,6 +233,12 @@ export class BankCustomerRepresentative {
   @Prop({ type: Number, required: true })
   customerRepresentativeAge: number;
 
+  @Prop({ type: String, required: true })
+  email: string;
+
+  @Prop({ type: String, required: true })
+  password: string;
+
   @Prop({ type: mSchema.Types.ObjectId, ref: "Bank" })
   bank: Types.ObjectId;
 
@@ -232,6 +256,9 @@ export class BankCustomerRepresentative {
     required: false,
   })
   transactions: Transaction[];
+
+  @Prop({ type: String })
+  accessToken: string;
 }
 export type BankCustomerRepresentativeDocument = BankCustomerRepresentative &
   Document;

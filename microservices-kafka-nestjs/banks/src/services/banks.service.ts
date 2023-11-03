@@ -7,6 +7,7 @@ import {
   CreateBankDTO,
   PrivateAccountDTO,
   AccountDTO,
+  CustomerDTO,
 } from "src/dtos/bank.dto";
 import { BanksRepository } from "../repositories/banks.repository";
 import { ClientKafka } from "@nestjs/microservices";
@@ -25,6 +26,7 @@ import {
   TRANSACTION_RESULTS,
   TRANSACTION_TYPES,
   TRANSFER_STATUSES,
+  USER_TYPES,
 } from "../constants/banks.constants";
 import { ACCOUNT_TOPICS, TRANSFER_TOPICS } from "../constants/kafka.constants";
 import { IBankServiceInterface } from "../interfaces/banks-service.interface";
@@ -45,7 +47,6 @@ import { EmployeesService } from "./employees.service";
 import {
   EMPLOYEE_ACTIONS,
   EMPLOYEE_MODEL_TYPES,
-  EMPLOYEE_TYPES,
 } from "../types/employee.types";
 import { Mapper } from "@automapper/core";
 import { InjectMapper } from "@automapper/nestjs";
@@ -152,19 +153,22 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
     createCustomerDTO,
   }: {
     createCustomerDTO: CreateCustomerDTO;
-  }): Promise<Customer> {
+  }): Promise<CustomerDTO> {
     const { logger, utils, customersService } = this;
-    logger.debug("[BanksService] create customer DTO: ", createCustomerDTO);
+    logger.debug(
+      "[handleCreateCustomer] createCustomerDTO: ",
+      createCustomerDTO,
+    );
     const customerNumber = utils.generateRandomNumber();
-    await customersService.createCustomerAuth({
-      customerNumber,
+    const hashedPassword = await utils.hashPassword({
       password: createCustomerDTO.password,
     });
+    createCustomerDTO.password = hashedPassword;
     const createCustomerDTOWithCustomerNumber = {
       ...createCustomerDTO,
       customerNumber,
     };
-    const customer: Customer = await customersService.createCustomer({
+    const customer: CustomerDTO = await customersService.createCustomer({
       createCustomerDTOWithCustomerNumber,
     });
     return customer;
@@ -363,7 +367,7 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
     employeeId,
     bankId,
   }: {
-    employeeType: EMPLOYEE_TYPES;
+    employeeType: USER_TYPES;
     employeeId: string;
     bankId: string;
   }): Promise<Bank> {
@@ -480,7 +484,7 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
             TRANSFER_TOPICS.HANDLE_COMPLETE_TRANSFER,
           );
         await employeesService.updateEmployeesCustomerTransactionsResult({
-          employeeType: EMPLOYEE_TYPES.BANK_CUSTOMER_REPRESENTATIVE,
+          employeeType: USER_TYPES.BANK_CUSTOMER_REPRESENTATIVE,
           transferId,
           employeeId,
           transfer: completedTransfer,
@@ -495,7 +499,7 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
             TRANSFER_TOPICS.HANDLE_FAILURE_TRANSFER,
           );
         await employeesService.updateEmployeesCustomerTransactionsResult({
-          employeeType: EMPLOYEE_TYPES.BANK_CUSTOMER_REPRESENTATIVE,
+          employeeType: USER_TYPES.BANK_CUSTOMER_REPRESENTATIVE,
           transferId,
           employeeId,
           transfer: failedTransfer,
@@ -546,7 +550,7 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
         throw new TransferCouldNotRejectedException();
       }
       await employeesService.updateEmployeesCustomerTransactionsResult({
-        employeeType: EMPLOYEE_TYPES.BANK_CUSTOMER_REPRESENTATIVE,
+        employeeType: USER_TYPES.BANK_CUSTOMER_REPRESENTATIVE,
         transferId,
         employeeId,
         transfer: rejectedTransfer,

@@ -27,10 +27,17 @@ import { EmployeeModelFactory } from "src/factories/employee-model.factory";
 import { EmployeesService } from "./services/employees.service";
 import { EmployeesRepository } from "./repositories/employees.repository";
 import { BankProfile } from "./mapper/bank-profile";
-import { AuthService } from './services/auth.service';
+import { AuthService } from "./services/auth.service";
+import { AuthProfile } from "./mapper/auth-profile";
+import { JwtModule } from "@nestjs/jwt";
+import { JWT_SECRET } from "./constants/private.constants";
 
 @Module({
   imports: [
+    JwtModule.register({
+      secret: JWT_SECRET,
+      signOptions: { expiresIn: "300s" },
+    }),
     ClientsModule.register([
       {
         name: "TRANSFER_SERVICE",
@@ -85,6 +92,7 @@ import { AuthService } from './services/auth.service';
 
   providers: [
     BanksService,
+    AuthService,
     EmployeesService,
     CustomersService,
     BanksRepository,
@@ -95,8 +103,8 @@ import { AuthService } from './services/auth.service';
       provide: "EMPLOYEE_MODEL_FACTORY",
       useClass: EmployeeModelFactory,
     },
+    AuthProfile,
     BankProfile,
-    AuthService,
   ],
 
   controllers: [BanksController, EmployeesController, CustomersController],

@@ -1,4 +1,12 @@
-import { Body, Controller, Post, Logger, Get } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Post,
+  Logger,
+  Get,
+  Req,
+  UseGuards,
+} from "@nestjs/common";
 import { AppService } from "./app.service";
 import {
   CreateTransferDTO,
@@ -13,9 +21,11 @@ import {
   GetCustomersAccountsDTO,
   GetEmployeesCustomerTransactionsDTO,
   GetTransferDTO,
+  LoginUserDTO,
 } from "./dtos/api.dtos";
 import { ApiTags } from "@nestjs/swagger";
 import { AddCustomerToRepresentativeDTO } from "./dtos/api.dtos";
+import { AuthGuard } from "./guards/auth.guard";
 
 @Controller()
 @ApiTags("App")
@@ -23,6 +33,16 @@ export class AppController {
   private readonly logger = new Logger(AppController.name);
   constructor(private readonly appService: AppService) {}
 
+  @Post("/loginCustomer")
+  loginCustomer(@Body() loginUserDTO: LoginUserDTO) {
+    const { appService } = this;
+    return appService.sendLoginCustomerRequest(loginUserDTO);
+  }
+  @Post("/loginEmployee")
+  loginEmployee(@Body() loginUserDTO: LoginUserDTO) {
+    const { appService } = this;
+    return appService.sendLoginEmployeeRequest(loginUserDTO);
+  }
   @Post("/createTransfer")
   createTransfer(@Body() createTransferRequestDTO: CreateTransferDTO) {
     const { appService } = this;
@@ -113,8 +133,10 @@ export class AppController {
     });
   }
   @Get("/getAccount")
-  getAccount(@Body() accountId: string) {
-    const { appService } = this;
+  @UseGuards(AuthGuard)
+  getAccount(@Body() accountId: string, @Req() req) {
+    const { appService, logger } = this;
+    logger.debug("[getAccount] Request:", req);
     return appService.sendGetAccountRequest(accountId);
   }
   @Get("/getAccountsLastActions")

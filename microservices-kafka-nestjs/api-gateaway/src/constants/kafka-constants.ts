@@ -1,4 +1,6 @@
 export enum BANK_TOPICS {
+  LOGIN_CUSTOMER = "login-customer",
+  LOGIN_EMPLOYEE = "login-employee",
   CREATE_TRANSFER_ACROSS_ACCOUNTS_EVENT = "create-transfer-across-accounts-event",
   APPROVE_TRANSFER_EVENT = "approve-transfer-event",
   REJECT_TRANSFER_EVENT = "reject-transfer-event",
