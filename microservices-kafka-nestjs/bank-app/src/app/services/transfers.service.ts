@@ -32,40 +32,6 @@ export class TransferService {
     );
     return response;
   }
-  registerCustomer({
-    customerName,
-    customerSurname,
-    customerAge,
-    email,
-    customerSocialSecurityNumber,
-    password,
-  }: {
-    customerName: string;
-    customerSurname: string;
-    customerAge: number;
-    email: string;
-    customerSocialSecurityNumber: number;
-    password: string;
-  }) {
-    const { httpClient } = this;
-    try {
-      const response = httpClient.post(
-        "API",
-        {
-          customerName,
-          customerSurname,
-          customerAge,
-          email,
-          customerSocialSecurityNumber,
-          password,
-        },
-        httpOptions,
-      );
-      return response;
-    } catch (error) {
-      return error;
-    }
-  }
   sendGetCustomersTransfersRequest({
     customerId,
   }: {

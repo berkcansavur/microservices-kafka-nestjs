@@ -24,8 +24,8 @@ export class CardComponent implements OnInit {
     this.setTransferCustomProps();
   }
   setTransferCustomProps() {
-    const { accountItem } = this;
-    const status: number | undefined = accountItem?.status;
+    const { transferItem } = this;
+    const status: number | undefined = transferItem?.status;
     this.transferStatus = this.transferService.mapTransferStatus(status);
   }
   setAccountCustomProps() {
