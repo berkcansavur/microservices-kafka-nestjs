@@ -127,4 +127,18 @@ export class TransfersController {
     const formattedTransfer = JSON.stringify(failedTransfer, null, 2);
     return formattedTransfer;
   }
+  @MessagePattern("handle_get_customers_transfers")
+  @UsePipes(new ParseIncomingRequest())
+  async getCustomersTransfer(customerId: string) {
+    const { transfersService, logger } = this;
+    logger.debug(
+      `[BanksController] Banks approveTransfer Incoming Data: ${JSON.stringify(
+        customerId,
+      )}`,
+    );
+    const transfers = await transfersService.getCustomersTransfers({
+      customerId,
+    });
+    return transfers;
+  }
 }

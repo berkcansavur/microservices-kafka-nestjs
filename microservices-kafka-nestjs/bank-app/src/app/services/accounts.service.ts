@@ -70,9 +70,33 @@ export class AccountService {
   }): Observable<any> {
     const { httpClient } = this;
     const response = httpClient.get(
-      `http://localhost:3000/getCustomersAccounts/${customerId}`,
+      `http://localhost:3000/customers/getCustomersAccounts/${customerId}`,
       httpOptions,
     );
     return response;
+  }
+  mapAccountStatus(status: number | undefined): string | null {
+    if (status === 500) {
+      return "Created";
+    }
+    if (status === 1000) {
+      return "Banned";
+    }
+    if (status === 2000) {
+      return "Available";
+    }
+    if (status === 2500) {
+      return "Not available";
+    }
+    if (status === 2100) {
+      return "In transaction";
+    }
+    if (status === 3000) {
+      return "Deleted";
+    }
+    if (status === undefined) {
+      return null;
+    }
+    return null;
   }
 }

@@ -10,6 +10,7 @@ import { RegisterComponent } from "./pages/register/register.component";
 import { TransfersComponent } from "./pages/transfers/transfers.component";
 import { TransactionsComponent } from "./pages/transactions/transactions.component";
 import { DashboardComponent } from "./pages/dashboard/dashboard.component";
+import { AccountsComponent } from "./pages/accounts/accounts.component";
 
 const routes: Routes = [
   {
@@ -43,6 +44,10 @@ const routes: Routes = [
   {
     path: "transfers",
     component: TransfersComponent,
+  },
+  {
+    path: "accounts",
+    component: AccountsComponent,
   },
   {
     path: "transactions",

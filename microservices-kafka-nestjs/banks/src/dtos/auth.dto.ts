@@ -1,4 +1,10 @@
-import { IsEmail, IsEmpty, IsString } from "class-validator";
+import {
+  IsEmail,
+  IsEmpty,
+  IsMongoId,
+  IsNotEmpty,
+  IsString,
+} from "class-validator";
 import { Expose, Exclude } from "class-transformer";
 import { USER_TYPES } from "src/constants/banks.constants";
 
@@ -60,4 +66,10 @@ export class UserProfileDTO {
   department?: string;
   createdAt?: Date;
   updatedAt?: Date;
+}
+export class CustomerIdDTO {
+  @IsString()
+  @IsNotEmpty()
+  @IsMongoId()
+  customerId: string;
 }

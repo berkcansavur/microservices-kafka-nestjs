@@ -78,6 +78,10 @@ export class BankProfile extends AutomapperProfile {
         AccountDTO,
         PrivateAccountDTO,
         forMember(
+          (destination) => destination._id,
+          mapFrom((source) => source._id.toString()),
+        ),
+        forMember(
           (destination) => destination.accountName,
           mapFrom((source) => source.accountName),
         ),

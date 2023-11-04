@@ -40,6 +40,18 @@ export class TransfersRepository {
     return TransferModel.findOne({ _id: transferId }).lean().exec();
   }
 
+  async getCustomersTransfers({
+    customerId,
+  }: {
+    customerId: string;
+  }): Promise<Transfer[] | null> {
+    const { TransferModel } = this;
+    const transfers: Transfer[] | null = await TransferModel.find({
+      userId: customerId,
+    });
+    return transfers;
+  }
+
   async updateTransferStatus({
     transferId,
     status,

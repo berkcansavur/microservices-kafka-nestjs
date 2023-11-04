@@ -369,6 +369,10 @@ export class GetTransferDTO {
 }
 export class PrivateAccountDTO {
   @IsNotEmpty()
+  @IsMongoId()
+  _id: string;
+
+  @IsNotEmpty()
   @IsString()
   accountName: string;
 

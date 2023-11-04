@@ -8,6 +8,7 @@ import {
   PrivateAccountDTO,
   AccountDTO,
   CustomerDTO,
+  TransferDTO,
 } from "src/dtos/bank.dto";
 import { BanksRepository } from "../repositories/banks.repository";
 import { ClientKafka } from "@nestjs/microservices";
@@ -42,6 +43,7 @@ import {
   InvalidTransferStatusException,
   TransferCouldNotRejectedException,
   UserNotFoundException,
+  TransferNotFoundException,
 } from "../exceptions";
 import {
   BankCustomerRepresentative,
@@ -193,15 +195,15 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
     ) {
       try {
         const createdTransfer: TransferType =
-          await this.handleKafkaTransferEvents(
+          (await this.handleKafkaTransferEvents(
             createTransferDTO,
             TRANSFER_TOPICS.HANDLE_CREATE_TRANSFER_ACROSS_ACCOUNTS,
-          );
+          )) as TransferType;
         const approvePendingTransfer: TransferType =
-          await this.handleKafkaTransferEvents(
+          (await this.handleKafkaTransferEvents(
             createdTransfer,
             TRANSFER_TOPICS.HANDLE_APPROVE_PENDING_TRANSFER,
-          );
+          )) as TransferType;
         const customer: Customer = await customersService.getCustomer({
           customerId: createTransferDTO.userId,
         });
@@ -226,37 +228,37 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
     }
     try {
       const createdTransfer: TransferType =
-        await this.handleKafkaTransferEvents(
+        (await this.handleKafkaTransferEvents(
           createTransferDTO,
           TRANSFER_TOPICS.HANDLE_CREATE_TRANSFER_ACROSS_ACCOUNTS,
-        );
+        )) as TransferType;
       const approvedTransfer: TransferType =
-        await this.handleKafkaTransferEvents(
+        (await this.handleKafkaTransferEvents(
           createdTransfer,
           TRANSFER_TOPICS.HANDLE_APPROVE_TRANSFER,
-        );
+        )) as TransferType;
       const startedTransfer: TransferType =
-        await this.handleKafkaTransferEvents(
+        (await this.handleKafkaTransferEvents(
           approvedTransfer,
           TRANSFER_TOPICS.HANDLE_START_TRANSFER,
-        );
+        )) as TransferType;
       const eventResult = (await this.handleKafkaAccountEvents(
         startedTransfer,
         ACCOUNT_TOPICS.MONEY_TRANSFER_ACROSS_ACCOUNTS_RESULT,
       )) as EVENT_RESULTS;
       if (BanksLogic.isTransferSucceed(eventResult)) {
         const completedTransfer: TransferType =
-          await this.handleKafkaTransferEvents(
+          (await this.handleKafkaTransferEvents(
             startedTransfer,
             TRANSFER_TOPICS.HANDLE_COMPLETE_TRANSFER,
-          );
+          )) as TransferType;
         return completedTransfer;
       } else {
         const failedTransfer: TransferType =
-          await this.handleKafkaTransferEvents(
+          (await this.handleKafkaTransferEvents(
             startedTransfer,
             TRANSFER_TOPICS.HANDLE_FAILURE_TRANSFER,
-          );
+          )) as TransferType;
         return failedTransfer;
       }
     } catch (error) {
@@ -273,37 +275,37 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
     }
     try {
       const createdTransfer: TransferType =
-        await this.handleKafkaTransferEvents(
+        (await this.handleKafkaTransferEvents(
           createTransferDTO,
           TRANSFER_TOPICS.HANDLE_CREATE_TRANSFER_TO_ACCOUNT,
-        );
+        )) as TransferType;
       const approvedTransfer: TransferType =
-        await this.handleKafkaTransferEvents(
+        (await this.handleKafkaTransferEvents(
           createdTransfer,
           TRANSFER_TOPICS.HANDLE_APPROVE_TRANSFER,
-        );
+        )) as TransferType;
       const startedTransfer: TransferType =
-        await this.handleKafkaTransferEvents(
+        (await this.handleKafkaTransferEvents(
           approvedTransfer,
           TRANSFER_TOPICS.HANDLE_START_TRANSFER,
-        );
+        )) as TransferType;
       const eventResult = (await this.handleKafkaAccountEvents(
         startedTransfer,
         ACCOUNT_TOPICS.MONEY_TRANSFER_ACROSS_ACCOUNTS_RESULT,
       )) as EVENT_RESULTS;
       if (BanksLogic.isTransferSucceed(eventResult)) {
         const completedTransfer: TransferType =
-          await this.handleKafkaTransferEvents(
+          (await this.handleKafkaTransferEvents(
             startedTransfer,
             TRANSFER_TOPICS.HANDLE_COMPLETE_TRANSFER,
-          );
+          )) as TransferType;
         return completedTransfer;
       } else {
         const failedTransfer: TransferType =
-          await this.handleKafkaTransferEvents(
+          (await this.handleKafkaTransferEvents(
             startedTransfer,
             TRANSFER_TOPICS.HANDLE_FAILURE_TRANSFER,
-          );
+          )) as TransferType;
         return failedTransfer;
       }
     } catch (error) {
@@ -485,6 +487,21 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
     }
     throw new UserNotFoundException();
   }
+  async getCustomersTransfers({
+    customerId,
+  }: {
+    customerId: string;
+  }): Promise<TransferDTO[]> {
+    try {
+      const transfers: TransferDTO[] = (await this.handleKafkaTransferEvents(
+        customerId,
+        TRANSFER_TOPICS.HANDLE_GET_CUSTOMERS_TRANSFERS,
+      )) as TransferDTO[];
+      return transfers;
+    } catch (error) {
+      throw new TransferNotFoundException();
+    }
+  }
   async handleApproveTransfer({
     transferId,
     employeeId,
@@ -495,10 +512,10 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
     const { logger, employeesService } = this;
     logger.debug("handleApproveTransfer transferId: ", transferId);
     try {
-      const transfer: TransferType = await this.handleKafkaTransferEvents(
+      const transfer: TransferType = (await this.handleKafkaTransferEvents(
         transferId,
         TRANSFER_TOPICS.HANDLE_GET_TRANSFER,
-      );
+      )) as TransferType;
       if (
         !BanksLogic.isTransferStatusEqualToExpectedStatus({
           status: transfer.status,
@@ -510,25 +527,25 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
         });
       }
       const approvedTransfer: TransferType =
-        await this.handleKafkaTransferEvents(
+        (await this.handleKafkaTransferEvents(
           transfer,
           TRANSFER_TOPICS.HANDLE_APPROVE_TRANSFER,
-        );
+        )) as TransferType;
       const startedTransfer: TransferType =
-        await this.handleKafkaTransferEvents(
+        (await this.handleKafkaTransferEvents(
           approvedTransfer,
           TRANSFER_TOPICS.HANDLE_START_TRANSFER,
-        );
+        )) as TransferType;
       const eventResult = (await this.handleKafkaAccountEvents(
         startedTransfer,
         ACCOUNT_TOPICS.MONEY_TRANSFER_ACROSS_ACCOUNTS_RESULT,
       )) as EVENT_RESULTS;
       if (BanksLogic.isTransferSucceed(eventResult)) {
         const completedTransfer: TransferType =
-          await this.handleKafkaTransferEvents(
+          (await this.handleKafkaTransferEvents(
             startedTransfer,
             TRANSFER_TOPICS.HANDLE_COMPLETE_TRANSFER,
-          );
+          )) as TransferType;
         await employeesService.updateEmployeesCustomerTransactionsResult({
           employeeType: USER_TYPES.BANK_CUSTOMER_REPRESENTATIVE,
           transferId,
@@ -540,10 +557,10 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
         return completedTransfer;
       } else {
         const failedTransfer: TransferType =
-          await this.handleKafkaTransferEvents(
+          (await this.handleKafkaTransferEvents(
             startedTransfer,
             TRANSFER_TOPICS.HANDLE_FAILURE_TRANSFER,
-          );
+          )) as TransferType;
         await employeesService.updateEmployeesCustomerTransactionsResult({
           employeeType: USER_TYPES.BANK_CUSTOMER_REPRESENTATIVE,
           transferId,
@@ -573,10 +590,10 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
     const { logger, employeesService } = this;
     logger.debug("handleApproveTransfer transferId: ", transferId);
     try {
-      const transfer: TransferType = await this.handleKafkaTransferEvents(
+      const transfer: TransferType = (await this.handleKafkaTransferEvents(
         transferId,
         TRANSFER_TOPICS.HANDLE_GET_TRANSFER,
-      );
+      )) as TransferType;
       if (
         !BanksLogic.isTransferStatusEqualToExpectedStatus({
           status: transfer.status,
@@ -588,10 +605,10 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
         });
       }
       const rejectedTransfer: TransferType =
-        await this.handleKafkaTransferEvents(
+        (await this.handleKafkaTransferEvents(
           transfer,
           TRANSFER_TOPICS.HANDLE_REJECT_TRANSFER,
-        );
+        )) as TransferType;
       if (!BanksLogic.isObjectValid(rejectedTransfer)) {
         throw new TransferCouldNotRejectedException();
       }
@@ -621,7 +638,7 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
   private async handleKafkaTransferEvents(
     data: any,
     topic: TRANSFER_TOPICS,
-  ): Promise<TransferType> {
+  ): Promise<TransferType | TransferDTO[]> {
     return new Promise((resolve, reject) => {
       this.transferClient.send(topic, data).subscribe({
         next: (response: any) => {

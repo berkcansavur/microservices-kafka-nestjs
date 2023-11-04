@@ -49,9 +49,7 @@ export class ProfileComponent implements OnInit {
     this.userName = _user.userName;
     this.userSurname = _user.userSurname;
     this.userAge = _user.userAge;
-    console.log(`User Age: ${_user.userAge}`);
     this.userFullName = _user.customerFullName;
-    console.log(`User FullName: ${_user.customerFullName}`);
     this.userEmail = _user.email;
     this.bank = _user.bank ?? null;
     this.department = _user.department ?? null;

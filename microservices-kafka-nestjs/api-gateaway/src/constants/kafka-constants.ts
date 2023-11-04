@@ -16,6 +16,7 @@ export enum BANK_TOPICS {
   CREATE_EMPLOYEE_REGISTRATION_TO_BANK_EVENT = "create-employee-registration-to-bank-event",
   GET_CUSTOMER_ACCOUNTS_EVENT = "get-customer-accounts-event",
   GET_EMPLOYEES_CUSTOMER_RELATED_TRANSACTIONS = "get-employees-customer-related-transactions",
+  GET_CUSTOMERS_TRANSFERS_EVENT = "get-customers-transfers-event",
 }
 export enum ACCOUNT_TOPICS {
   GET_ACCOUNT = "get_account",

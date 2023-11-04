@@ -11,6 +11,7 @@ import {
   CreateEmployeeRegistrationToBankDTO,
   CreateTransferDTO,
   GetCustomersAccountsDTO,
+  GetCustomersTransfersDTO,
   GetEmployeesCustomerTransactionsDTO,
   GetTransferDTO,
   LoginUserDTO,
@@ -209,6 +210,21 @@ export class AppService implements OnModuleInit {
     return this.bankClient.send(
       BANK_TOPICS.CREATE_EMPLOYEE_REGISTRATION_TO_BANK_EVENT,
       createEmployeeRegistrationToBankDTO,
+    );
+  }
+  sendGetCustomersTransfersRequest({
+    getCustomersTransfersDTO,
+  }: {
+    getCustomersTransfersDTO: GetCustomersTransfersDTO;
+  }) {
+    const { logger } = this;
+    logger.debug(
+      "[sendGetCustomersTransfersRequest] getCustomersTransfersDTO: ",
+      getCustomersTransfersDTO,
+    );
+    return this.bankClient.send(
+      BANK_TOPICS.GET_CUSTOMERS_TRANSFERS_EVENT,
+      getCustomersTransfersDTO,
     );
   }
   sendGetUsersProfileRequest({

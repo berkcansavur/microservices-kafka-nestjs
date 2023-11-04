@@ -137,6 +137,19 @@ export class TransferCouldNotRejectedException extends BankAppException {
     Object.setPrototypeOf(this, TransferCouldNotRejectedException.prototype);
   }
 }
+export class TransferNotFoundException extends BankAppException {
+  constructor(data?: string | object) {
+    super(
+      "Transfer could not found",
+      4500,
+      HttpStatus.NOT_FOUND,
+      JSON.stringify(data),
+      "TransferNotFoundException",
+    );
+    this.name = "TransferNotFoundException";
+    Object.setPrototypeOf(this, TransferNotFoundException.prototype);
+  }
+}
 export class InvalidUserTypeException extends BankAppException {
   constructor(data?: string | object) {
     super(

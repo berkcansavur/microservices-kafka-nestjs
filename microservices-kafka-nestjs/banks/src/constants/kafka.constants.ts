@@ -10,6 +10,7 @@ export enum TRANSFER_TOPICS {
   HANDLE_APPROVE_PENDING_TRANSFER = "handle_approve_pending_transfer",
   HANDLE_REJECT_TRANSFER = "handle_reject_transfer",
   HANDLE_GET_TRANSFER = "handle_get_transfer",
+  HANDLE_GET_CUSTOMERS_TRANSFERS = "handle_get_customers_transfers",
 }
 export enum ACCOUNT_TOPICS {
   MONEY_TRANSFER_ACROSS_ACCOUNTS_RESULT = "money_transfer_across_accounts_result",
