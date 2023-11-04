@@ -41,8 +41,13 @@ import {
   BankCouldNotUpdatedException,
   InvalidTransferStatusException,
   TransferCouldNotRejectedException,
+  UserNotFoundException,
 } from "../exceptions";
-import { BankCustomerRepresentative } from "../schemas/employee-schema";
+import {
+  BankCustomerRepresentative,
+  BankDepartmentDirector,
+  BankDirector,
+} from "../schemas/employee-schema";
 import { EmployeesService } from "./employees.service";
 import {
   EMPLOYEE_ACTIONS,
@@ -52,6 +57,7 @@ import { Mapper } from "@automapper/core";
 import { InjectMapper } from "@automapper/nestjs";
 import { CustomersLogic } from "src/logic/customers.logic";
 import { CustomerHasNotRepresentativeException } from "src/exceptions/customer-exception";
+import { UserProfileDTO } from "src/dtos/auth.dto";
 @Injectable()
 export class BanksService implements OnModuleInit, IBankServiceInterface {
   private readonly logger = new Logger(BanksService.name);
@@ -438,6 +444,46 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
       accountIds,
     });
     return accountList;
+  }
+  async getUserProfile({
+    userType,
+    userId,
+  }: {
+    userType: USER_TYPES;
+    userId: string;
+  }): Promise<UserProfileDTO> {
+    const { logger, customersService, employeesService, utils, BankMapper } =
+      this;
+    logger.debug("[getUserProfile] userId: ", userId, " userType: ", userType);
+    const mappedUserType = utils.getUserType({ userType });
+    if (mappedUserType === USER_TYPES.CUSTOMER) {
+      const user = await customersService.getCustomer({ customerId: userId });
+      return BankMapper.map<Customer, UserProfileDTO>(
+        user,
+        Customer,
+        UserProfileDTO,
+      );
+    }
+    if (
+      mappedUserType === USER_TYPES.BANK_DIRECTOR ||
+      USER_TYPES.BANK_DEPARTMENT_DIRECTOR ||
+      USER_TYPES.BANK_CUSTOMER_REPRESENTATIVE
+    ) {
+      const employeeModelType = utils.getEmployeeModelType(userType);
+      const user = await employeesService.getEmployee({
+        employeeType: employeeModelType,
+        employeeId: userId,
+      });
+      return BankMapper.map<
+        BankDirector | BankDepartmentDirector | BankCustomerRepresentative,
+        UserProfileDTO
+      >(
+        user,
+        BankDirector || BankDepartmentDirector || BankCustomerRepresentative,
+        UserProfileDTO,
+      );
+    }
+    throw new UserNotFoundException();
   }
   async handleApproveTransfer({
     transferId,

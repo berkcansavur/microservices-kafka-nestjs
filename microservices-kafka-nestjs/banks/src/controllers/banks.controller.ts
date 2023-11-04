@@ -11,6 +11,7 @@ import {
   CreateTransferDTO,
   GetCustomersAccountsDTO,
   GetTransferDTO,
+  GetUserProfileDTO,
   MoneyTransferDTO,
 } from "../dtos/bank.dto";
 
@@ -157,6 +158,21 @@ export class BanksController {
     );
     const customer = await bankService.getCustomersAccounts({
       customerId: data.customerId,
+    });
+    return customer;
+  }
+  @MessagePattern("get-user-profile-event")
+  @UsePipes(new ParseIncomingRequest())
+  async getUserProfile(data: GetUserProfileDTO) {
+    const { logger, bankService } = this;
+    logger.debug(
+      `[BanksController] Banks getCustomersAccounts Incoming Data: ${JSON.stringify(
+        data,
+      )}`,
+    );
+    const customer = await bankService.getUserProfile({
+      userType: data.userType,
+      userId: data.userId,
     });
     return customer;
   }

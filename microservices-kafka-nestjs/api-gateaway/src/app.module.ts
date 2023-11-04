@@ -1,5 +1,5 @@
 import { MiddlewareConsumer, Module } from "@nestjs/common";
-import { AppController } from "./app.controller";
+import { AppController } from "./controllers/app.controller";
 import { AppService } from "./app.service";
 import { ClientsModule, Transport } from "@nestjs/microservices";
 import { EmployeesController } from "./controllers/employees.controller";

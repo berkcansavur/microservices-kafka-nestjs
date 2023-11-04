@@ -42,3 +42,22 @@ export class AuthenticatedUserDTO {
   @IsEmpty()
   userName: string;
 }
+export class UserProfileDTO {
+  userId: string;
+  userName: string;
+  userSurname: string;
+  userFullName: string;
+  userEmail: string;
+  customerNumber?: number;
+  customerSocialSecurityNumber?: number;
+  customerRepresentative?: object;
+  userAge: number;
+  accounts?: object[];
+  customers?: object[];
+  userActions?: object[];
+  transactions?: object[];
+  bank?: string;
+  department?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}

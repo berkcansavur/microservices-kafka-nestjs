@@ -18,6 +18,7 @@ import {
 } from "./dtos/api.dtos";
 import { ACCOUNT_TOPICS, BANK_TOPICS } from "./constants/kafka-constants";
 import { AccountType } from "types/app-types";
+import { GetUserProfileDTO } from "./dtos/api.dtos";
 
 @Injectable()
 export class AppService implements OnModuleInit {
@@ -208,6 +209,24 @@ export class AppService implements OnModuleInit {
     return this.bankClient.send(
       BANK_TOPICS.CREATE_EMPLOYEE_REGISTRATION_TO_BANK_EVENT,
       createEmployeeRegistrationToBankDTO,
+    );
+  }
+  sendGetUsersProfileRequest({
+    userType,
+    userId,
+  }: {
+    userType: string;
+    userId: string;
+  }) {
+    const { logger } = this;
+    const getUserProfileDTO: GetUserProfileDTO = { userType, userId };
+    logger.debug(
+      "[AppService] sendCreateDirectorRequest customerId: ",
+      getUserProfileDTO,
+    );
+    return this.bankClient.send(
+      BANK_TOPICS.GET_USER_PROFILE_EVENT,
+      getUserProfileDTO,
     );
   }
   sendGetCustomersAccountsRequest({

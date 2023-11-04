@@ -6,8 +6,9 @@ import {
   Get,
   Req,
   UseGuards,
+  Param,
 } from "@nestjs/common";
-import { AppService } from "./app.service";
+import { AppService } from "../app.service";
 import {
   CreateTransferDTO,
   CreateAccountDTO,
@@ -22,10 +23,10 @@ import {
   GetEmployeesCustomerTransactionsDTO,
   GetTransferDTO,
   LoginUserDTO,
-} from "./dtos/api.dtos";
+} from "../dtos/api.dtos";
 import { ApiTags } from "@nestjs/swagger";
-import { AddCustomerToRepresentativeDTO } from "./dtos/api.dtos";
-import { AuthGuard } from "./guards/auth.guard";
+import { AddCustomerToRepresentativeDTO } from "../dtos/api.dtos";
+import { AuthGuard } from "../guards/auth.guard";
 
 @Controller()
 @ApiTags("App")
@@ -121,6 +122,17 @@ export class AppController {
     const { appService } = this;
     return appService.sendAddCustomerToRepresentativeRequest({
       addCustomerToRepresentativeDTO,
+    });
+  }
+  @Get("/getUserProfile/:userType/:userId")
+  getUserProfile(
+    @Param("userType") userType: string,
+    @Param("userId") userId: string,
+  ) {
+    const { appService } = this;
+    return appService.sendGetUsersProfileRequest({
+      userType,
+      userId,
     });
   }
   @Get("/getCustomersAccounts")

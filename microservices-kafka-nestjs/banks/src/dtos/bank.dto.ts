@@ -353,6 +353,14 @@ export class GetCustomersAccountsDTO {
   @IsMongoId()
   customerId: string;
 }
+export class GetUserProfileDTO {
+  @IsNotEmpty()
+  userType: USER_TYPES;
+
+  @IsNotEmpty()
+  @IsMongoId()
+  userId: string;
+}
 export class GetTransferDTO {
   @IsMongoId()
   transferId: string;
