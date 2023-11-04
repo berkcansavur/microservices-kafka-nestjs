@@ -9,6 +9,7 @@ import { BoardEmployeeComponent } from "./pages/board-employee/board-employee.co
 import { RegisterComponent } from "./pages/register/register.component";
 import { TransfersComponent } from "./pages/transfers/transfers.component";
 import { TransactionsComponent } from "./pages/transactions/transactions.component";
+import { DashboardComponent } from "./pages/dashboard/dashboard.component";
 
 const routes: Routes = [
   {
@@ -46,6 +47,10 @@ const routes: Routes = [
   {
     path: "transactions",
     component: TransactionsComponent,
+  },
+  {
+    path: "dashboard",
+    component: DashboardComponent,
   },
   {
     path: "",

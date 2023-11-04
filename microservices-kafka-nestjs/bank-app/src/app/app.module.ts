@@ -32,6 +32,7 @@ import { TransfersComponent } from "./pages/transfers/transfers.component";
 import { SettingsComponent } from "./pages/settings/settings.component";
 import { AccountsComponent } from "./pages/accounts/accounts.component";
 import { TransactionsComponent } from "./pages/transactions/transactions.component";
+import { DashboardComponent } from "./pages/dashboard/dashboard.component";
 
 @NgModule({
   declarations: [
@@ -50,6 +51,7 @@ import { TransactionsComponent } from "./pages/transactions/transactions.compone
     SettingsComponent,
     AccountsComponent,
     TransactionsComponent,
+    DashboardComponent,
   ],
   imports: [
     BrowserModule,
