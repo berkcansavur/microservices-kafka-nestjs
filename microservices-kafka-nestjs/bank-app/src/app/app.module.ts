@@ -26,6 +26,12 @@ import { BoardEmployeeComponent } from "./pages/board-employee/board-employee.co
 import { RegisterComponent } from "./pages/register/register.component";
 import { HttpClientModule } from "@angular/common/http";
 import { FormsModule } from "@angular/forms";
+import { CardComponent } from "./components/card/card.component";
+import { CreateTransferComponent } from "./components/create-transfer/create-transfer.component";
+import { TransfersComponent } from "./pages/transfers/transfers.component";
+import { SettingsComponent } from "./pages/settings/settings.component";
+import { AccountsComponent } from "./pages/accounts/accounts.component";
+import { TransactionsComponent } from "./pages/transactions/transactions.component";
 
 @NgModule({
   declarations: [
@@ -38,6 +44,12 @@ import { FormsModule } from "@angular/forms";
     BoardAdminComponent,
     BoardEmployeeComponent,
     RegisterComponent,
+    CardComponent,
+    CreateTransferComponent,
+    TransfersComponent,
+    SettingsComponent,
+    AccountsComponent,
+    TransactionsComponent,
   ],
   imports: [
     BrowserModule,

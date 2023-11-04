@@ -32,4 +32,10 @@ export class TokenStorageService {
   public setIsLoggedIn(trueOrFalse: string): void {
     window.sessionStorage.setItem("IS_LOGGED_IN", trueOrFalse);
   }
+  public setUserType(userType: string): void {
+    window.sessionStorage.setItem("USER_TYPE", userType);
+  }
+  public getUserType(): string | null {
+    return window.sessionStorage.getItem("USER_TYPE");
+  }
 }

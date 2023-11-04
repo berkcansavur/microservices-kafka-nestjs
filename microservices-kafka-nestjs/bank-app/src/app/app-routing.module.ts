@@ -7,6 +7,8 @@ import { BoardAdminComponent } from "./pages/board-admin/board-admin.component";
 import { BoardCustomerComponent } from "./pages/board-customer/board-customer.component";
 import { BoardEmployeeComponent } from "./pages/board-employee/board-employee.component";
 import { RegisterComponent } from "./pages/register/register.component";
+import { TransfersComponent } from "./pages/transfers/transfers.component";
+import { TransactionsComponent } from "./pages/transactions/transactions.component";
 
 const routes: Routes = [
   {
@@ -36,6 +38,14 @@ const routes: Routes = [
   {
     path: "employee",
     component: BoardEmployeeComponent,
+  },
+  {
+    path: "transfers",
+    component: TransfersComponent,
+  },
+  {
+    path: "transactions",
+    component: TransactionsComponent,
   },
   {
     path: "",
