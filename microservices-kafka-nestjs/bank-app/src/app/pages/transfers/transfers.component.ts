@@ -15,6 +15,7 @@ export class TransfersComponent {
   transfers: ITransferItem[] = [];
   customerId: string = "";
   errorMessage: string = "";
+  isTransferPanelOpened: boolean = false;
 
   ngOnInit(): void {
     this.customerId = this.tokenStorage.getUser()._id.toString();
@@ -32,5 +33,16 @@ export class TransfersComponent {
           this.errorMessage = err.error.message;
         },
       });
+  }
+  setTransferStatus(transfer: ITransferItem) {
+    const status: number | undefined = transfer.status;
+    const mappedStatus = this.transferService.mapTransferStatus(status);
+    return mappedStatus;
+  }
+  openTransferPanel() {
+    this.isTransferPanelOpened = true;
+  }
+  closeTransferPanel() {
+    this.isTransferPanelOpened = false;
   }
 }

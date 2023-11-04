@@ -1,5 +1,5 @@
 import { Component, OnInit } from "@angular/core";
-import { IAccountItem } from "src/app/models/accounts.model";
+import { IAccountItem, IBalanceItem } from "src/app/models/accounts.model";
 import { AccountService } from "src/app/services/accounts.service";
 import { TokenStorageService } from "src/app/services/token-storage.service";
 
@@ -13,6 +13,8 @@ export class AccountsComponent implements OnInit {
     private readonly tokenStorage: TokenStorageService,
   ) {}
   accounts: IAccountItem[] = [];
+  accountsBalances: IBalanceItem[] = [];
+  accountStatus: string | null = "";
   customerId: string = "";
   errorMessage: string = "";
 
@@ -32,5 +34,21 @@ export class AccountsComponent implements OnInit {
           this.errorMessage = err.error.message;
         },
       });
+  }
+  setAccountCustomProps(accounts: IAccountItem[]) {
+    accounts.map((accountItem: IAccountItem) => {
+      const status: number | undefined = accountItem?.status;
+      this.accountStatus = this.accountService.mapAccountStatus(status);
+    });
+  }
+  setAccountStatus(account: IAccountItem): string | null {
+    const status: number = account.status;
+    const mappedStatus = this.accountService.mapAccountStatus(status);
+    return mappedStatus;
+  }
+  setBalance(account: IAccountItem): IBalanceItem[] {
+    const balances: IBalanceItem[] | undefined = account?.balance;
+    this.accountsBalances = balances;
+    return balances;
   }
 }
