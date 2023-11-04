@@ -32,7 +32,7 @@ export class AuthService {
     );
     return response;
   }
-  registerCustomer({
+  registerUser({
     customerName,
     customerSurname,
     customerAge,
@@ -48,22 +48,18 @@ export class AuthService {
     password: string;
   }) {
     const { httpClient } = this;
-    try {
-      const response = httpClient.post(
-        "API",
-        {
-          customerName,
-          customerSurname,
-          customerAge,
-          email,
-          customerSocialSecurityNumber,
-          password,
-        },
-        httpOptions,
-      );
-      return response;
-    } catch (error) {
-      return error;
-    }
+    const response = httpClient.post(
+      `http://localhost:3000/customers/createCustomer`,
+      {
+        customerName,
+        customerSurname,
+        customerAge,
+        email,
+        customerSocialSecurityNumber,
+        password,
+      },
+      httpOptions,
+    );
+    return response;
   }
 }

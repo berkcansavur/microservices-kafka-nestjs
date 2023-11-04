@@ -19,11 +19,20 @@ import {
 } from "src/schemas/employee-schema";
 import { AccountDTO, PrivateAccountDTO } from "src/dtos/bank.dto";
 import { UserProfileDTO } from "src/dtos/auth.dto";
+import { Types } from "mongoose";
 
 @Injectable()
 export class BankProfile extends AutomapperProfile {
   constructor(@InjectMapper() protected readonly mapper: Mapper) {
     super(mapper);
+  }
+  private customBankToString(bank: Types.ObjectId | undefined): string | null {
+    console.log("Bank", bank);
+    if (bank !== undefined) {
+      return bank.toString();
+    } else {
+      return null;
+    }
   }
   get profile(): MappingProfile {
     return (mapper: Mapper) => {
@@ -136,7 +145,9 @@ export class BankProfile extends AutomapperProfile {
         ),
         forMember(
           (destination) => destination.bank,
-          mapFrom((source) => source.bank.toString()),
+          mapFrom((source) => {
+            return this.customBankToString(source.bank);
+          }),
         ),
         forMember(
           (destination) => destination.customerNumber,
@@ -147,12 +158,8 @@ export class BankProfile extends AutomapperProfile {
           mapFrom((source) => source.customerSocialSecurityNumber),
         ),
         forMember(
-          (destination) => destination.bank,
-          mapFrom((source) => source.bank.toString()),
-        ),
-        forMember(
           (destination) => destination.customerRepresentative,
-          mapFrom((source) => source.customerRepresentative),
+          mapFrom((source) => source.customerRepresentative ?? null),
         ),
         forMember(
           (destination) => destination.userActions,
@@ -170,7 +177,7 @@ export class BankProfile extends AutomapperProfile {
         ),
         forMember(
           (destination) => destination.updatedAt,
-          mapFrom((source) => source.updatedAt),
+          mapFrom((source) => source.updatedAt ?? null),
         ),
       );
       createMap<BankDirector, UserProfileDTO>(
@@ -199,11 +206,7 @@ export class BankProfile extends AutomapperProfile {
         ),
         forMember(
           (destination) => destination.bank,
-          mapFrom((source) => source.bank.toString()),
-        ),
-        forMember(
-          (destination) => destination.bank,
-          mapFrom((source) => source.bank.toString()),
+          mapFrom((source) => this.customBankToString(source.bank)),
         ),
         forMember(
           (destination) => destination.userActions,
@@ -246,11 +249,7 @@ export class BankProfile extends AutomapperProfile {
         ),
         forMember(
           (destination) => destination.bank,
-          mapFrom((source) => source.bank.toString()),
-        ),
-        forMember(
-          (destination) => destination.bank,
-          mapFrom((source) => source.bank.toString()),
+          mapFrom((source) => this.customBankToString(source.bank)),
         ),
         forMember(
           (destination) => destination.userActions,
@@ -298,11 +297,7 @@ export class BankProfile extends AutomapperProfile {
         ),
         forMember(
           (destination) => destination.bank,
-          mapFrom((source) => source.bank.toString()),
-        ),
-        forMember(
-          (destination) => destination.bank,
-          mapFrom((source) => source.bank.toString()),
+          mapFrom((source) => this.customBankToString(source.bank)),
         ),
         forMember(
           (destination) => destination.userActions,

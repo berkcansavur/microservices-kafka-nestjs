@@ -61,7 +61,7 @@ export class LoginComponent implements OnInit {
         this.isLoginFailed = false;
         this.isLoggedIn = true;
         // this.roles = this.tokenStorage.getUser().role;
-        //this.reloadPage();
+        this.reloadPage();
       },
       error: (err: any) => {
         this.errorMessage = err.error.message;
@@ -71,5 +71,8 @@ export class LoginComponent implements OnInit {
   }
   reloadPage(): void {
     window.location.reload();
+  }
+  setIsLoginFailedFalse(): void {
+    this.isLoginFailed = false;
   }
 }

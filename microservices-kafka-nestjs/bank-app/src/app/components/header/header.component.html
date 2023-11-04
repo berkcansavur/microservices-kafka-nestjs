@@ -65,7 +65,7 @@
             <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
               <a routerLink="/profile" class="block px-5 py-4 text-xl text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-0">Profile</a>
               <a routerLink="/settings" class="block px-5 py-4 text-xl text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-1">Settings</a>
-              <a routerLink="/register" class="block px-5 py-4 text-xl text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-2">Register</a>
+              <a *ngIf="!isLoggedIn" routerLink="/register" class="block px-5 py-4 text-xl text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-2">Register</a>
               <a *ngIf="!isLoggedIn" routerLink="/login" class="block px-5 py-4 text-xl text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-2">Log In</a>
               <button (click)="logOut()">
                 <a *ngIf="isLoggedIn" routerLink="/logout" class="block px-5 py-4 text-xl text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-3">Log Out</a>

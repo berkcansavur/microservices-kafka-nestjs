@@ -50,13 +50,13 @@ export class UserProfileDTO {
   userEmail: string;
   customerNumber?: number;
   customerSocialSecurityNumber?: number;
-  customerRepresentative?: object;
+  customerRepresentative?: object | null;
   userAge: number;
   accounts?: object[];
   customers?: object[];
   userActions?: object[];
   transactions?: object[];
-  bank?: string;
+  bank?: string | null;
   department?: string;
   createdAt?: Date;
   updatedAt?: Date;

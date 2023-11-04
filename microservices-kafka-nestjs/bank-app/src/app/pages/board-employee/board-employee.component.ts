@@ -18,13 +18,13 @@ export class BoardEmployeeComponent implements OnInit {
   constructor(private profileService: ProfileService) {}
   content?: string;
   ngOnInit(): void {
-    const _user = this.profileService.getUserBoard();
-    this.userFullName = _user.customerFullName;
-    this.userEmail = _user.email;
-    this.customerNumber = _user.customerNumber;
-    this.customerSocialSecurityNumber = _user.customerSocialSecurityNumber;
-    this.userAge = _user.customerAge;
-    this.accounts = _user.accounts;
-    this.userActions = _user.customerActions;
+    // const _user = this.profileService.getUserBoard();
+    // this.userFullName = _user.customerFullName;
+    // this.userEmail = _user.email;
+    // this.customerNumber = _user.customerNumber;
+    // this.customerSocialSecurityNumber = _user.customerSocialSecurityNumber;
+    // this.userAge = _user.customerAge;
+    // this.accounts = _user.accounts;
+    // this.userActions = _user.customerActions;
   }
 }

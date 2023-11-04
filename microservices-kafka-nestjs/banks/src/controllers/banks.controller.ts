@@ -170,10 +170,11 @@ export class BanksController {
         data,
       )}`,
     );
-    const customer = await bankService.getUserProfile({
+    const user = await bankService.getUserProfile({
       userType: data.userType,
       userId: data.userId,
     });
-    return customer;
+    logger.debug("User: ", JSON.stringify(user));
+    return user;
   }
 }
