@@ -188,4 +188,24 @@ export class TransfersService implements ITransferService, OnModuleInit {
       await transferStateFactory.getTransferState(TRANSFER_STATUSES.REJECTED)
     ).rejected(transfer);
   }
+  async getCustomersTransfers({
+    customerId,
+  }: {
+    customerId: string;
+  }): Promise<TransferDTO[]> {
+    const { logger, transfersRepository, TransferMapper } = this;
+    const transfers = await transfersRepository.getCustomersTransfers({
+      customerId,
+    });
+    const mappedTransfers: TransferDTO[] = transfers.map((transfer) => {
+      const mappedTransfer = TransferMapper.map<Transfer, TransferDTO>(
+        transfer,
+        Transfer,
+        TransferDTO,
+      );
+      logger.debug(`Mapping ${transfer} transfer ${mappedTransfer}`);
+      return mappedTransfer;
+    });
+    return mappedTransfers;
+  }
 }

@@ -11,8 +11,10 @@ import {
   CreateTransferDTO,
   GetCustomersAccountsDTO,
   GetTransferDTO,
+  GetUserProfileDTO,
   MoneyTransferDTO,
 } from "../dtos/bank.dto";
+import { CustomerIdDTO } from "src/dtos/auth.dto";
 
 @Controller("/banks")
 export class BanksController {
@@ -159,5 +161,31 @@ export class BanksController {
       customerId: data.customerId,
     });
     return customer;
+  }
+  @MessagePattern("get-user-profile-event")
+  @UsePipes(new ParseIncomingRequest())
+  async getUserProfile(data: GetUserProfileDTO) {
+    const { logger, bankService } = this;
+    logger.debug(
+      `[BanksController] Banks getCustomersAccounts Incoming Data: ${JSON.stringify(
+        data,
+      )}`,
+    );
+    const user = await bankService.getUserProfile({
+      userType: data.userType,
+      userId: data.userId,
+    });
+    logger.debug("User: ", JSON.stringify(user));
+    return user;
+  }
+  @MessagePattern("get-customers-transfers-event")
+  @UsePipes(new ParseIncomingRequest())
+  async getCustomersTransfers(data: CustomerIdDTO) {
+    const { logger, bankService } = this;
+    logger.debug("[getCustomersTransfers] data: CustomerIdDTO: ", data);
+    const transfers = await bankService.getCustomersTransfers({
+      customerId: data.customerId,
+    });
+    return transfers;
   }
 }

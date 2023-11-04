@@ -1,0 +1,12 @@
+<ul class="flex justify-between gap-x-6 py-5">
+  <div class="flex min-w-0 gap-x-4">
+    <div class="min-w-0 flex-auto">
+      <ng-container *ngFor="let transfer of transfers">
+        <div 
+        app-card 
+        [transferItem]="transfer"
+        ></div>
+      </ng-container>
+    </div>
+  </div>
+</ul>
