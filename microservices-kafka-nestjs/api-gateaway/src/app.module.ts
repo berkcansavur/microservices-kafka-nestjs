@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { MiddlewareConsumer, Module } from "@nestjs/common";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { ClientsModule, Transport } from "@nestjs/microservices";
@@ -6,9 +6,11 @@ import { EmployeesController } from "./controllers/employees.controller";
 import { CustomersController } from "./controllers/customers.controller";
 import { AdminController } from "./controllers/admin.controller";
 import { JwtModule } from "@nestjs/jwt";
+import { ConfigModule } from "@nestjs/config";
 
 @Module({
   imports: [
+    ConfigModule.forRoot({}),
     JwtModule.register({}),
     ClientsModule.register([
       {
@@ -47,4 +49,18 @@ import { JwtModule } from "@nestjs/jwt";
   ],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply((req, res, next) => {
+        res.setHeader("Access-Control-Allow-Origin", `http://localhost:4200`);
+        res.setHeader("Access-Control-Allow-Credentials", "true");
+        res.setHeader(
+          "Access-Control-Allow-Headers",
+          "Origin, X-Requested-With, Content-Type, Accept",
+        );
+        next();
+      })
+      .forRoutes("*");
+  }
+}

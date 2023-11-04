@@ -15,13 +15,36 @@ import { MatSnackBarModule } from "@angular/material/snack-bar";
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
+import { HeaderComponent } from "./components/header/header.component";
+import { HomeComponent } from "./pages/home/home.component";
+import { LoginComponent } from "./pages/login/login.component";
+import { ProfileComponent } from "./pages/profile/profile.component";
+import { authInterceptorProviders } from "./_helpers/auth.interceptor";
+import { BoardCustomerComponent } from "./pages/board-customer/board-customer.component";
+import { BoardAdminComponent } from "./pages/board-admin/board-admin.component";
+import { BoardEmployeeComponent } from "./pages/board-employee/board-employee.component";
+import { RegisterComponent } from "./pages/register/register.component";
+import { HttpClientModule } from "@angular/common/http";
+import { FormsModule } from "@angular/forms";
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [
+    AppComponent,
+    HeaderComponent,
+    HomeComponent,
+    LoginComponent,
+    ProfileComponent,
+    BoardCustomerComponent,
+    BoardAdminComponent,
+    BoardEmployeeComponent,
+    RegisterComponent,
+  ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
+    HttpClientModule,
+    FormsModule,
     MatSidenavModule,
     MatGridListModule,
     MatMenuModule,
@@ -35,7 +58,7 @@ import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
     MatBadgeModule,
     MatSnackBarModule,
   ],
-  providers: [],
+  providers: [authInterceptorProviders],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
