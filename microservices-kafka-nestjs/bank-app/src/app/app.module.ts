@@ -32,6 +32,8 @@ import { SettingsComponent } from "./pages/settings/settings.component";
 import { AccountsComponent } from "./pages/accounts/accounts.component";
 import { TransactionsComponent } from "./pages/transactions/transactions.component";
 import { DashboardComponent } from "./pages/dashboard/dashboard.component";
+import { LoadingComponent } from './components/loading/loading.component';
+import { AppErrorComponent } from './components/app-error/app-error.component';
 
 @NgModule({
   declarations: [
@@ -50,6 +52,8 @@ import { DashboardComponent } from "./pages/dashboard/dashboard.component";
     AccountsComponent,
     TransactionsComponent,
     DashboardComponent,
+    LoadingComponent,
+    AppErrorComponent,
   ],
   imports: [
     BrowserModule,

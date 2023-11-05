@@ -1,4 +1,6 @@
 import { Component } from "@angular/core";
+import { CURRENCY_TYPES } from "src/app/constants/transfer-constants";
+
 import { ITransferItem } from "src/app/models/transfers.model";
 import { TokenStorageService } from "src/app/services/token-storage.service";
 import { TransferService } from "src/app/services/transfers.service";
@@ -12,13 +14,23 @@ export class TransfersComponent {
     private readonly transferService: TransferService,
     private readonly tokenStorage: TokenStorageService,
   ) {}
+  createTransferForm: any = {
+    fromAccount: null,
+    toAccount: null,
+    amount: null,
+  };
+  loading: boolean = false;
+  returnedCreatedTransfer: any = null;
   isChecked: boolean = false;
   transfers: ITransferItem[] = [];
   transferIds: string[] = [];
   customerId: string = "";
+  selectedCurrencyType: string = "";
   errorMessage: string = "";
   isTransferPanelOpened: boolean = false;
   isDropdownMenuOpened: boolean = false;
+  isTransferCurrencyOpen: boolean = false;
+  currencyTypes = Object.values(CURRENCY_TYPES);
   ngOnInit(): void {
     this.customerId = this.tokenStorage.getUser()._id.toString();
     this.setCustomersTransfers();
@@ -54,14 +66,12 @@ export class TransfersComponent {
     console.log(transferId);
     if (checkbox.checked === true && !this.transferIds.includes(transferId)) {
       this.transferIds.push(transferId);
-      console.log("Transfer Ids: ", this.transferIds);
     }
     if (checkbox.checked === false && this.transferIds.includes(transferId)) {
       const ids = this.transferIds.filter((id) => {
         return id !== transferId;
       });
       this.transferIds = ids;
-      console.log("Transfer Ids: ", this.transferIds);
     }
   }
   handleClickMasterCheckbox() {
@@ -88,6 +98,49 @@ export class TransfersComponent {
         }
       });
     }
-    console.log("Transfer Ids: ", this.transferIds);
+  }
+  toggleTransferTypesMenu() {
+    this.isTransferCurrencyOpen = !this.isTransferCurrencyOpen;
+  }
+  onSelectedCurrencyType(currencyType: string) {
+    this.selectedCurrencyType = currencyType;
+    this.isTransferCurrencyOpen = !this.isTransferCurrencyOpen;
+  }
+  setLoadingTrue(state: boolean) {
+    this.loading = state;
+  }
+  onCreateTransferSubmit(): void {
+    const { selectedCurrencyType, tokenStorage, transferService } = this;
+    const { fromAccount, toAccount, amount } = this.createTransferForm;
+    const userId = tokenStorage.getUser()._id;
+    this.setLoadingTrue(true);
+    transferService
+      .sendCreateMoneyTransferRequest({
+        currencyType: selectedCurrencyType,
+        userId,
+        fromAccount,
+        toAccount,
+        amount,
+      })
+      .subscribe({
+        next: (data: any) => {
+          this.returnedCreatedTransfer = data;
+          this.setLoadingTrue(false);
+          this.reloadPage();
+        },
+        error: (err: any) => {
+          this.errorMessage = err.error.message;
+          this.setLoadingTrue(false);
+        },
+      });
+    console.log(
+      "createTransferSubmit Form:",
+      this.createTransferForm,
+      " currencyType:",
+      selectedCurrencyType,
+    );
+  }
+  reloadPage(): void {
+    window.location.reload();
   }
 }

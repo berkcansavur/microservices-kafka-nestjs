@@ -46,6 +46,33 @@ export class TransferService {
       return response;
     }
   }
+  sendCreateMoneyTransferRequest({
+    currencyType,
+    userId,
+    fromAccount,
+    toAccount,
+    amount,
+  }: {
+    currencyType: string;
+    userId: string;
+    fromAccount: string;
+    toAccount: string;
+    amount: number;
+  }): Observable<any> {
+    const { httpClient } = this;
+    const response = httpClient.post(
+      `http://localhost:3000/createTransfer`,
+      {
+        currencyType,
+        userId,
+        fromAccount,
+        toAccount,
+        amount,
+      },
+      httpOptions,
+    );
+    return response;
+  }
   mapTransferStatus(status: number | undefined): string | null {
     if (status === 100) {
       return "Created";
