@@ -106,14 +106,14 @@ export class TransfersComponent {
     this.selectedCurrencyType = currencyType;
     this.isTransferCurrencyOpen = !this.isTransferCurrencyOpen;
   }
-  setLoadingTrue(state: boolean) {
+  setLoading(state: boolean) {
     this.loading = state;
   }
   onCreateTransferSubmit(): void {
     const { selectedCurrencyType, tokenStorage, transferService } = this;
     const { fromAccount, toAccount, amount } = this.createTransferForm;
     const userId = tokenStorage.getUser()._id;
-    this.setLoadingTrue(true);
+    this.setLoading(true);
     transferService
       .sendCreateMoneyTransferRequest({
         currencyType: selectedCurrencyType,
@@ -125,12 +125,12 @@ export class TransfersComponent {
       .subscribe({
         next: (data: any) => {
           this.returnedCreatedTransfer = data;
-          this.setLoadingTrue(false);
+          this.setLoading(false);
           this.reloadPage();
         },
         error: (err: any) => {
           this.errorMessage = err.error.message;
-          this.setLoadingTrue(false);
+          this.setLoading(false);
         },
       });
     console.log(
