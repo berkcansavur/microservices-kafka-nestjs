@@ -19,10 +19,13 @@ export class TransfersComponent {
     toAccount: null,
     amount: null,
   };
+  process: string = "";
   loading: boolean = false;
+  failed: boolean = false;
   returnedCreatedTransfer: any = null;
   isChecked: boolean = false;
   transfers: ITransferItem[] = [];
+  transferToRepeat: ITransferItem = Object();
   transferIds: string[] = [];
   customerId: string = "";
   selectedCurrencyType: string = "";
@@ -59,17 +62,18 @@ export class TransfersComponent {
   handleClickDropdownMenu() {
     this.isDropdownMenuOpened = !this.isDropdownMenuOpened;
   }
-  handleClickCheckbox(transferId: string) {
+  handleClickCheckbox(transfer: ITransferItem) {
     const checkbox = document.getElementById(
-      `checkbox-table-search-${transferId}`,
+      `checkbox-table-search-${transfer._id}`,
     ) as HTMLInputElement;
-    console.log(transferId);
-    if (checkbox.checked === true && !this.transferIds.includes(transferId)) {
-      this.transferIds.push(transferId);
+    console.log(transfer._id);
+    if (checkbox.checked === true && !this.transferIds.includes(transfer._id)) {
+      this.transferIds.push(transfer._id);
+      this.transferToRepeat = transfer;
     }
-    if (checkbox.checked === false && this.transferIds.includes(transferId)) {
+    if (checkbox.checked === false && this.transferIds.includes(transfer._id)) {
       const ids = this.transferIds.filter((id) => {
-        return id !== transferId;
+        return id !== transfer._id;
       });
       this.transferIds = ids;
     }
@@ -109,11 +113,15 @@ export class TransfersComponent {
   setLoading(state: boolean) {
     this.loading = state;
   }
+  setProcess(process: string) {
+    this.process = process;
+  }
   onCreateTransferSubmit(): void {
     const { selectedCurrencyType, tokenStorage, transferService } = this;
     const { fromAccount, toAccount, amount } = this.createTransferForm;
     const userId = tokenStorage.getUser()._id;
     this.setLoading(true);
+    this.setProcess("Create transfer");
     transferService
       .sendCreateMoneyTransferRequest({
         currencyType: selectedCurrencyType,
@@ -133,12 +141,37 @@ export class TransfersComponent {
           this.setLoading(false);
         },
       });
-    console.log(
-      "createTransferSubmit Form:",
-      this.createTransferForm,
-      " currencyType:",
-      selectedCurrencyType,
-    );
+  }
+  handleRepeatTransfer() {
+    const { transferService } = this;
+    this.setLoading(true);
+    this.setProcess("Repeat transfer");
+    if ((this.transferIds.length = 1) && this.transferToRepeat) {
+      console.log("Transfer: ", JSON.stringify(this.transferToRepeat));
+      const { userId, currencyType, fromAccount, toAccount, amount } =
+        this.transferToRepeat;
+      transferService
+        .sendCreateMoneyTransferRequest({
+          currencyType,
+          userId,
+          fromAccount,
+          toAccount,
+          amount,
+        })
+        .subscribe({
+          next: (data: any) => {
+            this.returnedCreatedTransfer = data;
+            this.setLoading(false);
+            this.reloadPage();
+          },
+          error: (err: any) => {
+            this.errorMessage = err.error.message;
+            this.failed = true;
+            this.setLoading(false);
+          },
+        });
+    }
+    this.errorMessage = "Transfer could not repeated successfully.";
   }
   reloadPage(): void {
     window.location.reload();

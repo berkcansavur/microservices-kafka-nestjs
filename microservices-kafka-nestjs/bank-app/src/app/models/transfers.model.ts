@@ -6,7 +6,7 @@ export interface ITransferItem {
   userId: string;
   status: number;
   currencyType: string;
-  fromAccount?: string;
+  fromAccount: string;
   toAccount: string;
   amount: number;
 }
