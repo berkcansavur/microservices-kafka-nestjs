@@ -36,4 +36,9 @@ export interface ITransferService {
   }: {
     transferDTO: TransferDTO;
   }): Promise<TransferDTO>;
+  updateTransferStatusDeleted({
+    transferId,
+  }: {
+    transferId: string;
+  }): Promise<TransferDTO>;
 }

@@ -34,6 +34,8 @@ import { TransactionsComponent } from "./pages/transactions/transactions.compone
 import { DashboardComponent } from "./pages/dashboard/dashboard.component";
 import { LoadingComponent } from './components/loading/loading.component';
 import { AppErrorComponent } from './components/app-error/app-error.component';
+import { AccountItemComponent } from './components/account-item/account-item.component';
+import { StepComponentComponent } from './components/step-component/step-component.component';
 
 @NgModule({
   declarations: [
@@ -54,6 +56,8 @@ import { AppErrorComponent } from './components/app-error/app-error.component';
     DashboardComponent,
     LoadingComponent,
     AppErrorComponent,
+    AccountItemComponent,
+    StepComponentComponent,
   ],
   imports: [
     BrowserModule,

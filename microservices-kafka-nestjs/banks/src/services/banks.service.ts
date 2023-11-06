@@ -502,6 +502,21 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
       throw new TransferNotFoundException();
     }
   }
+  async handleDeleteTransferRecords({
+    transferIds,
+    customerId,
+  }: {
+    transferIds: string[];
+    customerId: string;
+  }): Promise<TransferDTO[]> {
+    const { logger } = this;
+    logger.debug("handleApproveTransfer transferId: ", transferIds, customerId);
+    const transfers: TransferDTO[] = (await this.handleKafkaTransferEvents(
+      transferIds,
+      TRANSFER_TOPICS.HANDLE_DELETE_TRANSFER_RECORDS,
+    )) as TransferDTO[];
+    return transfers;
+  }
   async handleApproveTransfer({
     transferId,
     employeeId,

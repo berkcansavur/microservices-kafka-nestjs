@@ -79,4 +79,9 @@ export class TransferCreatedState implements ITransferState {
       `Transfer status is invalid: ${JSON.stringify(transferDTO)}`,
     );
   }
+  deleted(transferDTO: TransferDTO): Promise<TransferDTO> {
+    throw new Error(
+      `Transfer status is invalid: ${JSON.stringify(transferDTO)}`,
+    );
+  }
 }

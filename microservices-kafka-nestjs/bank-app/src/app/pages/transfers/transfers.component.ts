@@ -1,6 +1,5 @@
 import { Component } from "@angular/core";
 import { CURRENCY_TYPES } from "src/app/constants/transfer-constants";
-
 import { ITransferItem } from "src/app/models/transfers.model";
 import { TokenStorageService } from "src/app/services/token-storage.service";
 import { TransferService } from "src/app/services/transfers.service";
@@ -25,13 +24,16 @@ export class TransfersComponent {
   returnedCreatedTransfer: any = null;
   isChecked: boolean = false;
   transfers: ITransferItem[] = [];
+  deletedTransfers: ITransferItem[] = [];
+  transfersToShow: ITransferItem[] = [];
   transferToRepeat: ITransferItem = Object();
   transferIds: string[] = [];
   customerId: string = "";
   selectedCurrencyType: string = "";
   errorMessage: string = "";
   isTransferPanelOpened: boolean = false;
-  isDropdownMenuOpened: boolean = false;
+  isActionDropdownMenuOpened: boolean = false;
+  isFilterDropdownMenuOpened: boolean = false;
   isTransferCurrencyOpen: boolean = false;
   currencyTypes = Object.values(CURRENCY_TYPES);
   ngOnInit(): void {
@@ -39,17 +41,53 @@ export class TransfersComponent {
     this.setCustomersTransfers();
   }
   setCustomersTransfers() {
+    this.setProcess("Get transfers");
+    this.setLoading(true);
     this.transferService
       .sendGetCustomersTransfersRequest({ customerId: this.customerId })
       .subscribe({
         next: (data: any) => {
           this.transfers = data;
           console.log("Transfers: ", this.transfers);
+          this.setLoading(false);
+          this.transfers.map((transfer) => {
+            this.separateDeletedTransfers(transfer);
+          });
         },
         error: (err: any) => {
           this.errorMessage = err.error.message;
+          this.setLoading(false);
         },
       });
+  }
+  filterTransferStatus(transferStatus: number): void {
+    const transfers = this.transfers.filter((transfer) => {
+      console.log("Transfer status in map: ", transfer.status);
+      return transfer.status === transferStatus;
+    });
+    console.log("transferStatus", transferStatus);
+    console.log("Filtered transfers", transfers);
+    this.transfersToShow = transfers;
+    this.handleClickFilterDropdownMenu();
+  }
+  separateDeletedTransfers(transfer: ITransferItem) {
+    if (transfer.status === 1000) {
+      this.deletedTransfers.push(transfer);
+      const updatedTransfers = this.transfers.filter((transfer) => {
+        return transfer.status !== 1000;
+      });
+      this.transfersToShow = updatedTransfers;
+    }
+  }
+  showAllTransfers(): void {
+    this.transfersToShow = this.transfers;
+    this.handleClickFilterDropdownMenu();
+  }
+  resetFilter(): void {
+    this.transfers.map((transfer) => {
+      this.separateDeletedTransfers(transfer);
+    });
+    this.handleClickFilterDropdownMenu();
   }
   setTransferStatus(transfer: ITransferItem) {
     const status: number | undefined = transfer.status;
@@ -59,8 +97,17 @@ export class TransfersComponent {
   handleClickTransferPanel() {
     this.isTransferPanelOpened = !this.isTransferPanelOpened;
   }
-  handleClickDropdownMenu() {
-    this.isDropdownMenuOpened = !this.isDropdownMenuOpened;
+  handleClickActionDropdownMenu() {
+    this.isActionDropdownMenuOpened = !this.isActionDropdownMenuOpened;
+    if (this.isFilterDropdownMenuOpened === true) {
+      this.isFilterDropdownMenuOpened = !this.isFilterDropdownMenuOpened;
+    }
+  }
+  handleClickFilterDropdownMenu() {
+    this.isFilterDropdownMenuOpened = !this.isFilterDropdownMenuOpened;
+    if (this.isActionDropdownMenuOpened === true) {
+      this.isActionDropdownMenuOpened = !this.isActionDropdownMenuOpened;
+    }
   }
   handleClickCheckbox(transfer: ITransferItem) {
     const checkbox = document.getElementById(
@@ -172,6 +219,32 @@ export class TransfersComponent {
         });
     }
     this.errorMessage = "Transfer could not repeated successfully.";
+  }
+  handleDeleteTransferRecord() {
+    const { transferService, tokenStorage } = this;
+    this.setLoading(true);
+    this.setProcess("Delete transfers");
+    console.log("Transfer: ", JSON.stringify(this.transferToRepeat));
+    const transferIds = this.transferIds;
+    const userId = tokenStorage.getUser()._id;
+    console.log("Transfer: ", JSON.stringify(transferIds));
+    transferService
+      .sendDeleteTransferRecordRequest({
+        transferIds,
+        userId,
+      })
+      .subscribe({
+        next: (data: any) => {
+          this.returnedCreatedTransfer = data;
+          this.setLoading(false);
+          this.reloadPage();
+        },
+        error: (err: any) => {
+          this.errorMessage = err.error.message;
+          this.failed = true;
+          this.setLoading(false);
+        },
+      });
   }
   reloadPage(): void {
     window.location.reload();

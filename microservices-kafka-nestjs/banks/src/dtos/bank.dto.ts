@@ -274,6 +274,18 @@ export class CreateBankDTO {
   @IsString()
   bankName: string;
 }
+export class DeleteTransfersDTO {
+  @IsString()
+  @IsNotEmpty()
+  @IsMongoId()
+  transferIds: string[];
+
+  @IsString()
+  @IsNotEmpty()
+  @IsMongoId()
+  customerId: string;
+}
+
 export class CreateTransferDTO {
   @IsString()
   currencyType: string;

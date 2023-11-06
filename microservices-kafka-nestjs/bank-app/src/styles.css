@@ -3,6 +3,7 @@
 @tailwind components;
 @tailwind utilities;
 @tailwind forms;
+@tailwind flowbite;
 
 html, body { height: 100%; }
 

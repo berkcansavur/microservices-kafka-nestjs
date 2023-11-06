@@ -141,4 +141,16 @@ export class TransfersController {
     });
     return transfers;
   }
+  @MessagePattern("handle_delete_transfer_records")
+  @UsePipes(new ParseIncomingRequest())
+  async deleteTransferRecords(transferIds: string[]) {
+    const { transfersService, logger } = this;
+    logger.debug(
+      `[deleteTransferRecords] transferIds: ${JSON.stringify(transferIds)}`,
+    );
+    const transfers = await transfersService.handleDeleteTransfers({
+      transferIds,
+    });
+    return transfers;
+  }
 }

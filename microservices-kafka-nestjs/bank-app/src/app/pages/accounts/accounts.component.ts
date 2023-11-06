@@ -17,10 +17,26 @@ export class AccountsComponent implements OnInit {
   accountStatus: string | null = "";
   customerId: string = "";
   errorMessage: string = "";
+  currentIndex = 0;
 
   ngOnInit(): void {
     this.customerId = this.tokenStorage.getUser()._id.toString();
     this.setCustomersAccounts();
+  }
+  onNextClick() {
+    if (this.currentIndex < this.accounts.length - 1) {
+      this.currentIndex = this.currentIndex + 1;
+    }
+    this.currentIndex = this.currentIndex;
+  }
+  onPrevClick() {
+    if (this.currentIndex > 0) {
+      this.currentIndex = this.currentIndex - 1;
+    }
+    this.currentIndex = this.currentIndex;
+  }
+  setCurrentIndex(i: number) {
+    this.currentIndex = i;
   }
   setCustomersAccounts() {
     this.accountService

@@ -10,6 +10,7 @@ import {
   CreateDirectorDTO,
   CreateEmployeeRegistrationToBankDTO,
   CreateTransferDTO,
+  DeleteTransferDTO,
   GetCustomersAccountsDTO,
   GetCustomersTransfersDTO,
   GetEmployeesCustomerTransactionsDTO,
@@ -134,6 +135,19 @@ export class AppService implements OnModuleInit {
     return this.bankClient.send(
       BANK_TOPICS.CREATE_CUSTOMER_EVENT,
       createCustomerRequestDTO,
+    );
+  }
+  sendDeleteTransferRecordsRequest(
+    deleteTransferRecordsDTO: DeleteTransferDTO,
+  ) {
+    const { logger } = this;
+    logger.debug(
+      "[AppService] deleteTransferRecordsDTO: ",
+      deleteTransferRecordsDTO,
+    );
+    return this.bankClient.send(
+      BANK_TOPICS.DELETE_TRANSFER_RECORDS_EVENT,
+      deleteTransferRecordsDTO,
     );
   }
   sendCreateBankRequest(createBankRequestDTO: CreateBankDTO) {

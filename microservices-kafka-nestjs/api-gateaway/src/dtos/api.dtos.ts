@@ -605,6 +605,23 @@ export class GetTransferDTO {
   @IsMongoId()
   employeeId: string;
 }
+export class DeleteTransferDTO {
+  @ApiProperty({
+    description: "Transfers id",
+    required: true,
+    example: "6530a356aaf92d72d1f0f367",
+  })
+  @IsMongoId()
+  transferIds: string[];
+
+  @ApiProperty({
+    description: "Employees id",
+    required: true,
+    example: "6530a356aaf92d72d1f0f367",
+  })
+  @IsMongoId()
+  customerId: string;
+}
 export class GetEmployeesCustomerTransactionsDTO {
   @ApiProperty({
     description: "Employee Type",

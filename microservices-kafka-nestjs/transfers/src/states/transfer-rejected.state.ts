@@ -97,4 +97,9 @@ export class TransferRejectedState implements ITransferState {
       TransferDTO,
     );
   }
+  deleted(transferDTO: TransferDTO): Promise<TransferDTO> {
+    throw new Error(
+      `Transfer status is invalid: ${JSON.stringify(transferDTO)}`,
+    );
+  }
 }

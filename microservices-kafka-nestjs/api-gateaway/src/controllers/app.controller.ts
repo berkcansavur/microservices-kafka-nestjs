@@ -23,6 +23,7 @@ import {
   GetEmployeesCustomerTransactionsDTO,
   GetTransferDTO,
   LoginUserDTO,
+  DeleteTransferDTO,
 } from "../dtos/api.dtos";
 import { ApiTags } from "@nestjs/swagger";
 import { AddCustomerToRepresentativeDTO } from "../dtos/api.dtos";
@@ -59,7 +60,16 @@ export class AppController {
     const { appService } = this;
     return appService.sendCreateCustomerRequest(createCustomerRequestDTO);
   }
-
+  @Post("/deleteTransferRecords")
+  deleteTransferRecord(
+    @Body()
+    deleteTransferRecordsDTO: DeleteTransferDTO,
+  ) {
+    const { appService } = this;
+    return appService.sendDeleteTransferRecordsRequest(
+      deleteTransferRecordsDTO,
+    );
+  }
   @Post("/approveTransfer")
   approveTransfer(@Body() approveTransferRequestDTO: GetTransferDTO) {
     const { appService } = this;

@@ -16,8 +16,8 @@ import { TransfersRepository } from "src/repositories/transfers.repository";
 import { Transfer } from "src/schemas/transfer.schema";
 
 @Injectable()
-export class TransferStartedState implements ITransferState {
-  private readonly logger = new Logger(TransferStartedState.name);
+export class TransferDeletedState implements ITransferState {
+  private readonly logger = new Logger(TransferDeletedState.name);
   constructor(
     @InjectMapper() private readonly TransferMapper: Mapper,
     private readonly transfersRepository: TransfersRepository,
@@ -35,41 +35,9 @@ export class TransferStartedState implements ITransferState {
       `Transfer status is invalid: ${JSON.stringify(transferDTO)}`,
     );
   }
-  async started(transferDTO: TransferDTO): Promise<TransferDTO> {
-    const { transfersRepository, logger, TransferMapper } = this;
-    logger.debug(
-      `[TransferCreatedState] Update transfer statuses updated: ${JSON.stringify(
-        transferDTO,
-      )}`,
-    );
-    const transfer: Transfer = await transfersRepository.getTransfer({
-      transferId: transferDTO._id.toString(),
-    });
-    if (!transfer) {
-      throw new TransferIsNotFoundException({
-        transferId: transferDTO._id.toString(),
-      });
-    }
-    if (
-      !TransferLogic.checkTransferStatus(transferDTO.status, [
-        TRANSFER_STATUSES.APPROVED,
-      ])
-    ) {
-      throw new TransferStatusIsNotValidException({
-        transferStatus: transferDTO.status,
-      });
-    }
-    const startedTransfer: Transfer =
-      await transfersRepository.updateTransferStatus({
-        transferId: transferDTO._id.toString(),
-        status: TRANSFER_STATUSES.TRANSFER_STARTED,
-        action: TRANSFER_ACTIONS.TRANSFER_STARTED,
-        userId: transferDTO.userId,
-      });
-    return TransferMapper.map<Transfer, TransferDTO>(
-      startedTransfer,
-      Transfer,
-      TransferDTO,
+  started(transferDTO: TransferDTO): Promise<TransferDTO> {
+    throw new Error(
+      `Transfer status is invalid: ${JSON.stringify(transferDTO)}`,
     );
   }
   completed(transferDTO: TransferDTO): Promise<TransferDTO> {
@@ -97,9 +65,41 @@ export class TransferStartedState implements ITransferState {
       `Transfer status is invalid: ${JSON.stringify(transferDTO)}`,
     );
   }
-  deleted(transferDTO: TransferDTO): Promise<TransferDTO> {
-    throw new Error(
-      `Transfer status is invalid: ${JSON.stringify(transferDTO)}`,
+  async deleted(transferDTO: TransferDTO): Promise<TransferDTO> {
+    const { transfersRepository, logger, TransferMapper } = this;
+    logger.debug(
+      `[TransferCreatedState] Update transfer statuses updated: ${JSON.stringify(
+        transferDTO,
+      )}`,
+    );
+    const transfer: Transfer = await transfersRepository.getTransfer({
+      transferId: transferDTO._id.toString(),
+    });
+    if (!transfer) {
+      throw new TransferIsNotFoundException({
+        transferId: transferDTO._id.toString(),
+      });
+    }
+    if (
+      !TransferLogic.checkTransferStatus(transferDTO.status, [
+        TRANSFER_STATUSES.COMPLETED,
+      ])
+    ) {
+      throw new TransferStatusIsNotValidException({
+        transferStatus: transferDTO.status,
+      });
+    }
+    const startedTransfer: Transfer =
+      await transfersRepository.updateTransferStatus({
+        transferId: transferDTO._id.toString(),
+        status: TRANSFER_STATUSES.DELETED,
+        action: TRANSFER_ACTIONS.STATUS_UPDATED,
+        userId: transferDTO.userId,
+      });
+    return TransferMapper.map<Transfer, TransferDTO>(
+      startedTransfer,
+      Transfer,
+      TransferDTO,
     );
   }
 }

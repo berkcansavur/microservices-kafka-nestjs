@@ -9,6 +9,7 @@ import {
   CreateCustomerDTO,
   CreateEmployeeRegistrationToBankDTO,
   CreateTransferDTO,
+  DeleteTransfersDTO,
   GetCustomersAccountsDTO,
   GetTransferDTO,
   GetUserProfileDTO,
@@ -184,6 +185,17 @@ export class BanksController {
     const { logger, bankService } = this;
     logger.debug("[getCustomersTransfers] data: CustomerIdDTO: ", data);
     const transfers = await bankService.getCustomersTransfers({
+      customerId: data.customerId,
+    });
+    return transfers;
+  }
+  @MessagePattern("delete-transfer-records-event")
+  @UsePipes(new ParseIncomingRequest())
+  async deleteTransferRecords(data: DeleteTransfersDTO) {
+    const { logger, bankService } = this;
+    logger.debug("[getCustomersTransfers] data: CustomerIdDTO: ", data);
+    const transfers = await bankService.handleDeleteTransferRecords({
+      transferIds: data.transferIds,
       customerId: data.customerId,
     });
     return transfers;
