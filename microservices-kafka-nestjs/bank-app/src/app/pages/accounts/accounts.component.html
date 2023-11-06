@@ -12,7 +12,7 @@
         <ng-container *ngFor="let account of accounts; let i = index">
             <button 
             type="button" 
-            class="w-3 h-3 rounded-full"
+            class="w-6 h-6 rounded-full"
             (click)="setCurrentIndex(i)" 
             [attr.aria-current]="i === 0 ? 'true' : 'false'" 
             [attr.aria-label]="'Slide ' + (i + 1)" 
