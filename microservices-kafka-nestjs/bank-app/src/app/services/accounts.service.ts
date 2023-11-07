@@ -25,17 +25,13 @@ export class AccountService {
   }: {
     accountId: string;
     actionCount: number;
-  }) {
+  }): Observable<any> {
     const { httpClient } = this;
-    try {
-      const response = httpClient.get(
-        `http://localhost:3000/getAccountsLastActions/${accountId}/${actionCount}`,
-        httpOptions,
-      );
-      return response;
-    } catch (error) {
-      return error;
-    }
+    const response = httpClient.get(
+      `http://localhost:3000/getAccountsLastActions/${accountId}/${actionCount}`,
+      httpOptions,
+    );
+    return response;
   }
   sendGetAccountsBalanceRequest({
     accountId,

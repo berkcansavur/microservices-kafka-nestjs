@@ -87,4 +87,15 @@ export class TransfersRepository {
       .lean()
       .exec();
   }
+  async getTransfersByFromAccountId({
+    fromAccount,
+  }: {
+    fromAccount: string;
+  }): Promise<Transfer[] | null> {
+    const { TransferModel } = this;
+    const transfers: Transfer[] | null = await TransferModel.find({
+      fromAccount: fromAccount,
+    });
+    return transfers;
+  }
 }

@@ -12,6 +12,7 @@ export enum TRANSFER_TOPICS {
   HANDLE_GET_TRANSFER = "handle_get_transfer",
   HANDLE_GET_CUSTOMERS_TRANSFERS = "handle_get_customers_transfers",
   HANDLE_DELETE_TRANSFER_RECORDS = "handle_delete_transfer_records",
+  HANDLE_GET_ACCOUNTS_TRANSFERS = "handle_get_accounts_transfers",
 }
 export enum ACCOUNT_TOPICS {
   MONEY_TRANSFER_ACROSS_ACCOUNTS_RESULT = "money_transfer_across_accounts_result",

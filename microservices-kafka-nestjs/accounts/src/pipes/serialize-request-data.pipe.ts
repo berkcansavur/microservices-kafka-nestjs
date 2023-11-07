@@ -28,18 +28,18 @@ export class ParseIncomingRequest implements PipeTransform {
       );
       return formattedData;
     }
-    if (value && value.accountId) {
-      const formattedData = value.accountId;
+    if (value && value.data) {
+      const formattedData = value.data;
       this.logger.debug(
         "[ParseIncomingRequest Pipe] Formatted request data :",
         formattedData,
       );
       return formattedData;
     }
-    if (value && value.data) {
-      const formattedData = value.data;
+    if (value && value.getAccountsLastActionsDTO) {
+      const formattedData = value.getAccountsLastActionsDTO;
       this.logger.debug(
-        "[ParseIncomingRequest Pipe] Formatted request data :",
+        "[ParseIncomingRequest Pipe] Formatted getAccountsLastActionsDTO request data :",
         formattedData,
       );
       return formattedData;

@@ -1,6 +1,7 @@
 import { Inject, Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { ClientKafka } from "@nestjs/microservices";
 import {
+  AccountIdDTO,
   AddCustomerToRepresentativeDTO,
   CreateAccountDTO,
   CreateBankDTO,
@@ -11,6 +12,7 @@ import {
   CreateEmployeeRegistrationToBankDTO,
   CreateTransferDTO,
   DeleteTransferDTO,
+  GetAccountsLastActionsDTO,
   GetCustomersAccountsDTO,
   GetCustomersTransfersDTO,
   GetEmployeesCustomerTransactionsDTO,
@@ -274,6 +276,18 @@ export class AppService implements OnModuleInit {
       getCustomersAccountsDTO,
     );
   }
+  sendGetAccountsTransfersRequest({ accountId }: { accountId: string }) {
+    const { logger } = this;
+    const accountIdDTO: AccountIdDTO = { accountId };
+    logger.debug(
+      "[AppService] sendCreateDirectorRequest customerId: ",
+      accountIdDTO,
+    );
+    return this.bankClient.send(
+      BANK_TOPICS.GET_ACCOUNTS_TRANSFERS_EVENT,
+      accountIdDTO,
+    );
+  }
   sendGetEmployeesCustomerRelatedTransactionsRequest({
     getEmployeesCustomerTransactionsDTO,
   }: {
@@ -298,14 +312,18 @@ export class AppService implements OnModuleInit {
     );
     return account;
   }
-  async sendGetAccountsLastActionsRequest(data: {
-    accountId: string;
-    actionCount: number;
+  async sendGetAccountsLastActionsRequest({
+    getAccountsLastActionsDTO,
+  }: {
+    getAccountsLastActionsDTO: GetAccountsLastActionsDTO;
   }) {
     const { logger } = this;
-    logger.debug("[AppService] GetAccountsLastActions DTO: ", data);
+    logger.debug(
+      "[AppService] GetAccountsLastActions DTO: ",
+      getAccountsLastActionsDTO,
+    );
     const account = await this.handleKafkaAccountEvents(
-      data,
+      getAccountsLastActionsDTO,
       ACCOUNT_TOPICS.GET_ACCOUNTS_LAST_ACTIONS,
     );
     return account;
@@ -337,7 +355,7 @@ export class AppService implements OnModuleInit {
   async handleKafkaAccountEvents(
     data: any,
     topic: ACCOUNT_TOPICS,
-  ): Promise<AccountType> {
+  ): Promise<AccountType | any> {
     return new Promise((resolve, reject) => {
       this.accountClient.send(topic, data).subscribe({
         next: (response: any) => {

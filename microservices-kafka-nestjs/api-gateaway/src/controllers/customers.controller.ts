@@ -13,6 +13,7 @@ import {
   CreateAccountDTO,
   CreateCustomerDTO,
   CreateTransferDTO,
+  GetAccountsLastActionsDTO,
   GetCustomersAccountsDTO,
   GetCustomersTransfersDTO,
   LoginUserDTO,
@@ -85,17 +86,16 @@ export class CustomersController {
   }
   @Get("/getAccountsLastActions")
   //@UseGuards(AuthGuard)
-  getAccountsLastActions(@Body() accountId: string, actionCount: number) {
+  getAccountsLastActions(
+    @Body() getAccountsLastActionsDTO: GetAccountsLastActionsDTO,
+  ) {
     const { appService, logger } = this;
     logger.debug(
-      "[getAccountsLastActions] accountId: ",
-      accountId,
-      "actionCount: ",
-      actionCount,
+      "[getAccountsLastActions] getAccountsLastActionsDTO: ",
+      getAccountsLastActionsDTO,
     );
     return appService.sendGetAccountsLastActionsRequest({
-      accountId,
-      actionCount,
+      getAccountsLastActionsDTO,
     });
   }
   @Get("/getAccountsBalance")

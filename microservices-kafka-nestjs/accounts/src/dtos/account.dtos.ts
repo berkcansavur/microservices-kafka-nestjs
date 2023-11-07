@@ -109,6 +109,15 @@ export class TransferDTO {
   @IsNumber()
   amount: number;
 }
+export class GetAccountsLastActionsDTO {
+  @IsNotEmpty()
+  @IsMongoId()
+  accountId: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  actionCount: number;
+}
 export class IncomingCreateMoneyTransferDTO {
   @IsNotEmpty()
   @IsString()

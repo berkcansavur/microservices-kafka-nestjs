@@ -12,13 +12,21 @@ export class AccountsComponent implements OnInit {
     private readonly accountService: AccountService,
     private readonly tokenStorage: TokenStorageService,
   ) {}
+  process: string = "";
+  failed: boolean = false;
+  loading: boolean = false;
   accounts: IAccountItem[] = [];
   accountsBalances: IBalanceItem[] = [];
   accountStatus: string | null = "";
   customerId: string = "";
   errorMessage: string = "";
   currentIndex = 0;
-
+  setLoading(state: boolean) {
+    this.loading = state;
+  }
+  setProcess(process: string) {
+    this.process = process;
+  }
   ngOnInit(): void {
     this.customerId = this.tokenStorage.getUser()._id.toString();
     this.setCustomersAccounts();
@@ -39,14 +47,17 @@ export class AccountsComponent implements OnInit {
     this.currentIndex = i;
   }
   setCustomersAccounts() {
+    this.setLoading(true);
+    this.setProcess("Create transfer");
     this.accountService
       .sendGetCustomersAccountsRequest({ customerId: this.customerId })
       .subscribe({
         next: (data: any) => {
           this.accounts = data;
-          console.log("Accounts: ", this.accounts);
+          this.setLoading(false);
         },
         error: (err: any) => {
+          this.setLoading(false);
           this.errorMessage = err.error.message;
         },
       });
@@ -56,11 +67,6 @@ export class AccountsComponent implements OnInit {
       const status: number | undefined = accountItem?.status;
       this.accountStatus = this.accountService.mapAccountStatus(status);
     });
-  }
-  setAccountStatus(account: IAccountItem): string | null {
-    const status: number = account.status;
-    const mappedStatus = this.accountService.mapAccountStatus(status);
-    return mappedStatus;
   }
   setBalance(account: IAccountItem): IBalanceItem[] {
     const balances: IBalanceItem[] | undefined = account?.balance;

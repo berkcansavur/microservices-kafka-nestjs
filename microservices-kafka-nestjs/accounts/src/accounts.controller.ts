@@ -7,6 +7,7 @@ import {
   CreateAccountDTO,
   CreateAccountIncomingRequestDTO,
   CreateMoneyTransferDTO,
+  GetAccountsLastActionsDTO,
   TransferDTO,
 } from "./dtos/account.dtos";
 import { InjectMapper } from "@automapper/nestjs";
@@ -120,16 +121,11 @@ export class AccountsController {
   }
   @MessagePattern("get_accounts_last_actions")
   @UsePipes(new ParseIncomingRequest())
-  async getAccountsLastActions(data: {
-    actionCount: number;
-    accountId: string;
-  }) {
+  async getAccountsLastActions(
+    data: GetAccountsLastActionsDTO,
+  ): Promise<ActionLog[]> {
     const { accountsService, logger } = this;
-    logger.debug(
-      `[AccountsController] makeMoneyTransfer incoming request data: ${JSON.stringify(
-        { data },
-      )}`,
-    );
+    logger.debug(`[getAccountsLastActions]  data: ${JSON.stringify({ data })}`);
     const accountLogs: ActionLog[] =
       await accountsService.getAccountsLastBalanceActions({
         accountId: data.accountId,

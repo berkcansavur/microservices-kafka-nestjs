@@ -449,3 +449,8 @@ export class GetEmployeesCustomerTransactionsDTO {
   @IsMongoId()
   customerId: string;
 }
+export class AccountIdDTO {
+  @IsNotEmpty()
+  @IsMongoId()
+  accountId: string;
+}

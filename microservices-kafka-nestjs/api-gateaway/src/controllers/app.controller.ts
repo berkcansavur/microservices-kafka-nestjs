@@ -24,6 +24,7 @@ import {
   GetTransferDTO,
   LoginUserDTO,
   DeleteTransferDTO,
+  GetAccountsLastActionsDTO,
 } from "../dtos/api.dtos";
 import { ApiTags } from "@nestjs/swagger";
 import { AddCustomerToRepresentativeDTO } from "../dtos/api.dtos";
@@ -154,6 +155,13 @@ export class AppController {
       getCustomersAccountsDTO,
     });
   }
+  @Get("/getCustomersAccounts/:accountId")
+  getAccountsTransfers(@Param("accountId") accountId: string) {
+    const { appService } = this;
+    return appService.sendGetAccountsTransfersRequest({
+      accountId,
+    });
+  }
   @Get("/getAccount")
   @UseGuards(AuthGuard)
   getAccount(@Body() accountId: string, @Req() req) {
@@ -161,12 +169,19 @@ export class AppController {
     logger.debug("[getAccount] Request:", req);
     return appService.sendGetAccountRequest(accountId);
   }
-  @Get("/getAccountsLastActions")
-  getAccountsLastActions(@Body() accountId: string, actionCount: number) {
+  @Get("/getAccountsLastActions/:accountId/:actionCount")
+  getAccountsLastActions(
+    @Param("accountId") accountId: string,
+    @Param("actionCount") actionCount: number,
+  ) {
     const { appService } = this;
-    return appService.sendGetAccountsLastActionsRequest({
+    this.logger.debug("[getAccountsLastActions]", accountId, actionCount);
+    const getAccountsLastActionsDTO: GetAccountsLastActionsDTO = {
       accountId,
       actionCount,
+    };
+    return appService.sendGetAccountsLastActionsRequest({
+      getAccountsLastActionsDTO,
     });
   }
   @Get("/getAccountsBalance")

@@ -650,6 +650,19 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
       throw new MoneyTransferCouldNotSucceedException({ errorData: error });
     }
   }
+  async handleGetAccountsTransfers({
+    fromAccount,
+  }: {
+    fromAccount: string;
+  }): Promise<TransferDTO[]> {
+    const { logger } = this;
+    logger.debug("handleApproveTransfer transferId: ", fromAccount);
+    const transfers: TransferDTO[] = (await this.handleKafkaTransferEvents(
+      fromAccount,
+      TRANSFER_TOPICS.HANDLE_GET_ACCOUNTS_TRANSFERS,
+    )) as TransferDTO[];
+    return transfers;
+  }
   private async handleKafkaTransferEvents(
     data: any,
     topic: TRANSFER_TOPICS,

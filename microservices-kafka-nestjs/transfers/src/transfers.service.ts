@@ -206,6 +206,22 @@ export class TransfersService implements ITransferService, OnModuleInit {
       this.updateTransferStatusDeleted({ transferId });
     });
   }
+  async GetAccountsTransfers({ fromAccount }: { fromAccount: string }) {
+    const { logger, transfersRepository, TransferMapper } = this;
+    const transfers = await transfersRepository.getTransfersByFromAccountId({
+      fromAccount,
+    });
+    const mappedTransfers: TransferDTO[] = transfers.map((transfer) => {
+      const mappedTransfer = TransferMapper.map<Transfer, TransferDTO>(
+        transfer,
+        Transfer,
+        TransferDTO,
+      );
+      logger.debug(`Mapping ${transfer} transfer ${mappedTransfer}`);
+      return mappedTransfer;
+    });
+    return mappedTransfers;
+  }
   async getCustomersTransfers({
     customerId,
   }: {

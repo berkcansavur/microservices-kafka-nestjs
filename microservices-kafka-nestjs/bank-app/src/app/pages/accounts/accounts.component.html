@@ -47,5 +47,7 @@
           </span>
       </button>
   </div>
-  
+  <!-- Fail Modal-->
+ <div *ngIf="failed" app-app-error [errorMessage]="errorMessage" [process]="process"> </div>
+ <!-- Fail Modal End-->
   

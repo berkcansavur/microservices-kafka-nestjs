@@ -37,6 +37,8 @@ import { AppErrorComponent } from "./components/app-error/app-error.component";
 import { AccountItemComponent } from "./components/account-item/account-item.component";
 import { StepComponentComponent } from "./components/step-component/step-component.component";
 import { CreatedTransferComponent } from './components/created-transfer/created-transfer.component';
+import { CreateAccountComponent } from './components/create-account/create-account.component';
+import { AccountActionsComponent } from './components/account-actions/account-actions.component';
 
 @NgModule({
   declarations: [
@@ -60,6 +62,8 @@ import { CreatedTransferComponent } from './components/created-transfer/created-
     AccountItemComponent,
     StepComponentComponent,
     CreatedTransferComponent,
+    CreateAccountComponent,
+    AccountActionsComponent,
   ],
   imports: [
     BrowserModule,

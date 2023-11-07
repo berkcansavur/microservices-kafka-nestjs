@@ -224,10 +224,8 @@ export class TransfersComponent {
     const { transferService, tokenStorage } = this;
     this.setLoading(true);
     this.setProcess("Delete transfers");
-    console.log("Transfer: ", JSON.stringify(this.transferToRepeat));
     const transferIds = this.transferIds;
     const userId = tokenStorage.getUser()._id;
-    console.log("Transfer: ", JSON.stringify(transferIds));
     transferService
       .sendDeleteTransferRecordRequest({
         transferIds,

@@ -153,4 +153,16 @@ export class TransfersController {
     });
     return transfers;
   }
+  @MessagePattern("handle_get_accounts_transfers")
+  @UsePipes(new ParseIncomingRequest())
+  async getAccountsTransfers(fromAccount: string) {
+    const { transfersService, logger } = this;
+    logger.debug(
+      `[deleteTransferRecords] transferIds: ${JSON.stringify(fromAccount)}`,
+    );
+    const transfers = await transfersService.GetAccountsTransfers({
+      fromAccount,
+    });
+    return transfers;
+  }
 }

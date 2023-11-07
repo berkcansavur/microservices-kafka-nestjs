@@ -10,7 +10,31 @@ import {
   IsEmpty,
 } from "class-validator";
 import { USER_TYPES } from "types/app-types";
+export class AccountIdDTO {
+  @ApiProperty({
+    description: "User Id of the user",
+    required: true,
+    example: "6530a356aaf92d72d1f0f367",
+  })
+  @IsMongoId()
+  accountId: string;
+}
+export class GetAccountsLastActionsDTO {
+  @ApiProperty({
+    description: "Account Id",
+    required: true,
+    example: "6530a356aaf92d72d1f0f367",
+  })
+  @IsMongoId()
+  accountId: string;
 
+  @ApiProperty({
+    description: "Action counts",
+    required: true,
+    example: 10,
+  })
+  actionCount: number;
+}
 export class LoginUserDTO {
   @ApiProperty({
     description: "User type",
