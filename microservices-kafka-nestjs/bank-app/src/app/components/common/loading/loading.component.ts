@@ -1,7 +1,9 @@
-import { Component } from "@angular/core";
+import { Component, Input } from "@angular/core";
 
 @Component({
   selector: "[app-loading]",
   templateUrl: "./loading.component.html",
 })
-export class LoadingComponent {}
+export class LoadingComponent {
+  @Input() process: string | undefined;
+}

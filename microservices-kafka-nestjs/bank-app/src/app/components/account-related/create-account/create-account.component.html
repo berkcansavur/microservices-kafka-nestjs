@@ -138,7 +138,7 @@
 </div>
 <!--Loading Modal-->
 <div *ngIf="isLoading" class="flex items-center justify-center w-full h-full border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-800 dark:border-gray-700">
-  <div  app-loading></div>
+  <div [process]="process" app-loading></div>
 </div>
 <!--Loading Modal End-->
   <!-- Fail Modal-->

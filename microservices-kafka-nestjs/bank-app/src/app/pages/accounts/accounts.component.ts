@@ -12,25 +12,24 @@ export class AccountsComponent implements OnInit {
     private readonly accountService: AccountService,
     private readonly tokenStorage: TokenStorageService,
   ) {}
+  //Values
   process: string = "";
-  failed: boolean = false;
-  loading: boolean = false;
   accounts: IAccountItem[] = [];
   accountsBalances: IBalanceItem[] = [];
   accountStatus: string | null = "";
   customerId: string = "";
   errorMessage: string = "";
   currentIndex = 0;
-  setLoading(state: boolean) {
-    this.loading = state;
-  }
-  setProcess(process: string) {
-    this.process = process;
-  }
+  //Conditions
+  failed: boolean = false;
+  isLoading: boolean = false;
+  isCreateAccountClicked: boolean = false;
+
   ngOnInit(): void {
     this.customerId = this.tokenStorage.getUser()._id.toString();
-    this.setCustomersAccounts();
+    this.getCustomersAccounts();
   }
+  //Events
   onNextClick() {
     if (this.currentIndex < this.accounts.length - 1) {
       this.currentIndex = this.currentIndex + 1;
@@ -43,12 +42,12 @@ export class AccountsComponent implements OnInit {
     }
     this.currentIndex = this.currentIndex;
   }
-  setCurrentIndex(i: number) {
-    this.currentIndex = i;
+  onCreateAccountClick(): void {
+    this.isCreateAccountClicked = !this.isCreateAccountClicked;
   }
-  setCustomersAccounts() {
+  getCustomersAccounts() {
     this.setLoading(true);
-    this.setProcess("Create transfer");
+    this.setProcess("Retrieving customers accounts data...");
     this.accountService
       .sendGetCustomersAccountsRequest({ customerId: this.customerId })
       .subscribe({
@@ -58,9 +57,25 @@ export class AccountsComponent implements OnInit {
         },
         error: (err: any) => {
           this.setLoading(false);
-          this.errorMessage = err.error.message;
+          this.setErrorMessage(
+            "Customer accounts data retrieving failed",
+            err.error.message,
+          );
         },
       });
+  }
+  //Setters
+  setLoading(state: boolean) {
+    this.isLoading = state;
+  }
+  setProcess(process: string) {
+    this.process = process;
+  }
+  setErrorMessage(errorMessage: string, serverError?: any) {
+    this.errorMessage = errorMessage + ": " + serverError;
+  }
+  setCurrentIndex(i: number) {
+    this.currentIndex = i;
   }
   setAccountCustomProps(accounts: IAccountItem[]) {
     accounts.map((accountItem: IAccountItem) => {

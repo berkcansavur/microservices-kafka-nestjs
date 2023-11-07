@@ -1,14 +1,18 @@
-<div app-create-account></div>
-  <div *ngIf="accounts" id="controls-carousel" class="relative w-full" data-carousel="static">
+<div *ngIf="isLoading" class="flex justify-center">
+    <div class="flex justify-center" [process]="process" app-loading></div>
+</div>
+<div *ngIf="isCreateAccountClicked && !isLoading" app-create-account></div>
+  <div *ngIf="accounts && !isCreateAccountClicked && !isLoading" id="controls-carousel" class="relative w-full" data-carousel="static">
+    
       <!-- Carousel wrapper -->
-      <div class="relative h-full rounded-lg">
+      <div *ngIf="accounts && !isCreateAccountClicked && !isLoading" class="relative h-full rounded-lg">
           <ng-container *ngFor="let account of accounts; let i = index">
               <div *ngIf="currentIndex===i" id="{{i}}" class="carousel-item duration-700 ease-in-out" [account]="account" app-account-item>
               </div>
           </ng-container>
       </div>
       <!-- Slider indicators -->
-      <div class="absolute z-30 flex space-x-3 -translate-x-1/2 bottom-5 left-1/2">
+      <div *ngIf="accounts && !isCreateAccountClicked && !isLoading" class="absolute z-30 flex space-x-3 -translate-x-1/2 bottom-5 left-1/2">
         <ng-container *ngFor="let account of accounts; let i = index">
             <button 
             type="button" 
@@ -21,8 +25,9 @@
           
       </div>
       <!-- Slider controls -->
+      
       <button 
-      *ngIf="accounts"
+      *ngIf="!isLoading"
       id="data-carousel-prev" 
       type="button"
       (click)="onPrevClick()"
@@ -35,6 +40,7 @@
           </span>
       </button>
       <button 
+      *ngIf="!isLoading"
       id="data-carousel-next" 
       type="button"
       (click)="onNextClick()" 
@@ -46,8 +52,17 @@
               <span class="sr-only">Next</span>
           </span>
       </button>
-  </div>
+      <div class="flex items-center p-6 px-6 py-3 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600">
+        <button
+        *ngIf="!isCreateAccountClicked && !isLoading"
+        (click)="onCreateAccountClick()" 
+        id="openCreateTransfer"
+        data-dropdown-toggle="createTransfer"
+        type="button" 
+        class="p-6 px-6 py-3 text-white bg-indigo-600 hover:bg-indigo-500 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Create Account
+      </button>
+       
+    </div>
   <!-- Fail Modal-->
- <div *ngIf="failed" app-app-error [errorMessage]="errorMessage" [process]="process"> </div>
+ <div *ngIf="failed && !isLoading" app-app-error [errorMessage]="errorMessage" [process]="process"> </div>
  <!-- Fail Modal End-->
-  

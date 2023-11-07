@@ -14,7 +14,7 @@ export class AccountService {
   sendGetAccountRequest({ accountId }: { accountId: string }): Observable<any> {
     const { httpClient } = this;
     const response = httpClient.get(
-      `http://localhost:3000/getAccount/${accountId}`,
+      `http://localhost:3000/customers/getAccount/${accountId}`,
       httpOptions,
     );
     return response;

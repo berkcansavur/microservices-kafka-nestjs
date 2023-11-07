@@ -65,7 +65,7 @@ export class CustomersController {
     });
   }
   @Get("/getCustomersAccounts/:customerId")
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   getCustomersAccounts(@Param("customerId") customerId: string) {
     const getCustomersAccountsDTO: GetCustomersAccountsDTO = { customerId };
     const { appService, logger } = this;

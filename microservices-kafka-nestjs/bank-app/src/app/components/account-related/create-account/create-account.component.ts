@@ -42,7 +42,7 @@ export class CreateAccountComponent {
     const { accountName, interest } = this.createAccountForm;
     const userId = this.tokenStorage.getUser()._id;
     this.setLoading(true);
-    this.setProcess("Create Account");
+    this.setProcess("Creating account...");
     accountService
       .sendCreateAccountRequest({
         accountName,
