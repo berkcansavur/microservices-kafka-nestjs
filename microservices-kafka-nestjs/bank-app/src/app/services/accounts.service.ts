@@ -19,6 +19,27 @@ export class AccountService {
     );
     return response;
   }
+  sendCreateAccountRequest({
+    accountName,
+    accountType,
+    bankBranchCode,
+    userId,
+    interest,
+  }: {
+    accountName: string;
+    accountType: string;
+    bankBranchCode: string;
+    userId: string;
+    interest: number;
+  }): Observable<any> {
+    const { httpClient } = this;
+    const response = httpClient.post(
+      `http://localhost:3000/customers/createAccount`,
+      { accountName, accountType, bankBranchCode, userId, interest },
+      httpOptions,
+    );
+    return response;
+  }
   sendGetAccountsLastActionsRequest({
     accountId,
     actionCount,

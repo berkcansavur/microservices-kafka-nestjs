@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from "@angular/core";
 import { TransferService } from "src/app/services/transfers.service";
-import { ITransferItem } from "../../models/transfers.model";
+import { ITransferItem } from "../../../../models/transfers.model";
 
 @Component({
   selector: "[app-created-transfer]",

@@ -2,7 +2,7 @@
   <div *ngIf="createTransfer" app-create-transfer [account]="account">
   </div>
   <div *ngIf="showAccountActions" [accountsActions]="actionLogs" app-account-actions></div>
-  <div *ngIf="!createTransfer" class="w-full lg:w-4/12 px-4 mx-auto">
+  <div *ngIf="!createTransfer && !showAccountActions" class="w-full lg:w-4/12 px-4 mx-auto">
     <div class="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-xl rounded-lg mt-16">
       <div class="px-6">
         <div class="flex flex-wrap justify-center">
