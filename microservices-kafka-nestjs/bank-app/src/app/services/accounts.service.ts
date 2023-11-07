@@ -13,11 +13,15 @@ export class AccountService {
   constructor(private readonly httpClient: HttpClient) {}
   sendGetAccountRequest({ accountId }: { accountId: string }): Observable<any> {
     const { httpClient } = this;
-    const response = httpClient.get(
-      `http://localhost:3000/customers/getAccount/${accountId}`,
-      httpOptions,
-    );
-    return response;
+    try {
+      const response = httpClient.get(
+        `http://localhost:3000/customers/getAccount/${accountId}`,
+        httpOptions,
+      );
+      return response;
+    } catch (err: any) {
+      throw new Error(err.error.message);
+    }
   }
   sendCreateAccountRequest({
     accountName,
@@ -86,11 +90,15 @@ export class AccountService {
     customerId: string;
   }): Observable<any> {
     const { httpClient } = this;
-    const response = httpClient.get(
-      `http://localhost:3000/customers/getCustomersAccounts/${customerId}`,
-      httpOptions,
-    );
-    return response;
+    try {
+      const response = httpClient.get(
+        `http://localhost:3000/customers/getCustomersAccounts/${customerId}`,
+        httpOptions,
+      );
+      return response;
+    } catch (err: any) {
+      throw new Error(err.error.message);
+    }
   }
   mapAccountStatus(status: number | undefined): string | null {
     if (status === 500) {

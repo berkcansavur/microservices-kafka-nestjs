@@ -3,6 +3,7 @@ import { CURRENCY_TYPES } from "src/app/constants/transfer-constants";
 import { ITransferItem } from "src/app/models/transfers.model";
 import { TokenStorageService } from "src/app/services/token-storage.service";
 import { TransferService } from "src/app/services/transfers.service";
+import { UtilsService } from "src/app/services/utils.service";
 
 @Component({
   selector: "app-transfers",
@@ -12,6 +13,7 @@ export class TransfersComponent {
   constructor(
     private readonly transferService: TransferService,
     private readonly tokenStorage: TokenStorageService,
+    private readonly utilsService: UtilsService,
   ) {}
   createTransferForm: any = {
     fromAccount: null,
@@ -38,38 +40,38 @@ export class TransfersComponent {
   currencyTypes = Object.values(CURRENCY_TYPES);
   ngOnInit(): void {
     this.customerId = this.tokenStorage.getUser()._id.toString();
-    this.setCustomersTransfers();
+    this.getCustomersTransfers();
   }
-  setCustomersTransfers() {
-    this.setProcess("Retrieving transfers data...");
-    this.setLoading(true);
+  //Setters
+  setTransferStatus(transfer: ITransferItem) {
+    const status: number | undefined = transfer.status;
+    const mappedStatus = this.transferService.mapTransferStatus(status);
+    return mappedStatus;
+  }
+  getCustomersTransfers() {
+    this.process = this.utilsService.setProcess("Retrieving transfers data...");
+    this.loading = this.utilsService.setLoading(true);
     this.transferService
       .sendGetCustomersTransfersRequest({ customerId: this.customerId })
       .subscribe({
         next: (data: any) => {
           this.transfers = data;
           console.log("Transfers: ", this.transfers);
-          this.setLoading(false);
+          this.loading = this.utilsService.setLoading(false);
           this.transfers.map((transfer) => {
             this.separateDeletedTransfers(transfer);
           });
         },
         error: (err: any) => {
-          this.setErrorMessage(
+          this.errorMessage = this.utilsService.setErrorMessage(
             "Could not retrieved transfers",
             err.error.message,
           );
-          this.setLoading(false);
+          this.loading = this.utilsService.setLoading(false);
         },
       });
   }
-  filterTransferStatus(transferStatus: number): void {
-    const transfers = this.transfers.filter((transfer) => {
-      return transfer.status === transferStatus;
-    });
-    this.transfersToShow = transfers;
-    this.handleClickFilterDropdownMenu();
-  }
+  //Filters
   separateDeletedTransfers(transfer: ITransferItem) {
     if (transfer.status === 1000) {
       this.deletedTransfers.push(transfer);
@@ -78,6 +80,13 @@ export class TransfersComponent {
       });
       this.transfersToShow = updatedTransfers;
     }
+  }
+  filterTransferStatus(transferStatus: number): void {
+    const transfers = this.transfers.filter((transfer) => {
+      return transfer.status === transferStatus;
+    });
+    this.transfersToShow = transfers;
+    this.handleClickFilterDropdownMenu();
   }
   showAllTransfers(): void {
     this.transfersToShow = this.transfers;
@@ -89,13 +98,69 @@ export class TransfersComponent {
     });
     this.handleClickFilterDropdownMenu();
   }
-  setTransferStatus(transfer: ITransferItem) {
-    const status: number | undefined = transfer.status;
-    const mappedStatus = this.transferService.mapTransferStatus(status);
-    return mappedStatus;
-  }
+  //Handlers
   handleClickTransferPanel() {
     this.isTransferPanelOpened = !this.isTransferPanelOpened;
+  }
+  handleRepeatTransfer() {
+    const { transferService } = this;
+    this.loading = this.utilsService.setLoading(true);
+    this.process = this.utilsService.setProcess("Repeating transfer...");
+    if ((this.transferIds.length = 1) && this.transferToRepeat) {
+      console.log("Transfer: ", JSON.stringify(this.transferToRepeat));
+      const { userId, currencyType, fromAccount, toAccount, amount } =
+        this.transferToRepeat;
+      transferService
+        .sendCreateMoneyTransferRequest({
+          currencyType,
+          userId,
+          fromAccount,
+          toAccount,
+          amount,
+        })
+        .subscribe({
+          next: (data: any) => {
+            this.returnedCreatedTransfer = data;
+            this.loading = this.utilsService.setLoading(false);
+            this.utilsService.reloadPage();
+          },
+          error: (err: any) => {
+            this.errorMessage = this.utilsService.setErrorMessage(
+              "Transfer could not repeated successfully",
+              err.error.message,
+            );
+            this.failed = true;
+            this.loading = this.utilsService.setLoading(false);
+          },
+        });
+    }
+  }
+  handleDeleteTransferRecord() {
+    const { transferService, tokenStorage } = this;
+    this.loading = this.utilsService.setLoading(true);
+    this.process = this.utilsService.setProcess("Deleting transfers...");
+    const transferIds = this.transferIds;
+    const userId = tokenStorage.getUser()._id;
+    transferService
+      .sendDeleteTransferRecordRequest({
+        transferIds,
+        userId,
+      })
+      .subscribe({
+        next: (data: any) => {
+          this.returnedCreatedTransfer = data;
+          this.loading = this.utilsService.setLoading(false);
+          this.utilsService.reloadPage();
+        },
+        error: (err: any) => {
+          this.errorMessage = this.utilsService.setErrorMessage(
+            "Deleting transfers could not succeed",
+            err.error.message,
+          );
+          this.failed = true;
+          this.loading = this.utilsService.setLoading(false);
+        },
+      });
   }
   handleClickActionDropdownMenu() {
     this.isActionDropdownMenuOpened = !this.isActionDropdownMenuOpened;
@@ -150,6 +215,7 @@ export class TransfersComponent {
       });
     }
   }
+  //Events
   toggleTransferTypesMenu() {
     this.isTransferCurrencyOpen = !this.isTransferCurrencyOpen;
   }
@@ -157,18 +223,12 @@ export class TransfersComponent {
     this.selectedCurrencyType = currencyType;
     this.isTransferCurrencyOpen = !this.isTransferCurrencyOpen;
   }
-  setLoading(state: boolean) {
-    this.loading = state;
-  }
-  setProcess(process: string) {
-    this.process = process;
-  }
   onCreateTransferSubmit(): void {
     const { selectedCurrencyType, tokenStorage, transferService } = this;
     const { fromAccount, toAccount, amount } = this.createTransferForm;
     const userId = tokenStorage.getUser()._id;
-    this.setLoading(true);
-    this.setProcess("Creating transfer...");
+    this.loading = this.utilsService.setLoading(true);
+    this.process = this.utilsService.setProcess("Creating transfer...");
     transferService
       .sendCreateMoneyTransferRequest({
         currencyType: selectedCurrencyType,
@@ -180,82 +240,16 @@ export class TransfersComponent {
       .subscribe({
         next: (data: any) => {
           this.returnedCreatedTransfer = data;
-          this.setLoading(false);
-          this.reloadPage();
+          this.loading = this.utilsService.setLoading(false);
+          this.utilsService.reloadPage();
         },
         error: (err: any) => {
-          this.setErrorMessage(
+          this.errorMessage = this.utilsService.setErrorMessage(
             "Transfer could not be created",
             err.error.message,
           );
-          this.setLoading(false);
+          this.loading = this.utilsService.setLoading(false);
         },
       });
-  }
-  handleRepeatTransfer() {
-    const { transferService } = this;
-    this.setLoading(true);
-    this.setProcess("Repeating transfer...");
-    if ((this.transferIds.length = 1) && this.transferToRepeat) {
-      console.log("Transfer: ", JSON.stringify(this.transferToRepeat));
-      const { userId, currencyType, fromAccount, toAccount, amount } =
-        this.transferToRepeat;
-      transferService
-        .sendCreateMoneyTransferRequest({
-          currencyType,
-          userId,
-          fromAccount,
-          toAccount,
-          amount,
-        })
-        .subscribe({
-          next: (data: any) => {
-            this.returnedCreatedTransfer = data;
-            this.setLoading(false);
-            this.reloadPage();
-          },
-          error: (err: any) => {
-            this.setErrorMessage(
-              "Transfer could not repeated successfully",
-              err.error.message,
-            );
-            this.failed = true;
-            this.setLoading(false);
-          },
-        });
-    }
-  }
-  handleDeleteTransferRecord() {
-    const { transferService, tokenStorage } = this;
-    this.setLoading(true);
-    this.setProcess("Deleting transfers...");
-    const transferIds = this.transferIds;
-    const userId = tokenStorage.getUser()._id;
-    transferService
-      .sendDeleteTransferRecordRequest({
-        transferIds,
-        userId,
-      })
-      .subscribe({
-        next: (data: any) => {
-          this.returnedCreatedTransfer = data;
-          this.setLoading(false);
-          this.reloadPage();
-        },
-        error: (err: any) => {
-          this.setErrorMessage(
-            "Deleting transfers could not succeed",
-            err.error.message,
-          );
-          this.failed = true;
-          this.setLoading(false);
-        },
-      });
-  }
-  setErrorMessage(errorMessage: string, serverError?: any): void {
-    this.errorMessage = errorMessage + ": " + serverError;
-  }
-  reloadPage(): void {
-    window.location.reload();
   }
 }

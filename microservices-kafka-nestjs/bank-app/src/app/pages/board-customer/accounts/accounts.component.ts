@@ -2,6 +2,7 @@ import { Component, OnInit } from "@angular/core";
 import { IAccountItem, IBalanceItem } from "src/app/models/accounts.model";
 import { AccountService } from "src/app/services/accounts.service";
 import { TokenStorageService } from "src/app/services/token-storage.service";
+import { UtilsService } from "src/app/services/utils.service";
 
 @Component({
   selector: "[app-accounts]",
@@ -11,6 +12,7 @@ export class AccountsComponent implements OnInit {
   constructor(
     private readonly accountService: AccountService,
     private readonly tokenStorage: TokenStorageService,
+    private readonly utilsService: UtilsService,
   ) {}
   //Values
   process: string = "";
@@ -21,6 +23,8 @@ export class AccountsComponent implements OnInit {
   errorMessage: string = "";
   currentIndex = 0;
   //Conditions
+  isUserIsCustomer: boolean = false;
+  isLoggedIn: boolean = false;
   failed: boolean = false;
   isLoading: boolean = false;
   isCreateAccountClicked: boolean = false;
@@ -28,6 +32,8 @@ export class AccountsComponent implements OnInit {
   ngOnInit(): void {
     this.customerId = this.tokenStorage.getUser()._id.toString();
     this.getCustomersAccounts();
+    this.isLoggedIn = this.tokenStorage.getIsLoggedIn();
+    this.isAllowedToUserType();
   }
   //Events
   onNextClick() {
@@ -46,34 +52,39 @@ export class AccountsComponent implements OnInit {
     this.isCreateAccountClicked = !this.isCreateAccountClicked;
   }
   getCustomersAccounts() {
-    this.setLoading(true);
-    this.setProcess("Retrieving customers accounts data...");
+    this.isLoading = this.utilsService.setLoading(true);
+    this.process = this.utilsService.setProcess(
+      "Retrieving customers accounts data...",
+    );
     this.accountService
       .sendGetCustomersAccountsRequest({ customerId: this.customerId })
       .subscribe({
         next: (data: any) => {
           this.accounts = data;
-          this.setLoading(false);
+          this.isLoading = this.utilsService.setLoading(false);
         },
         error: (err: any) => {
-          this.setLoading(false);
-          this.setErrorMessage(
+          this.isLoading = this.utilsService.setLoading(false);
+          console.error(err.error.message);
+          this.errorMessage = this.utilsService.setErrorMessage(
             "Customer accounts data retrieving failed",
             err.error.message,
           );
         },
       });
   }
+  //Checkers
+  isAllowedToUserType() {
+    const isAllowed = this.utilsService.isUserCustomer();
+    if (isAllowed === true) {
+      this.isUserIsCustomer = true;
+    } else {
+      this.errorMessage = this.utilsService.setErrorMessage(
+        "You are not allowed to view this page.",
+      );
+    }
+  }
   //Setters
-  setLoading(state: boolean) {
-    this.isLoading = state;
-  }
-  setProcess(process: string) {
-    this.process = process;
-  }
-  setErrorMessage(errorMessage: string, serverError?: any) {
-    this.errorMessage = errorMessage + ": " + serverError;
-  }
   setCurrentIndex(i: number) {
     this.currentIndex = i;
   }

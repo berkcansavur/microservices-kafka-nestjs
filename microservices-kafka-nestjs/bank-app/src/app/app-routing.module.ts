@@ -2,15 +2,13 @@ import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 import { HomeComponent } from "./pages/home/home.component";
 import { LoginComponent } from "./pages/login/login.component";
-import { ProfileComponent } from "./pages/profile/profile.component";
-import { BoardAdminComponent } from "./pages/board-admin/board-admin.component";
-import { BoardCustomerComponent } from "./pages/board-customer/board-customer.component";
+import { ProfileComponent } from "./pages/board-customer/profile/profile.component";
 import { BoardEmployeeComponent } from "./pages/board-employee/board-employee.component";
-import { RegisterComponent } from "./pages/register/register.component";
-import { TransfersComponent } from "./pages/transfers/transfers.component";
+import { RegisterComponent } from "./pages/board-customer/register/register.component";
+import { TransfersComponent } from "./pages/board-customer/transfers/transfers.component";
 import { TransactionsComponent } from "./pages/transactions/transactions.component";
-import { DashboardComponent } from "./pages/dashboard/dashboard.component";
-import { AccountsComponent } from "./pages/accounts/accounts.component";
+import { DashboardComponent } from "./pages/board-customer/dashboard/dashboard.component";
+import { AccountsComponent } from "./pages/board-customer/accounts/accounts.component";
 
 const routes: Routes = [
   {
@@ -28,14 +26,6 @@ const routes: Routes = [
   {
     path: "profile",
     component: ProfileComponent,
-  },
-  {
-    path: "customer",
-    component: BoardCustomerComponent,
-  },
-  {
-    path: "admin",
-    component: BoardAdminComponent,
   },
   {
     path: "employee",

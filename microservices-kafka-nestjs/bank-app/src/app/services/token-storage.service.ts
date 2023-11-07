@@ -31,6 +31,15 @@ export class TokenStorageService {
   public setIsLoggedIn(trueOrFalse: string): void {
     window.sessionStorage.setItem("IS_LOGGED_IN", trueOrFalse);
   }
+  public getIsLoggedIn(): boolean {
+    const loggedInCondition = window.sessionStorage.getItem("IS_LOGGED_IN");
+    if (loggedInCondition === "true") {
+      return true;
+    } else {
+      this.setUserType("null");
+      return false;
+    }
+  }
   public setUserType(userType: string): void {
     window.sessionStorage.setItem("USER_TYPE", userType);
   }

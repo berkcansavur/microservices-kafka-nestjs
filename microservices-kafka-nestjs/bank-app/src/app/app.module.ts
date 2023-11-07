@@ -18,28 +18,26 @@ import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { HeaderComponent } from "./components/header/header.component";
 import { HomeComponent } from "./pages/home/home.component";
 import { LoginComponent } from "./pages/login/login.component";
-import { ProfileComponent } from "./pages/profile/profile.component";
+import { ProfileComponent } from "./pages/board-customer/profile/profile.component";
 import { authInterceptorProviders } from "./_helpers/auth.interceptor";
-import { BoardCustomerComponent } from "./pages/board-customer/board-customer.component";
-import { BoardAdminComponent } from "./pages/board-admin/board-admin.component";
 import { BoardEmployeeComponent } from "./pages/board-employee/board-employee.component";
-import { RegisterComponent } from "./pages/register/register.component";
+import { RegisterComponent } from "./pages/board-customer/register/register.component";
 import { HttpClientModule } from "@angular/common/http";
 import { FormsModule } from "@angular/forms";
-import { CreateTransferComponent } from "./components/transfer-related/create-transfer/create-transfer.component";
-import { TransfersComponent } from "./pages/transfers/transfers.component";
+import { CreateTransferComponent } from "./pages/board-customer/components/transfer-related/create-transfer/create-transfer.component";
+import { TransfersComponent } from "./pages/board-customer/transfers/transfers.component";
 import { SettingsComponent } from "./pages/settings/settings.component";
-import { AccountsComponent } from "./pages/accounts/accounts.component";
+import { AccountsComponent } from "./pages/board-customer/accounts/accounts.component";
 import { TransactionsComponent } from "./pages/transactions/transactions.component";
-import { DashboardComponent } from "./pages/dashboard/dashboard.component";
+import { DashboardComponent } from "./pages/board-customer/dashboard/dashboard.component";
 import { LoadingComponent } from "./components/common/loading/loading.component";
 import { AppErrorComponent } from "./components/common/app-error/app-error.component";
-import { AccountItemComponent } from "./components/account-related/account-item/account-item.component";
+import { AccountItemComponent } from "./pages/board-customer/components/account-related/account-item/account-item.component";
 import { StepComponentComponent } from "./components/common/step-component/step-component.component";
-import { CreatedTransferComponent } from "./components/transfer-related/create-transfer/created-transfer/created-transfer.component";
-import { CreateAccountComponent } from "./components/account-related/create-account/create-account.component";
-import { AccountActionsComponent } from "./components/account-related/account-item/account-actions/account-actions.component";
-import { CreatedAccountComponent } from "./components/account-related/create-account/created-account/created-account.component";
+import { CreatedTransferComponent } from "./pages/board-customer/components/transfer-related/create-transfer/created-transfer/created-transfer.component";
+import { CreateAccountComponent } from "./pages/board-customer/components/account-related/create-account/create-account.component";
+import { AccountActionsComponent } from "./pages/board-customer/components/account-related/account-item/account-actions/account-actions.component";
+import { CreatedAccountComponent } from "./pages/board-customer/components/account-related/create-account/created-account/created-account.component";
 
 @NgModule({
   declarations: [
@@ -48,8 +46,6 @@ import { CreatedAccountComponent } from "./components/account-related/create-acc
     HomeComponent,
     LoginComponent,
     ProfileComponent,
-    BoardCustomerComponent,
-    BoardAdminComponent,
     BoardEmployeeComponent,
     RegisterComponent,
     CreateTransferComponent,
