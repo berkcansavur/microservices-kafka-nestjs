@@ -398,6 +398,8 @@ export class PrivateAccountDTO {
 
   balance: object[];
 
+  actionLogs: object[];
+
   @IsNumber()
   interest?: number;
 
