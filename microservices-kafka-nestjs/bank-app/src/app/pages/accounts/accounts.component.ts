@@ -4,7 +4,7 @@ import { AccountService } from "src/app/services/accounts.service";
 import { TokenStorageService } from "src/app/services/token-storage.service";
 
 @Component({
-  selector: "app-accounts",
+  selector: "[app-accounts]",
   templateUrl: "./accounts.component.html",
 })
 export class AccountsComponent implements OnInit {

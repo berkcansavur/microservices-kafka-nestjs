@@ -32,10 +32,11 @@ import { SettingsComponent } from "./pages/settings/settings.component";
 import { AccountsComponent } from "./pages/accounts/accounts.component";
 import { TransactionsComponent } from "./pages/transactions/transactions.component";
 import { DashboardComponent } from "./pages/dashboard/dashboard.component";
-import { LoadingComponent } from './components/loading/loading.component';
-import { AppErrorComponent } from './components/app-error/app-error.component';
-import { AccountItemComponent } from './components/account-item/account-item.component';
-import { StepComponentComponent } from './components/step-component/step-component.component';
+import { LoadingComponent } from "./components/loading/loading.component";
+import { AppErrorComponent } from "./components/app-error/app-error.component";
+import { AccountItemComponent } from "./components/account-item/account-item.component";
+import { StepComponentComponent } from "./components/step-component/step-component.component";
+import { CreatedTransferComponent } from './components/created-transfer/created-transfer.component';
 
 @NgModule({
   declarations: [
@@ -58,6 +59,7 @@ import { StepComponentComponent } from './components/step-component/step-compone
     AppErrorComponent,
     AccountItemComponent,
     StepComponentComponent,
+    CreatedTransferComponent,
   ],
   imports: [
     BrowserModule,

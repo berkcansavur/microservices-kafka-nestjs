@@ -1,5 +1,7 @@
-<section class="pt-16 bg-blueGray-50">
-  <div class="w-full lg:w-4/12 px-4 mx-auto">
+<section  class="pt-16 bg-blueGray-50">
+  <div *ngIf="createTransfer" app-create-transfer [account]="account">
+  </div>
+  <div *ngIf="!createTransfer" class="w-full lg:w-4/12 px-4 mx-auto">
     <div class="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-xl rounded-lg mt-16">
       <div class="px-6">
         <div class="flex flex-wrap justify-center">
@@ -91,9 +93,9 @@
                 type="submit" 
                 class="p-6 px-6 py-3 text-white bg-indigo-600 hover:bg-indigo-500 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Create Transfer</button>
                 <button
-                (click)="handleCreateTransfer()" 
+                (click)="handleShowActivities()" 
                 type="submit" 
-                class="p-6 px-6 py-3 text-white bg-indigo-600 hover:bg-indigo-500 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Show Transactions</button>
+                class="p-6 px-6 py-3 text-white bg-indigo-600 hover:bg-indigo-500 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Show Activities</button>
               </div>
         </div>
       </div>
@@ -103,7 +105,6 @@
     <div class="container mx-auto px-4">
       <div class="flex flex-wrap items-center md:justify-between justify-center">
         <div class="w-full md:w-6/12 px-4 mx-auto text-center">
-          
         </div>
       </div>
     </div>

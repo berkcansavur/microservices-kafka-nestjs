@@ -14,6 +14,7 @@ export class AccountItemComponent implements OnInit {
   accountNumber: number | null = 0;
   interest: number | null = 0;
   accountType: string | null = "";
+  createTransfer: boolean = false;
   @Input() account: IAccountItem | undefined;
   constructor(private readonly accountService: AccountService) {}
   ngOnInit(): void {
@@ -34,5 +35,8 @@ export class AccountItemComponent implements OnInit {
     const mappedStatus = this.accountService.mapAccountStatus(status);
     return mappedStatus;
   }
-  handleCreateTransfer() {}
+  handleCreateTransfer() {
+    this.createTransfer = !this.createTransfer;
+  }
+  handleShowActivities() {}
 }
