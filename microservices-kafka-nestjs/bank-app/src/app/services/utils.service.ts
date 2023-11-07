@@ -23,7 +23,7 @@ export class UtilsService {
   //Conditions
   isUserCustomer(): boolean {
     const userType = this.tokenStorage.getUserType();
-    if (userType === "CUSTOMER") {
+    if (userType?.toString() === "CUSTOMER") {
       return true;
     }
     return false;
@@ -31,9 +31,9 @@ export class UtilsService {
   isUserEmployee(): boolean {
     const userType = this.tokenStorage.getUserType();
     if (
-      userType === "ROLE_CUSTOMER_REPRESENTATIVE" ||
-      "ROLE_BANK_DIRECTOR" ||
-      "ROLE_BANK_DEPARTMENT_DIRECTOR"
+      userType?.toString() === "CUSTOMER_REPRESENTATIVE" ||
+      userType?.toString() === "BANK_DIRECTOR" ||
+      userType?.toString() === "BANK_DEPARTMENT_DIRECTOR"
     ) {
       return true;
     }
@@ -41,12 +41,15 @@ export class UtilsService {
   }
   isUserAdmin(): boolean {
     const userType = this.tokenStorage.getUserType();
-    if (userType === "ADMIN") {
+    if (userType?.toString() === "ADMIN") {
       return true;
     }
     return false;
   }
   reloadPage(): void {
     window.location.reload();
+  }
+  checkUserType(): string | null {
+    return this.tokenStorage.getUserType();
   }
 }

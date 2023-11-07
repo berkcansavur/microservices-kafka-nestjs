@@ -38,6 +38,8 @@ import { CreatedTransferComponent } from "./pages/board-customer/components/tran
 import { CreateAccountComponent } from "./pages/board-customer/components/account-related/create-account/create-account.component";
 import { AccountActionsComponent } from "./pages/board-customer/components/account-related/account-item/account-actions/account-actions.component";
 import { CreatedAccountComponent } from "./pages/board-customer/components/account-related/create-account/created-account/created-account.component";
+import { CustomerTransferComponent } from './pages/board-customer/customer-transfer/customer-transfer.component';
+import { CustomerAccountComponent } from './pages/board-customer/customer-account/customer-account.component';
 
 @NgModule({
   declarations: [
@@ -62,6 +64,8 @@ import { CreatedAccountComponent } from "./pages/board-customer/components/accou
     CreateAccountComponent,
     AccountActionsComponent,
     CreatedAccountComponent,
+    CustomerTransferComponent,
+    CustomerAccountComponent,
   ],
   imports: [
     BrowserModule,
