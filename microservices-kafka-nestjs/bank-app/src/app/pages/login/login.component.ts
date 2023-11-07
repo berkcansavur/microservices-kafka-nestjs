@@ -13,6 +13,7 @@ export class LoginComponent implements OnInit {
     password: null,
   };
   isLoggedIn: boolean = false;
+  loading: boolean = false;
   isLoginFailed: boolean = false;
   selectedUserType: string = "";
   isOpen: boolean = false;
@@ -28,8 +29,6 @@ export class LoginComponent implements OnInit {
   ngOnInit(): void {
     if (this.tokenStorage.getToken()) {
       this.isLoggedIn = true;
-      //this.roles = this.tokenStorage.getUser().roles;
-      //this.userType = this.tokenStorage.getUser().userType;
     }
   }
   onSelectedUserType(userType: string): void {
@@ -47,13 +46,16 @@ export class LoginComponent implements OnInit {
   setPassword(password: string): void {
     this.password = password;
   }
-
+  setLoading(state: boolean) {
+    this.loading = state;
+  }
   onSubmit(): void {
     const { email, password } = this.form;
     const { userType } = this;
     console.log("email:", email, "password:", password, "userType:", userType);
     this.authService.loginUser({ userType, email, password }).subscribe({
       next: (data: any) => {
+        this.setLoading(false);
         this.tokenStorage.saveToken(data.accessToken);
         this.tokenStorage.saveUser(JSON.stringify(data));
         this.tokenStorage.setIsLoggedIn("true");
@@ -64,6 +66,7 @@ export class LoginComponent implements OnInit {
         this.reloadPage();
       },
       error: (err: any) => {
+        this.setLoading(false);
         this.errorMessage = err.error.message;
         this.isLoginFailed = true;
       },

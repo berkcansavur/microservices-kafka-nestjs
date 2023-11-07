@@ -5,6 +5,7 @@ import { TransferCancelPendingState } from "./transfer-cancel-pending.state";
 import { TransferCanceledState } from "./transfer-cancelled.state";
 import { TransferCompletedState } from "./transfer-completed.state";
 import { TransferCreatedState } from "./transfer-created.state";
+import { TransferDeletedState } from "./transfer-deleted.state";
 import { TransferFailedState } from "./transfer-failed.state";
 import { TransferRejectedState } from "./transfer-rejected.state";
 import { TransferStartedState } from "./transfer-started.state";
@@ -21,5 +22,6 @@ export const TransferStateMap = {
     [TRANSFER_STATUSES.CANCELLED]: TransferCanceledState,
     [TRANSFER_STATUSES.FAILED]: TransferFailedState,
     [TRANSFER_STATUSES.REJECTED]: TransferRejectedState,
+    [TRANSFER_STATUSES.DELETED]: TransferDeletedState,
   },
 };

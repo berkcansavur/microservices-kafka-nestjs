@@ -148,6 +148,22 @@ export class ParseIncomingRequest implements PipeTransform {
       );
       return formattedData;
     }
+    if (value && value.deleteTransferRecordsDTO) {
+      const formattedData = value.deleteTransferRecordsDTO;
+      this.logger.debug(
+        "[ParseIncomingRequest Pipe] Formatted request data :",
+        formattedData,
+      );
+      return formattedData;
+    }
+    if (value && value.accountIdDTO) {
+      const formattedData = value.accountIdDTO;
+      this.logger.debug(
+        "[ParseIncomingRequest Pipe] Formatted request data :",
+        formattedData,
+      );
+      return formattedData;
+    }
     if (value) {
       return value;
     }

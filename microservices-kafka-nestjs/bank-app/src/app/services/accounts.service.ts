@@ -14,7 +14,28 @@ export class AccountService {
   sendGetAccountRequest({ accountId }: { accountId: string }): Observable<any> {
     const { httpClient } = this;
     const response = httpClient.get(
-      `http://localhost:3000/getAccount/${accountId}`,
+      `http://localhost:3000/customers/getAccount/${accountId}`,
+      httpOptions,
+    );
+    return response;
+  }
+  sendCreateAccountRequest({
+    accountName,
+    accountType,
+    bankBranchCode,
+    userId,
+    interest,
+  }: {
+    accountName: string;
+    accountType: string;
+    bankBranchCode: string;
+    userId: string;
+    interest: number;
+  }): Observable<any> {
+    const { httpClient } = this;
+    const response = httpClient.post(
+      `http://localhost:3000/customers/createAccount`,
+      { accountName, accountType, bankBranchCode, userId, interest },
       httpOptions,
     );
     return response;
@@ -25,17 +46,13 @@ export class AccountService {
   }: {
     accountId: string;
     actionCount: number;
-  }) {
+  }): Observable<any> {
     const { httpClient } = this;
-    try {
-      const response = httpClient.get(
-        `http://localhost:3000/getAccountsLastActions/${accountId}/${actionCount}`,
-        httpOptions,
-      );
-      return response;
-    } catch (error) {
-      return error;
-    }
+    const response = httpClient.get(
+      `http://localhost:3000/getAccountsLastActions/${accountId}/${actionCount}`,
+      httpOptions,
+    );
+    return response;
   }
   sendGetAccountsBalanceRequest({
     accountId,

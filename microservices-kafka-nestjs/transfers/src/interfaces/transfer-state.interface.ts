@@ -11,4 +11,5 @@ export interface ITransferState {
   cancelled(transferDTO: TransferDTO): Promise<TransferDTO>;
   failed(transferDTO: TransferDTO): Promise<TransferDTO>;
   rejected(transferDTO: TransferDTO): Promise<TransferDTO>;
+  deleted(transferDTO: TransferDTO): Promise<TransferDTO>;
 }

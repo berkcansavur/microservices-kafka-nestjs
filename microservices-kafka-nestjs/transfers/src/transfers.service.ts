@@ -188,6 +188,40 @@ export class TransfersService implements ITransferService, OnModuleInit {
       await transferStateFactory.getTransferState(TRANSFER_STATUSES.REJECTED)
     ).rejected(transfer);
   }
+  async updateTransferStatusDeleted({
+    transferId,
+  }: {
+    transferId: string;
+  }): Promise<TransferDTO> {
+    const { transferStateFactory } = this;
+    const transfer: TransferDTO = await this.getTransfer({
+      transferId: transferId,
+    });
+    return (
+      await transferStateFactory.getTransferState(TRANSFER_STATUSES.DELETED)
+    ).deleted(transfer);
+  }
+  async handleDeleteTransfers({ transferIds }: { transferIds: string[] }) {
+    return transferIds.map((transferId) => {
+      this.updateTransferStatusDeleted({ transferId });
+    });
+  }
+  async GetAccountsTransfers({ fromAccount }: { fromAccount: string }) {
+    const { logger, transfersRepository, TransferMapper } = this;
+    const transfers = await transfersRepository.getTransfersByFromAccountId({
+      fromAccount,
+    });
+    const mappedTransfers: TransferDTO[] = transfers.map((transfer) => {
+      const mappedTransfer = TransferMapper.map<Transfer, TransferDTO>(
+        transfer,
+        Transfer,
+        TransferDTO,
+      );
+      logger.debug(`Mapping ${transfer} transfer ${mappedTransfer}`);
+      return mappedTransfer;
+    });
+    return mappedTransfers;
+  }
   async getCustomersTransfers({
     customerId,
   }: {

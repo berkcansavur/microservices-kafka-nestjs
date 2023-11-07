@@ -1,5 +1,4 @@
 import { Component, OnInit } from "@angular/core";
-import { IAccounts } from "src/app/models/accounts.model";
 import { ProfileService } from "src/app/services/profile.service";
 import { TokenStorageService } from "src/app/services/token-storage.service";
 
@@ -20,7 +19,8 @@ export class ProfileComponent implements OnInit {
   customerSocialSecurityNumber?: number = 0;
   customerRepresentative?: object = {};
   userAge?: number = 0;
-  accounts?: IAccounts = [];
+  accounts?: any = [];
+  accountsCount: number = 0;
   customers?: object[] = [];
   userActions?: object[] = [];
   transactions?: object[];
@@ -58,6 +58,7 @@ export class ProfileComponent implements OnInit {
       _user.customerSocialSecurityNumber ?? null;
     this.customerRepresentative = _user.customerRepresentative ?? null;
     this.accounts = _user.accounts ?? null;
+    this.accountsCount = this.accounts?.length ? this.accounts.length : null;
     this.userActions = _user.userActions ?? null;
     this.customers = _user.customers ?? null;
     this.transactions = _user.transactions ?? null;

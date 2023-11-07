@@ -86,19 +86,4 @@ export class EmployeesController {
       getEmployeesCustomerTransactionsDTO,
     });
   }
-  @Get("/getAccountsLastActions")
-  @UseGuards(AuthGuard)
-  getAccountsLastActions(@Body() accountId: string, actionCount: number) {
-    const { appService, logger } = this;
-    logger.debug(
-      "[getAccountsLastActions] accountId: ",
-      accountId,
-      " actionCount: ",
-      actionCount,
-    );
-    return appService.sendGetAccountsLastActionsRequest({
-      accountId,
-      actionCount,
-    });
-  }
 }

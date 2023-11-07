@@ -502,6 +502,21 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
       throw new TransferNotFoundException();
     }
   }
+  async handleDeleteTransferRecords({
+    transferIds,
+    customerId,
+  }: {
+    transferIds: string[];
+    customerId: string;
+  }): Promise<TransferDTO[]> {
+    const { logger } = this;
+    logger.debug("handleApproveTransfer transferId: ", transferIds, customerId);
+    const transfers: TransferDTO[] = (await this.handleKafkaTransferEvents(
+      transferIds,
+      TRANSFER_TOPICS.HANDLE_DELETE_TRANSFER_RECORDS,
+    )) as TransferDTO[];
+    return transfers;
+  }
   async handleApproveTransfer({
     transferId,
     employeeId,
@@ -634,6 +649,19 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
       }
       throw new MoneyTransferCouldNotSucceedException({ errorData: error });
     }
+  }
+  async handleGetAccountsTransfers({
+    fromAccount,
+  }: {
+    fromAccount: string;
+  }): Promise<TransferDTO[]> {
+    const { logger } = this;
+    logger.debug("handleApproveTransfer transferId: ", fromAccount);
+    const transfers: TransferDTO[] = (await this.handleKafkaTransferEvents(
+      fromAccount,
+      TRANSFER_TOPICS.HANDLE_GET_ACCOUNTS_TRANSFERS,
+    )) as TransferDTO[];
+    return transfers;
   }
   private async handleKafkaTransferEvents(
     data: any,

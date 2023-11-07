@@ -3,12 +3,14 @@ import { BanksService } from "../services/banks.service";
 import { MessagePattern } from "@nestjs/microservices";
 import { ParseIncomingRequest } from "src/pipes/serialize-request-data.pipe";
 import {
+  AccountIdDTO,
   AddCustomerToRepresentativeDTO,
   CreateAccountDTO,
   CreateBankDTO,
   CreateCustomerDTO,
   CreateEmployeeRegistrationToBankDTO,
   CreateTransferDTO,
+  DeleteTransfersDTO,
   GetCustomersAccountsDTO,
   GetTransferDTO,
   GetUserProfileDTO,
@@ -185,6 +187,27 @@ export class BanksController {
     logger.debug("[getCustomersTransfers] data: CustomerIdDTO: ", data);
     const transfers = await bankService.getCustomersTransfers({
       customerId: data.customerId,
+    });
+    return transfers;
+  }
+  @MessagePattern("delete-transfer-records-event")
+  @UsePipes(new ParseIncomingRequest())
+  async deleteTransferRecords(data: DeleteTransfersDTO) {
+    const { logger, bankService } = this;
+    logger.debug("[getCustomersTransfers] data: CustomerIdDTO: ", data);
+    const transfers = await bankService.handleDeleteTransferRecords({
+      transferIds: data.transferIds,
+      customerId: data.customerId,
+    });
+    return transfers;
+  }
+  @MessagePattern("get-accounts-transfers-event")
+  @UsePipes(new ParseIncomingRequest())
+  async getAccountsTransfers(data: AccountIdDTO) {
+    const { logger, bankService } = this;
+    logger.debug("[getCustomersTransfers] data: CustomerIdDTO: ", data);
+    const transfers = await bankService.handleGetAccountsTransfers({
+      fromAccount: data.accountId,
     });
     return transfers;
   }

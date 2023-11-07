@@ -26,13 +26,20 @@ import { BoardEmployeeComponent } from "./pages/board-employee/board-employee.co
 import { RegisterComponent } from "./pages/register/register.component";
 import { HttpClientModule } from "@angular/common/http";
 import { FormsModule } from "@angular/forms";
-import { CardComponent } from "./components/card/card.component";
-import { CreateTransferComponent } from "./components/create-transfer/create-transfer.component";
+import { CreateTransferComponent } from "./components/transfer-related/create-transfer/create-transfer.component";
 import { TransfersComponent } from "./pages/transfers/transfers.component";
 import { SettingsComponent } from "./pages/settings/settings.component";
 import { AccountsComponent } from "./pages/accounts/accounts.component";
 import { TransactionsComponent } from "./pages/transactions/transactions.component";
 import { DashboardComponent } from "./pages/dashboard/dashboard.component";
+import { LoadingComponent } from "./components/common/loading/loading.component";
+import { AppErrorComponent } from "./components/common/app-error/app-error.component";
+import { AccountItemComponent } from "./components/account-related/account-item/account-item.component";
+import { StepComponentComponent } from "./components/common/step-component/step-component.component";
+import { CreatedTransferComponent } from "./components/transfer-related/create-transfer/created-transfer/created-transfer.component";
+import { CreateAccountComponent } from "./components/account-related/create-account/create-account.component";
+import { AccountActionsComponent } from "./components/account-related/account-item/account-actions/account-actions.component";
+import { CreatedAccountComponent } from "./components/account-related/create-account/created-account/created-account.component";
 
 @NgModule({
   declarations: [
@@ -45,13 +52,20 @@ import { DashboardComponent } from "./pages/dashboard/dashboard.component";
     BoardAdminComponent,
     BoardEmployeeComponent,
     RegisterComponent,
-    CardComponent,
     CreateTransferComponent,
     TransfersComponent,
     SettingsComponent,
     AccountsComponent,
     TransactionsComponent,
     DashboardComponent,
+    LoadingComponent,
+    AppErrorComponent,
+    AccountItemComponent,
+    StepComponentComponent,
+    CreatedTransferComponent,
+    CreateAccountComponent,
+    AccountActionsComponent,
+    CreatedAccountComponent,
   ],
   imports: [
     BrowserModule,

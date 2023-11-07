@@ -94,6 +94,10 @@ export class BankProfile extends AutomapperProfile {
           mapFrom((source) => source.balance),
         ),
         forMember(
+          (destination) => destination.actionLogs,
+          mapFrom((source) => source.actionLogs),
+        ),
+        forMember(
           (destination) => destination.interest,
           mapFrom((source) => source.interest),
         ),
