@@ -123,7 +123,6 @@ export class LoginComponent implements OnInit {
     this.authService.loginEmployee({ userType, email, password }).subscribe({
       next: (data: any) => {
         this.setLoading(false);
-        this.authService.setLoggedInStatus(true);
         this.authService.setUserType(userType as USER_TYPES);
         this.tokenStorage.saveToken(data.accessToken);
         this.tokenStorage.saveUser(JSON.stringify(data));
@@ -131,6 +130,7 @@ export class LoginComponent implements OnInit {
         this.tokenStorage.setUserType(userType);
         this.isLoginFailed = false;
         this.isLoggedIn = true;
+        this.authService.setLoggedInStatus(true);
         this.router.navigate(["/profile"]);
       },
       error: (err: any) => {
@@ -164,7 +164,10 @@ export class LoginComponent implements OnInit {
       },
       error: (err: any) => {
         this.setLoading(false);
-        this.errorMessage = err.error.message;
+        this.errorMessage = this.utilsService.setErrorMessage(
+          "Login Failed",
+          err.error.message,
+        );
         this.isLoginFailed = true;
       },
     });

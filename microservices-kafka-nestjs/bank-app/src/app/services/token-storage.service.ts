@@ -1,10 +1,12 @@
 import { Injectable } from "@angular/core";
+import { USER_TYPES } from "src/types/user.types";
+import { AuthService } from "./auth.service";
 
 @Injectable({
   providedIn: "root",
 })
 export class TokenStorageService {
-  constructor() {}
+  constructor(private readonly authService: AuthService) {}
   logOut(): void {
     window.sessionStorage.clear();
     this.setIsLoggedIn("false");
@@ -30,6 +32,7 @@ export class TokenStorageService {
   }
   public setIsLoggedIn(trueOrFalse: string): void {
     window.sessionStorage.setItem("IS_LOGGED_IN", trueOrFalse);
+    this.authService.setLoggedInStatus(true);
   }
   public getIsLoggedIn(): boolean {
     const loggedInCondition = window.sessionStorage.getItem("IS_LOGGED_IN");
@@ -42,6 +45,7 @@ export class TokenStorageService {
   }
   public setUserType(userType: string): void {
     window.sessionStorage.setItem("USER_TYPE", userType);
+    this.authService.setUserType(userType as USER_TYPES);
   }
   public getUserType(): string | null {
     return window.sessionStorage.getItem("USER_TYPE");

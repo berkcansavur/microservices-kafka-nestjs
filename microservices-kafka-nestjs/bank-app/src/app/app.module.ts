@@ -15,7 +15,6 @@ import { MatSnackBarModule } from "@angular/material/snack-bar";
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
-import { HeaderComponent } from "./components/header/header.component";
 import { HomeComponent } from "./pages/home/home.component";
 import { LoginComponent } from "./pages/login/login.component";
 import { ProfileComponent } from "./pages/board-customer/profile/profile.component";
@@ -30,10 +29,10 @@ import { SettingsComponent } from "./pages/settings/settings.component";
 import { AccountsComponent } from "./pages/accounts/accounts.component";
 import { TransactionsComponent } from "./pages/transactions/transactions.component";
 import { DashboardComponent } from "./pages/board-customer/dashboard/dashboard.component";
-import { LoadingComponent } from "./components/common/loading/loading.component";
-import { AppErrorComponent } from "./components/common/app-error/app-error.component";
+import { LoadingComponent } from "./common/components/loading/loading.component";
+import { AppErrorComponent } from "./common/components/app-error/app-error.component";
 import { AccountItemComponent } from "./pages/board-customer/components/account-related/account-item/account-item.component";
-import { StepComponentComponent } from "./components/common/step-component/step-component.component";
+import { StepComponentComponent } from "./common/components/step-component/step-component.component";
 import { CreatedTransferComponent } from "./pages/board-customer/components/transfer-related/create-transfer/created-transfer/created-transfer.component";
 import { CreateAccountComponent } from "./pages/board-customer/components/account-related/create-account/create-account.component";
 import { AccountActionsComponent } from "./pages/board-customer/components/account-related/account-item/account-actions/account-actions.component";
@@ -43,11 +42,11 @@ import { CustomerAccountComponent } from "./pages/board-customer/customer-accoun
 import { AssignCustomerComponent } from "./assign-customer/assign-customer.component";
 import { BankRepresentativeTransactionsComponent } from "./bank-representative-transactions/bank-representative-transactions.component";
 import { TokenStorageService } from "./services/token-storage.service";
+import { AuthService } from "./services/auth.service";
 
 @NgModule({
   declarations: [
     AppComponent,
-    HeaderComponent,
     HomeComponent,
     LoginComponent,
     ProfileComponent,
@@ -91,7 +90,7 @@ import { TokenStorageService } from "./services/token-storage.service";
     MatBadgeModule,
     MatSnackBarModule,
   ],
-  providers: [authInterceptorProviders, TokenStorageService],
+  providers: [authInterceptorProviders, TokenStorageService, AuthService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

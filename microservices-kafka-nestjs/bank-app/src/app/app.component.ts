@@ -4,6 +4,7 @@ import { HEADER_TYPES } from "./constants/app-constants";
 import { Router } from "@angular/router";
 import { AuthService } from "./services/auth.service";
 import { USER_TYPES } from "src/types/user.types";
+import { UtilsService } from "./services/utils.service";
 
 @Component({
   selector: "app-root",
@@ -23,16 +24,20 @@ export class AppComponent {
 
   constructor(
     private tokenStorageService: TokenStorageService,
+    private readonly utilsService: UtilsService,
     private readonly router: Router,
     private readonly authService: AuthService,
   ) {}
   ngOnInit(): void {
     this.authService.isLoggedIn$.subscribe((isLoggedIn) => {
       this.isLoggedIn = isLoggedIn;
+      this.checkUserType();
     });
     this.authService.userType$.subscribe((userType) => {
       if (userType === USER_TYPES.CUSTOMER) {
         this.isUserIsCustomer = true;
+        this.isUserIsEmployee = false;
+        this.isUserIsAdmin = false;
       }
       if (
         userType === USER_TYPES.BANK_CUSTOMER_REPRESENTATIVE ||
@@ -40,12 +45,32 @@ export class AppComponent {
         userType === USER_TYPES.BANK_DIRECTOR
       ) {
         this.isUserIsEmployee = true;
+        this.isUserIsAdmin = false;
+        this.isUserIsCustomer = false;
       }
       if (userType === USER_TYPES.ADMIN) {
         this.isUserIsAdmin = true;
+        this.isUserIsEmployee = false;
+        this.isUserIsCustomer = false;
       }
-      this.tokenStorageService.setUserType(userType);
     });
+  }
+  checkUserType() {
+    if (this.utilsService.isUserAdmin()) {
+      this.isUserIsAdmin = true;
+      this.isLoggedIn = true;
+      console.log("Checking is logged in ", this.isLoggedIn);
+    }
+    if (this.utilsService.isUserEmployee()) {
+      this.isUserIsEmployee = true;
+      this.isLoggedIn = true;
+      console.log("Checking is logged in ", this.isLoggedIn);
+    }
+    if (this.utilsService.isUserCustomer()) {
+      this.isUserIsCustomer = true;
+      this.isLoggedIn = true;
+      console.log("Checking is logged in ", this.isLoggedIn);
+    }
   }
   logOut(): void {
     this.tokenStorageService.logOut();

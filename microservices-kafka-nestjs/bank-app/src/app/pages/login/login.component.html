@@ -4,7 +4,7 @@
     <h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">Sign in to your account</h2>
   </div>
   <!-- Fail Modal-->
-<div *ngIf="isLoginFailed" app-app-error [errorMessage]="errorMessage"> </div>
+<div *ngIf="isLoginFailed" app-app-error [errorMessage]="errorMessage" [process]="process"> </div>
 <!-- Fail Modal End-->
 <!-- Loading Modal-->
 <div class="flex items-center justify-center w-full h-full border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-800 dark:border-gray-700">

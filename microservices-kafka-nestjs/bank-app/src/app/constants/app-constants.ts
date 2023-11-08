@@ -3,6 +3,7 @@ export enum HEADER_TYPES {
   ACCOUNTS = "accounts",
   TRANSFERS = "transfers",
   TRANSACTIONS = "transactions",
+  CUSTOMERS = "customers",
 }
 export enum ACCOUNT_TYPES {
   INVESTMENT_ACCOUNT = "INVESTMENT_ACCOUNT",
