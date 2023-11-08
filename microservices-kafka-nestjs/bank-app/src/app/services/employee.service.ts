@@ -9,9 +9,9 @@ const httpOptions = {
 @Injectable({
   providedIn: "root",
 })
-export class AccountService {
+export class EmployeeService {
   constructor(private readonly httpClient: HttpClient) {}
-  sendGetEmployeesAccountRequest({
+  sendGetEmployeesCustomersTransactionsRequest({
     employeeType,
     employeeId,
     customerId,
@@ -22,7 +22,43 @@ export class AccountService {
   }): Observable<any> {
     const { httpClient } = this;
     const response = httpClient.get(
-      `http://localhost:3000/getAgetEmployeesCustomerRelatedTransactionsRequestccount/${employeeType}/${employeeId}/${customerId}`,
+      `http://localhost:3000/employees/getEmployeesCustomerRelatedTransactionsRequest/${employeeType}/${employeeId}/${customerId}`,
+      httpOptions,
+    );
+    return response;
+  }
+  sendApproveTransferRequest({
+    employeeId,
+    transferId,
+  }: {
+    employeeId: string;
+    transferId: string;
+  }): Observable<any> {
+    const { httpClient } = this;
+    const response = httpClient.post(
+      `http://localhost:3000/employees/approveTransfer`,
+      {
+        employeeId,
+        transferId,
+      },
+      httpOptions,
+    );
+    return response;
+  }
+  sendRejectTransferRequest({
+    employeeId,
+    transferId,
+  }: {
+    employeeId: string;
+    transferId: string;
+  }): Observable<any> {
+    const { httpClient } = this;
+    const response = httpClient.post(
+      `http://localhost:3000/employees/rejectTransfer`,
+      {
+        employeeId,
+        transferId,
+      },
       httpOptions,
     );
     return response;

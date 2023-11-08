@@ -43,6 +43,8 @@ import { AssignCustomerComponent } from "./assign-customer/assign-customer.compo
 import { BankRepresentativeTransactionsComponent } from "./bank-representative-transactions/bank-representative-transactions.component";
 import { TokenStorageService } from "./services/token-storage.service";
 import { AuthService } from "./services/auth.service";
+import { CustomersComponent } from "./pages/board-employee/customers/customers.component";
+import { HandleTransactionComponent } from "./pages/transactions/handle-transaction/handle-transaction.component";
 
 @NgModule({
   declarations: [
@@ -70,6 +72,8 @@ import { AuthService } from "./services/auth.service";
     CustomerAccountComponent,
     AssignCustomerComponent,
     BankRepresentativeTransactionsComponent,
+    CustomersComponent,
+    HandleTransactionComponent,
   ],
   imports: [
     BrowserModule,

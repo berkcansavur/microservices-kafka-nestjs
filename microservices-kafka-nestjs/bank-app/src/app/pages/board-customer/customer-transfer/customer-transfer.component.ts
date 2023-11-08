@@ -73,7 +73,6 @@ export class CustomerTransferComponent {
       .subscribe({
         next: (data: any) => {
           this.transfers = data;
-          console.log("Transfers: ", this.transfers);
           this.loading = this.utilsService.setLoading(false);
           this.transfers.map((transfer) => {
             this.separateDeletedTransfers(transfer);

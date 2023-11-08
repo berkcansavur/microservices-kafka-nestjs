@@ -10,7 +10,7 @@ import {
 } from "src/dtos/api.dtos";
 import { AuthGuard } from "src/guards/auth.guard";
 
-@Controller("employees")
+@Controller("/employees")
 @ApiTags("Employees")
 export class EmployeesController {
   private readonly logger = new Logger(EmployeesController.name);
@@ -72,7 +72,7 @@ export class EmployeesController {
     });
   }
   @Get("/getEmployeesCustomerRelatedTransactionsRequest")
-  @UseGuards(AuthGuard)
+  //@UseGuards(AuthGuard)
   getEmployeesCustomerRelatedTransactionsRequest(
     @Body()
     getEmployeesCustomerTransactionsDTO: GetEmployeesCustomerTransactionsDTO,
