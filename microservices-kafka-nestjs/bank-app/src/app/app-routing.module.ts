@@ -6,7 +6,7 @@ import { ProfileComponent } from "./pages/board-customer/profile/profile.compone
 import { BoardEmployeeComponent } from "./pages/board-employee/board-employee.component";
 import { RegisterComponent } from "./pages/board-customer/register/register.component";
 import { TransfersComponent } from "./pages/transfers/transfers.component";
-import { TransactionsComponent } from "./pages/transactions/transactions.component";
+import { TransactionsComponent } from "./pages/board-employee/transactions/transactions.component";
 import { DashboardComponent } from "./pages/board-customer/dashboard/dashboard.component";
 import { AccountsComponent } from "./pages/accounts/accounts.component";
 

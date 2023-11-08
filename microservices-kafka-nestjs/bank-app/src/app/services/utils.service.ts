@@ -1,6 +1,5 @@
 import { Injectable } from "@angular/core";
 import { TokenStorageService } from "./token-storage.service";
-import { USER_TYPES } from "src/types/user.types";
 
 @Injectable({
   providedIn: "root",
@@ -50,7 +49,7 @@ export class UtilsService {
   reloadPage(): void {
     window.location.reload();
   }
-  checkUserType(userType: USER_TYPES): string | null {
+  checkUserType(userType: string): string | null {
     if (userType === "CUSTOMER") {
       return "CUSTOMER";
     }

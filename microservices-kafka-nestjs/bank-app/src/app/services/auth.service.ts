@@ -1,7 +1,6 @@
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { BehaviorSubject, Observable } from "rxjs";
-import { USER_TYPES } from "src/types/user.types";
+import { Observable } from "rxjs";
 
 const httpOptions = {
   headers: new HttpHeaders({ "Content-Type": "application/json" }),
@@ -12,17 +11,6 @@ const httpOptions = {
 })
 export class AuthService {
   constructor(private readonly httpClient: HttpClient) {}
-  private getUserTypeSubject = new BehaviorSubject<USER_TYPES>(USER_TYPES.NULL);
-  private isLoggedInSubject = new BehaviorSubject<boolean>(false);
-  isLoggedIn$ = this.isLoggedInSubject.asObservable();
-  userType$ = this.getUserTypeSubject.asObservable();
-
-  setUserType(userType: USER_TYPES) {
-    this.getUserTypeSubject.next(userType);
-  }
-  setLoggedInStatus(isLoggedIn: boolean) {
-    this.isLoggedInSubject.next(isLoggedIn);
-  }
   loginCustomer({
     userType,
     email,

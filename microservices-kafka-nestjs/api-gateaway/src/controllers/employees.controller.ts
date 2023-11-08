@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Logger, Post, UseGuards } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Get,
+  Logger,
+  Param,
+  Post,
+  UseGuards,
+} from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { AppService } from "src/app.service";
 import {
@@ -9,6 +17,7 @@ import {
   LoginUserDTO,
 } from "src/dtos/api.dtos";
 import { AuthGuard } from "src/guards/auth.guard";
+import { USER_TYPES } from "types/app-types";
 
 @Controller("/employees")
 @ApiTags("Employees")
@@ -71,16 +80,24 @@ export class EmployeesController {
       getCustomersAccountsDTO,
     });
   }
-  @Get("/getEmployeesCustomerRelatedTransactionsRequest")
+  @Get(
+    "/getEmployeesCustomerRelatedTransactionsRequest/:employeeType/:employeeId/:customerId",
+  )
   //@UseGuards(AuthGuard)
   getEmployeesCustomerRelatedTransactionsRequest(
-    @Body()
-    getEmployeesCustomerTransactionsDTO: GetEmployeesCustomerTransactionsDTO,
+    @Param("employeeType") employeeType: USER_TYPES,
+    @Param("employeeId") employeeId: string,
+    @Param("customerId") customerId: string,
   ) {
     const { appService, logger } = this;
+
+    const getEmployeesCustomerTransactionsDTO: GetEmployeesCustomerTransactionsDTO =
+      { employeeId, employeeType, customerId };
     logger.debug(
       "[getEmployeesCustomerRelatedTransactionsRequest] getEmployeesCustomerTransactionsDTO: ",
       getEmployeesCustomerTransactionsDTO,
+      "emp id:",
+      employeeId,
     );
     return appService.sendGetEmployeesCustomerRelatedTransactionsRequest({
       getEmployeesCustomerTransactionsDTO,

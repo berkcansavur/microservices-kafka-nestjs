@@ -1,12 +1,27 @@
-import { Injectable } from "@angular/core";
-import { USER_TYPES } from "src/types/user.types";
-import { AuthService } from "./auth.service";
+import { Injectable, OnInit } from "@angular/core";
+import { BehaviorSubject, Observable } from "rxjs";
 
 @Injectable({
   providedIn: "root",
 })
-export class TokenStorageService {
-  constructor(private readonly authService: AuthService) {}
+export class TokenStorageService implements OnInit {
+  constructor() {}
+  userType: string | null = window.sessionStorage.getItem("USER_TYPE");
+  isLoggedIn: boolean | null = false;
+
+  private userTypeSubject = new BehaviorSubject<string | null>(this.userType);
+  private isLoggedInSubject = new BehaviorSubject<boolean | null>(
+    this.isLoggedIn,
+  );
+  isLoggedIn$: Observable<boolean | null> =
+    this.isLoggedInSubject.asObservable();
+  userType$: Observable<string | null> = this.userTypeSubject.asObservable();
+
+  ngOnInit(): void {
+    this.userType = window.sessionStorage.getItem("USER_TYPE");
+    this.isLoggedIn = this.getIsLoggedIn();
+    console.log("TokenStorageService", this.userType);
+  }
   logOut(): void {
     window.sessionStorage.clear();
     this.setIsLoggedIn("false");
@@ -32,7 +47,7 @@ export class TokenStorageService {
   }
   public setIsLoggedIn(trueOrFalse: string): void {
     window.sessionStorage.setItem("IS_LOGGED_IN", trueOrFalse);
-    this.authService.setLoggedInStatus(true);
+    this.isLoggedInSubject.next(true);
   }
   public getIsLoggedIn(): boolean {
     const loggedInCondition = window.sessionStorage.getItem("IS_LOGGED_IN");
@@ -45,7 +60,7 @@ export class TokenStorageService {
   }
   public setUserType(userType: string): void {
     window.sessionStorage.setItem("USER_TYPE", userType);
-    this.authService.setUserType(userType as USER_TYPES);
+    this.userTypeSubject.next(userType);
   }
   public getUserType(): string | null {
     return window.sessionStorage.getItem("USER_TYPE");

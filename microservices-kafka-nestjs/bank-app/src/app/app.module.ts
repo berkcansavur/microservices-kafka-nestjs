@@ -27,7 +27,7 @@ import { CreateTransferComponent } from "./pages/board-customer/components/trans
 import { TransfersComponent } from "./pages/transfers/transfers.component";
 import { SettingsComponent } from "./pages/settings/settings.component";
 import { AccountsComponent } from "./pages/accounts/accounts.component";
-import { TransactionsComponent } from "./pages/transactions/transactions.component";
+import { TransactionsComponent } from "./pages/board-employee/transactions/transactions.component";
 import { DashboardComponent } from "./pages/board-customer/dashboard/dashboard.component";
 import { LoadingComponent } from "./common/components/loading/loading.component";
 import { AppErrorComponent } from "./common/components/app-error/app-error.component";
@@ -44,7 +44,7 @@ import { BankRepresentativeTransactionsComponent } from "./bank-representative-t
 import { TokenStorageService } from "./services/token-storage.service";
 import { AuthService } from "./services/auth.service";
 import { CustomersComponent } from "./pages/board-employee/customers/customers.component";
-import { HandleTransactionComponent } from "./pages/transactions/handle-transaction/handle-transaction.component";
+import { HandleTransactionComponent } from "./pages/board-employee/transactions/handle-transaction/handle-transaction.component";
 
 @NgModule({
   declarations: [
