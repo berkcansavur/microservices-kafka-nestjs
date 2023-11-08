@@ -2,7 +2,7 @@ import { Component } from "@angular/core";
 import { UtilsService } from "src/app/services/utils.service";
 
 @Component({
-  selector: "app-transfers",
+  selector: "[app-transfers]",
   templateUrl: "./transfer.component.html",
 })
 export class TransfersComponent {

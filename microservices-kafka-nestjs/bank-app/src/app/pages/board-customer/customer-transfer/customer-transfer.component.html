@@ -1,4 +1,4 @@
-<div *ngIf="!loading" class="sm:rounded-lg">
+<div *ngIf="!loading && isLoggedIn" class="sm:rounded-lg">
   <div class="p-4">
   <div *ngIf="!isTransferPanelOpened" 
   class="group relative flex gap-x-6 rounded-lg p-4 hover:bg-gray-50">
@@ -119,7 +119,7 @@
   </div>
       
   </div>
-  <table *ngIf="!isTransferPanelOpened && !loading" class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+  <table *ngIf="!isTransferPanelOpened && !loading && isLoggedIn && transfers" class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
       <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
           <tr>
               <th scope="col" class="p-4">

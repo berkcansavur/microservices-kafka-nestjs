@@ -1,6 +1,7 @@
 import { Component, OnInit } from "@angular/core";
 import { ProfileService } from "src/app/services/profile.service";
 import { TokenStorageService } from "src/app/services/token-storage.service";
+import { UtilsService } from "src/app/services/utils.service";
 
 @Component({
   selector: "app-profile",
@@ -31,6 +32,7 @@ export class ProfileComponent implements OnInit {
   constructor(
     private profileService: ProfileService,
     private readonly tokenStorage: TokenStorageService,
+    private readonly utilsService: UtilsService,
   ) {}
   content?: string;
   ngOnInit(): void {
@@ -39,6 +41,7 @@ export class ProfileComponent implements OnInit {
       next: (data: any) => {
         this.tokenStorage.saveUser(JSON.stringify(data));
         this.userAge = data.userAge;
+        this.utilsService.reloadPage();
       },
       error: (err: any) => {
         this.errorMessage = err.error.message;

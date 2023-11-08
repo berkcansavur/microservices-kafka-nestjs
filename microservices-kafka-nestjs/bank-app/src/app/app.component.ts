@@ -1,45 +1,70 @@
 import { Component } from "@angular/core";
 import { TokenStorageService } from "./services/token-storage.service";
+import { HEADER_TYPES } from "./constants/app-constants";
+import { Router } from "@angular/router";
+import { AuthService } from "./services/auth.service";
+import { USER_TYPES } from "src/types/user.types";
 
 @Component({
   selector: "app-root",
+  templateUrl: "./app.component.html",
   template: ` <app-header></app-header>
     <router-outlet></router-outlet>`,
-  styles: [],
 })
 export class AppComponent {
-  title = "bank-app";
-  private roles: string[] = [];
+  headerTypes = Object.values(HEADER_TYPES);
+  isUserIsCustomer: boolean = false;
+  isUserIsEmployee: boolean = false;
+  isUserIsAdmin: boolean = false;
   isLoggedIn = false;
   showAdminBoard = false;
   showModeratorBoard = false;
   username?: string;
 
-  constructor(private tokenStorageService: TokenStorageService) {}
+  constructor(
+    private tokenStorageService: TokenStorageService,
+    private readonly router: Router,
+    private readonly authService: AuthService,
+  ) {}
   ngOnInit(): void {
-    this.isLoggedIn = !!this.tokenStorageService.getToken();
-
-    if (this.isLoggedIn) {
-      const user = this.tokenStorageService.getUser();
-      this.roles = user.roles;
-
-      this.showAdminBoard = this.roles.includes("ROLE_ADMIN");
-      this.showModeratorBoard = this.roles.includes(
-        "ROLE_CUSTOMER_REPRESENTATIVE" ||
-          "ROLE_BANK_DIRECTOR" ||
-          "ROLE_BANK_DEPARTMENT_DIRECTOR",
-      );
-
-      if (user.customerFullName) {
-        this.username = user.customerFullName;
+    this.authService.isLoggedIn$.subscribe((isLoggedIn) => {
+      this.isLoggedIn = isLoggedIn;
+    });
+    this.authService.userType$.subscribe((userType) => {
+      if (userType === USER_TYPES.CUSTOMER) {
+        this.isUserIsCustomer = true;
       }
-      if (user.employeeFullName) {
-        this.username = user.employeeFullName;
+      if (
+        userType === USER_TYPES.BANK_CUSTOMER_REPRESENTATIVE ||
+        userType === USER_TYPES.BANK_DEPARTMENT_DIRECTOR ||
+        userType === USER_TYPES.BANK_DIRECTOR
+      ) {
+        this.isUserIsEmployee = true;
       }
-    }
+      if (userType === USER_TYPES.ADMIN) {
+        this.isUserIsAdmin = true;
+      }
+      this.tokenStorageService.setUserType(userType);
+    });
   }
-  logout(): void {
+  logOut(): void {
     this.tokenStorageService.logOut();
-    window.location.reload();
+    this.isLoggedIn = false;
+    this.router.navigate(["/login"]);
+  }
+  setCurrentPage(id: string): void {
+    const headerSection = document.getElementById(`${id}`) as HTMLInputElement;
+    this.headerTypes.map((header) => {
+      document
+        .getElementById(`${header}`)
+        ?.setAttribute(
+          "class",
+          "text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium",
+        );
+    });
+    headerSection.setAttribute(
+      "class",
+      "bg-gray-900 text-white rounded-md px-3 py-2 text-sm font-medium",
+    );
   }
 }

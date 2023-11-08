@@ -31,7 +31,7 @@
         <div class="hidden sm:ml-6 sm:block">
           <div class="flex space-x-4">
             <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
-            <a *ngIf="isUserIsCustomer" routerLink="/dashboard" id="dashboard" (click)="setCurrentPage('dashboard')" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium" >Dashboard</a>
+            <a *ngIf="isUserIsCustomer" href="/dashboard" id="dashboard" (click)="setCurrentPage('dashboard')" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium" >Dashboard</a>
             <a *ngIf="isUserIsCustomer" routerLink="/accounts" id="accounts" (click)="setCurrentPage('accounts')" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Accounts</a>
             <a *ngIf="isUserIsCustomer" routerLink="/transfers" id="transfers" (click)="setCurrentPage('transfers')" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Transfers</a>
             <a *ngIf="isUserIsEmployee"routerLink="/transactions" id="transactions" (click)="setCurrentPage('transactions')" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Transactions</a>
@@ -89,3 +89,6 @@
     </div>
   </div>
 </nav>
+<div class="container">
+  <router-outlet></router-outlet>
+</div>

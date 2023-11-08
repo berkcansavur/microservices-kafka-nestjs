@@ -40,6 +40,9 @@ import { AccountActionsComponent } from "./pages/board-customer/components/accou
 import { CreatedAccountComponent } from "./pages/board-customer/components/account-related/create-account/created-account/created-account.component";
 import { CustomerTransferComponent } from "./pages/board-customer/customer-transfer/customer-transfer.component";
 import { CustomerAccountComponent } from "./pages/board-customer/customer-account/customer-account.component";
+import { AssignCustomerComponent } from "./assign-customer/assign-customer.component";
+import { BankRepresentativeTransactionsComponent } from "./bank-representative-transactions/bank-representative-transactions.component";
+import { TokenStorageService } from "./services/token-storage.service";
 
 @NgModule({
   declarations: [
@@ -66,6 +69,8 @@ import { CustomerAccountComponent } from "./pages/board-customer/customer-accoun
     CreatedAccountComponent,
     CustomerTransferComponent,
     CustomerAccountComponent,
+    AssignCustomerComponent,
+    BankRepresentativeTransactionsComponent,
   ],
   imports: [
     BrowserModule,
@@ -86,7 +91,7 @@ import { CustomerAccountComponent } from "./pages/board-customer/customer-accoun
     MatBadgeModule,
     MatSnackBarModule,
   ],
-  providers: [authInterceptorProviders],
+  providers: [authInterceptorProviders, TokenStorageService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

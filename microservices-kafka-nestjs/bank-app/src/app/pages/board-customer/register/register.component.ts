@@ -1,6 +1,8 @@
 import { Component } from "@angular/core";
+import { Router } from "@angular/router";
 import { AuthService } from "src/app/services/auth.service";
 import { TokenStorageService } from "src/app/services/token-storage.service";
+import { UtilsService } from "src/app/services/utils.service";
 
 @Component({
   selector: "app-register",
@@ -17,10 +19,14 @@ export class RegisterComponent {
   };
   isRegisterFailed: boolean = false;
   isLoggedIn: boolean = false;
+  process: string = "";
   errorMessage: string = "";
+
   constructor(
     private authService: AuthService,
     private tokenStorage: TokenStorageService,
+    private readonly utilsService: UtilsService,
+    private readonly router: Router,
   ) {}
   onSubmit(): void {
     const {
@@ -31,6 +37,7 @@ export class RegisterComponent {
       customerSocialSecurityNumber,
       password,
     } = this.form;
+    this.process = this.utilsService.setProcess("Register user");
     this.authService
       .registerUser({
         customerName,
@@ -43,20 +50,32 @@ export class RegisterComponent {
       .subscribe({
         next: () => {
           this.tokenStorage.setUserType("CUSTOMER");
-          this.isRegisterFailed = false;
-          // this.roles = this.tokenStorage.getUser().role;
-          this.reloadPage();
         },
         error: (err: any) => {
           this.errorMessage = err.error.message;
           this.isRegisterFailed = true;
         },
       });
+    this.process = this.utilsService.setProcess("Login user");
+    this.authService
+      .loginCustomer({ userType: "CUSTOMER", email, password })
+      .subscribe({
+        next: (data: any) => {
+          this.tokenStorage.saveToken(data.accessToken);
+          this.tokenStorage.saveUser(data);
+          this.isLoggedIn = true;
+          this.tokenStorage.setUserType("CUSTOMER");
+          this.router.navigate(["/profile"]);
+        },
+        error: (err: any) => {
+          this.errorMessage = this.utilsService.setErrorMessage(
+            "Error occurred in login process",
+            err.error.message,
+          );
+        },
+      });
   }
   reloadPage(): void {
     window.location.reload();
-  }
-  setIsRegisterFailedFalse(): void {
-    this.isRegisterFailed = false;
   }
 }
