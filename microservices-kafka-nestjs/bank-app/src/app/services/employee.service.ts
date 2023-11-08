@@ -11,7 +11,7 @@ const httpOptions = {
 })
 export class AccountService {
   constructor(private readonly httpClient: HttpClient) {}
-  sendGetAccountRequest({
+  sendGetEmployeesAccountRequest({
     employeeType,
     employeeId,
     customerId,
