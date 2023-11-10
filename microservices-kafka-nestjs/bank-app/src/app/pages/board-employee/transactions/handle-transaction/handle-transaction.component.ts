@@ -24,6 +24,7 @@ export class HandleTransactionComponent implements OnInit {
     private readonly accountService: AccountService,
     private readonly profileService: ProfileService,
   ) {}
+
   //app logic
   process: string = "";
   errorMessage: string = "";
