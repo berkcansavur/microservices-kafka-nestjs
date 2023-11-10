@@ -10,6 +10,7 @@ import {
 import { ApiTags } from "@nestjs/swagger";
 import { AppService } from "src/app.service";
 import {
+  AccountIdDTO,
   CreateAccountDTO,
   CreateCustomerDTO,
   CreateTransferDTO,
@@ -79,7 +80,7 @@ export class CustomersController {
   }
   @Get("/getAccount")
   @UseGuards(AuthGuard)
-  getAccount(@Body() accountId: string) {
+  getAccount(@Body() accountId: AccountIdDTO) {
     const { appService, logger } = this;
     logger.debug("[getAccount] accountId: ", accountId);
     return appService.sendGetAccountRequest(accountId);

@@ -403,8 +403,8 @@ export class PrivateAccountDTO {
   @IsNumber()
   interest?: number;
 
-  @IsNumber()
   @IsNotEmpty()
+  @IsNumber()
   status: number;
 }
 export class AccountDTO {

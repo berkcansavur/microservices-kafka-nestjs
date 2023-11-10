@@ -23,7 +23,9 @@ export class TransactionsComponent implements OnInit {
   isActionDropdownMenuOpened: boolean = false;
   isFilterDropdownMenuOpened: boolean = false;
   isTransactionPanelOpened: boolean = false;
+  hasTransfer: boolean = true;
   isLoggedIn: boolean = false;
+  showHandleTransaction: boolean = false;
   //values
   employeeType: string = "";
   employeeId: string = "";
@@ -31,10 +33,15 @@ export class TransactionsComponent implements OnInit {
   transactions: ITransactionItem[] = [];
   transferIds: string[] = [];
   transferToApprove: ITransferItem | undefined;
+  selectedTransaction: ITransactionItem | undefined;
   ngOnInit(): void {
     this.setEmployeeProps();
     this.isLoggedIn = this.tokenStorage.getIsLoggedIn();
     this.handleSendGetEmployeesCustomersRelatedTransactionsRequest();
+  }
+  setShowHandleTransaction(transaction: ITransactionItem) {
+    this.showHandleTransaction = !this.showHandleTransaction;
+    this.selectedTransaction = transaction;
   }
   setEmployeeProps(): void {
     this.employeeType = this.tokenStorage.getUserType() as string;

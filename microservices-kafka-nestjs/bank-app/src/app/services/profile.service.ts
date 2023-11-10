@@ -27,4 +27,11 @@ export class ProfileService {
       responseType: "text",
     });
   }
+  getCustomer({ userId }: { userId: string }): Observable<any> {
+    const response = this.httpClient.get(
+      `http://localhost:3000/getUserProfile/CUSTOMER/${userId}`,
+      httpOptions,
+    );
+    return response;
+  }
 }

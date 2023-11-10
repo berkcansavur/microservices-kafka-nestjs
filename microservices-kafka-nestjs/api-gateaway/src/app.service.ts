@@ -303,7 +303,7 @@ export class AppService implements OnModuleInit {
       getEmployeesCustomerTransactionsDTO,
     );
   }
-  async sendGetAccountRequest(accountId: string) {
+  async sendGetAccountRequest(accountId: AccountIdDTO) {
     const { logger } = this;
     logger.debug("[AppService] getAccounts DTO: ", accountId);
     const account = await this.handleKafkaAccountEvents(

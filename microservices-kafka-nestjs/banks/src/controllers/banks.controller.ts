@@ -169,16 +169,16 @@ export class BanksController {
   async getUserProfile(data: GetUserProfileDTO) {
     const { logger, bankService } = this;
     logger.debug(
-      `[BanksController] Banks getCustomersAccounts Incoming Data: ${JSON.stringify(
-        data,
-      )}`,
+      `[BanksController] Banks getUserProfile Incoming Data: `,
+      data,
     );
     const user = await bankService.getUserProfile({
       userType: data.userType,
       userId: data.userId,
     });
-    logger.debug("User: ", JSON.stringify(user));
-    return user;
+    logger.debug(`[BanksController] User: `, user);
+    const amuser = JSON.stringify(user);
+    return JSON.parse(amuser);
   }
   @MessagePattern("get-customers-transfers-event")
   @UsePipes(new ParseIncomingRequest())

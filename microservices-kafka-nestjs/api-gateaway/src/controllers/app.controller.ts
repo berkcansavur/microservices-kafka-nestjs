@@ -4,7 +4,6 @@ import {
   Post,
   Logger,
   Get,
-  Req,
   UseGuards,
   Param,
 } from "@nestjs/common";
@@ -25,6 +24,7 @@ import {
   LoginUserDTO,
   DeleteTransferDTO,
   GetAccountsLastActionsDTO,
+  AccountIdDTO,
 } from "../dtos/api.dtos";
 import { ApiTags } from "@nestjs/swagger";
 import { AddCustomerToRepresentativeDTO } from "../dtos/api.dtos";
@@ -162,11 +162,11 @@ export class AppController {
       accountId,
     });
   }
-  @Get("/getAccount")
+  @Get("/getAccount/:accountId")
   @UseGuards(AuthGuard)
-  getAccount(@Body() accountId: string, @Req() req) {
+  getAccount(@Param("accountId") accountId: AccountIdDTO) {
     const { appService, logger } = this;
-    logger.debug("[getAccount] Request:", req);
+    logger.debug("[getAccount] Request:", accountId);
     return appService.sendGetAccountRequest(accountId);
   }
   @Get("/getAccountsLastActions/:accountId/:actionCount")

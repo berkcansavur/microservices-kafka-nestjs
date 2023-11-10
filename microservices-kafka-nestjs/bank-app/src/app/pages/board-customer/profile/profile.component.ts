@@ -40,7 +40,6 @@ export class ProfileComponent implements OnInit {
     this.profileService.getUserBoard(this.userId).subscribe({
       next: (data: any) => {
         this.tokenStorage.saveUser(JSON.stringify(data));
-        this.userAge = data.userAge;
         this.utilsService.reloadPage();
       },
       error: (err: any) => {

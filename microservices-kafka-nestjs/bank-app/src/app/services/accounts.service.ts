@@ -15,7 +15,7 @@ export class AccountService {
     const { httpClient } = this;
     try {
       const response = httpClient.get(
-        `http://localhost:3000/customers/getAccount/${accountId}`,
+        `http://localhost:3000/getAccount/${accountId}`,
         httpOptions,
       );
       return response;

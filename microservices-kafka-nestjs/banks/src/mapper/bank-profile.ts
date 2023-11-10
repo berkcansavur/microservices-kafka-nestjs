@@ -27,7 +27,6 @@ export class BankProfile extends AutomapperProfile {
     super(mapper);
   }
   private customBankToString(bank: Types.ObjectId | undefined): string | null {
-    console.log("Bank", bank);
     if (bank !== undefined) {
       return bank.toString();
     } else {

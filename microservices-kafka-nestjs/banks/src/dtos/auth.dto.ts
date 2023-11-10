@@ -3,6 +3,7 @@ import {
   IsEmpty,
   IsMongoId,
   IsNotEmpty,
+  IsNumber,
   IsString,
 } from "class-validator";
 import { Expose, Exclude } from "class-transformer";
@@ -49,22 +50,54 @@ export class AuthenticatedUserDTO {
   userName: string;
 }
 export class UserProfileDTO {
+  @IsNotEmpty()
+  @IsMongoId()
   userId: string;
+
+  @IsNotEmpty()
+  @IsString()
   userName: string;
+
+  @IsNotEmpty()
+  @IsString()
   userSurname: string;
+
+  @IsNotEmpty()
+  @IsString()
   userFullName: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @IsEmail()
   userEmail: string;
+
+  @IsNotEmpty()
+  @IsNumber()
   customerNumber?: number;
+
+  @IsNotEmpty()
+  @IsNumber()
   customerSocialSecurityNumber?: number;
+
   customerRepresentative?: object | null;
+
+  @IsNotEmpty()
+  @IsNumber()
   userAge: number;
+
   accounts?: object[];
   customers?: object[];
   userActions?: object[];
   transactions?: object[];
+
+  @IsString()
   bank?: string | null;
+
+  @IsString()
   department?: string;
+
   createdAt?: Date;
+
   updatedAt?: Date;
 }
 export class CustomerIdDTO {
