@@ -25,7 +25,8 @@ export class CustomersComponent implements OnInit {
   isLoggedIn: boolean = false;
   isLoading: boolean = false;
   isAssignCustomerPanelOpen: boolean = false;
-  isActionMenuOpen: boolean = false;
+  openedActionMenu: string = "";
+  isOpenActionMenuClicked: boolean = false;
   //values
   searchText: string = "";
   customerId: string = "";
@@ -39,8 +40,9 @@ export class CustomersComponent implements OnInit {
     console.log("id cusrep:", this.customerRepresentativeId);
   }
   //handlers
-  handleClickActionMenuPanel() {
-    this.isActionMenuOpen = !this.isActionMenuOpen;
+  handleClickActionMenuPanel(customerId: string) {
+    this.openedActionMenu = customerId;
+    this.isOpenActionMenuClicked = !this.isOpenActionMenuClicked;
   }
   handleSearchCustomer() {
     const { searchText, utilsService, employeeService } = this;
