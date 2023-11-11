@@ -1,7 +1,5 @@
 import { Component, OnInit } from "@angular/core";
-import { ProfileService } from "src/app/services/profile.service";
 import { TokenStorageService } from "src/app/services/token-storage.service";
-import { UtilsService } from "src/app/services/utils.service";
 
 @Component({
   selector: "app-profile",
@@ -29,30 +27,21 @@ export class ProfileComponent implements OnInit {
   updatedAt?: Date;
   open?: boolean = false;
   errorMessage: string = "";
-  constructor(
-    private profileService: ProfileService,
-    private readonly tokenStorage: TokenStorageService,
-    private readonly utilsService: UtilsService,
-  ) {}
+  constructor(private readonly tokenStorage: TokenStorageService) {}
   content?: string;
   ngOnInit(): void {
-    this.userId = this.tokenStorage.getUser()._id.toString();
-    this.profileService.getUserBoard(this.userId).subscribe({
-      next: (data: any) => {
-        this.tokenStorage.saveUser(JSON.stringify(data));
-        this.utilsService.reloadPage();
-      },
-      error: (err: any) => {
-        this.errorMessage = err.error.message;
-      },
-    });
     const _user = this.tokenStorage.getUser();
-    this.userId = _user.userId;
+    this.setUserProfile(_user);
+  }
+  //setters
+  setUserProfile(_user: any): void {
+    console.log("User: ", JSON.stringify(_user));
+    this.userId = _user._id;
     this.userName = _user.userName;
     this.userSurname = _user.userSurname;
     this.userAge = _user.userAge;
-    this.userFullName = _user.customerFullName;
-    this.userEmail = _user.email;
+    this.userFullName = _user.userFullName;
+    this.userEmail = _user.userEmail;
     this.bank = _user.bank ?? null;
     this.department = _user.department ?? null;
     this.customerNumber = _user.customerNumber ?? null;

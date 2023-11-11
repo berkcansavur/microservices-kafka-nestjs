@@ -9,6 +9,7 @@ import { TransfersComponent } from "./pages/transfers/transfers.component";
 import { TransactionsComponent } from "./pages/board-employee/transactions/transactions.component";
 import { DashboardComponent } from "./pages/board-customer/dashboard/dashboard.component";
 import { AccountsComponent } from "./pages/accounts/accounts.component";
+import { CustomersComponent } from "./pages/board-employee/customers/customers.component";
 
 const routes: Routes = [
   {
@@ -46,6 +47,10 @@ const routes: Routes = [
   {
     path: "dashboard",
     component: DashboardComponent,
+  },
+  {
+    path: "customers",
+    component: CustomersComponent,
   },
   {
     path: "",

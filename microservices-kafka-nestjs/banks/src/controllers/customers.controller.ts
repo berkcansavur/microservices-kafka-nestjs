@@ -1,6 +1,7 @@
 import { Body, Controller, Logger, UsePipes } from "@nestjs/common";
 import { MessagePattern } from "@nestjs/microservices";
 import { LoginUserDTO } from "src/dtos/auth.dto";
+import { SearchTextDTO } from "src/dtos/bank.dto";
 import { ParseIncomingRequest } from "src/pipes/serialize-request-data.pipe";
 import { AuthService } from "src/services/auth.service";
 import { CustomersService } from "src/services/customers.service";
@@ -37,5 +38,14 @@ export class CustomersController {
       JSON.stringify(authenticatedUser),
     );
     return JSON.stringify(authenticatedUser);
+  }
+  @MessagePattern("search-customer")
+  @UsePipes(new ParseIncomingRequest())
+  async findCustomer(@Body() query: SearchTextDTO) {
+    const { logger, customerService } = this;
+    logger.debug("[login] user: LoginUserDTO: ", query);
+    const searchResult = await customerService.filterCustomerByQuery({ query });
+    logger.debug("[login] searchResult: ", searchResult);
+    return JSON.stringify(searchResult);
   }
 }

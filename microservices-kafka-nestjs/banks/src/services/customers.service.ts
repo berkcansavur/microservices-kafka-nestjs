@@ -2,12 +2,14 @@ import { Mapper } from "@automapper/core";
 import { InjectMapper } from "@automapper/nestjs";
 import { Injectable, Logger } from "@nestjs/common";
 import { ACCOUNT_ACTIONS } from "src/constants/banks.constants";
-import { AuthenticatedUserDTO } from "src/dtos/auth.dto";
+import { AuthenticatedUserDTO, UserProfileDTO } from "src/dtos/auth.dto";
 import {
   CustomerDTO,
+  SearchTextDTO,
   createCustomerDTOWithCustomerNumber,
 } from "src/dtos/bank.dto";
 import { UserCouldNotValidatedException } from "src/exceptions";
+import { BanksLogic } from "src/logic/banks.logic";
 import { CustomersRepository } from "src/repositories/customer.repository";
 import {
   Customer,
@@ -36,11 +38,32 @@ export class CustomersService {
     });
     return customer;
   }
+  async filterCustomerByQuery({
+    query,
+  }: {
+    query: SearchTextDTO;
+  }): Promise<UserProfileDTO | string> {
+    const { customersRepository, AuthMapper } = this;
+    const queryText: string = query.query;
+    const customer: Customer = await customersRepository.filterCustomersByQuery(
+      {
+        query: queryText,
+      },
+    );
+    if (BanksLogic.isObjectValid(customer)) {
+      return AuthMapper.map<Customer, UserProfileDTO>(
+        customer,
+        Customer,
+        UserProfileDTO,
+      );
+    }
+    return "Customer could not be found";
+  }
   async setCustomersAccessToken({
     authenticatedUserDTO,
   }: {
     authenticatedUserDTO: AuthenticatedUserDTO;
-  }): Promise<CustomerDTO> {
+  }): Promise<UserProfileDTO> {
     const { logger, customersRepository, AuthMapper } = this;
     logger.debug(
       "[setCustomersAccessToken] authenticatedUserDTO:",
@@ -54,10 +77,10 @@ export class CustomersService {
     if (updatedCustomer.accessToken.length < 5) {
       throw new UserCouldNotValidatedException({ data: authenticatedUserDTO });
     }
-    return AuthMapper.map<Customer, CustomerDTO>(
+    return AuthMapper.map<Customer, UserProfileDTO>(
       updatedCustomer,
       Customer,
-      CustomerDTO,
+      UserProfileDTO,
     );
   }
   async createCustomerAuth({

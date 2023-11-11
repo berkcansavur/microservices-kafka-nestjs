@@ -16,9 +16,11 @@ export enum BANK_TOPICS {
   CREATE_EMPLOYEE_REGISTRATION_TO_BANK_EVENT = "create-employee-registration-to-bank-event",
   GET_CUSTOMER_ACCOUNTS_EVENT = "get-customer-accounts-event",
   GET_EMPLOYEES_CUSTOMER_RELATED_TRANSACTIONS = "get-employees-customer-related-transactions",
+  GET_EMPLOYEES_TRANSACTIONS = "get-employees-transactions",
   GET_CUSTOMERS_TRANSFERS_EVENT = "get-customers-transfers-event",
   DELETE_TRANSFER_RECORDS_EVENT = "delete-transfer-records-event",
   GET_ACCOUNTS_TRANSFERS_EVENT = "get-accounts-transfers-event",
+  SEARCH_CUSTOMER = "search-customer",
 }
 export enum ACCOUNT_TOPICS {
   GET_ACCOUNT = "get_account",

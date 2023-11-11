@@ -8,6 +8,7 @@ import {
 } from "class-validator";
 import { Expose, Exclude } from "class-transformer";
 import { USER_TYPES } from "src/constants/banks.constants";
+import { PrivateCustomer } from "src/schemas/employee-schema";
 
 export class LoginUserDTO {
   @IsString()
@@ -86,7 +87,7 @@ export class UserProfileDTO {
   userAge: number;
 
   accounts?: object[];
-  customers?: object[];
+  customers?: PrivateCustomer[];
   userActions?: object[];
   transactions?: object[];
 
@@ -99,6 +100,9 @@ export class UserProfileDTO {
   createdAt?: Date;
 
   updatedAt?: Date;
+
+  @IsString()
+  accessToken?: string;
 }
 export class CustomerIdDTO {
   @IsString()

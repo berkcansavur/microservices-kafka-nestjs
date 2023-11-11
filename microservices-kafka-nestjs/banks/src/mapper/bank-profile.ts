@@ -186,6 +186,10 @@ export class BankProfile extends AutomapperProfile {
           (destination) => destination.updatedAt,
           mapFrom((source) => source.updatedAt ?? null),
         ),
+        forMember(
+          (destination) => destination.accessToken,
+          mapFrom((source) => source.accessToken ?? null),
+        ),
       );
       createMap<BankDirector, UserProfileDTO>(
         mapper,
@@ -228,6 +232,10 @@ export class BankProfile extends AutomapperProfile {
         forMember(
           (destination) => destination.transactions,
           mapFrom((source) => source.transactions),
+        ),
+        forMember(
+          (destination) => destination.accessToken,
+          mapFrom((source) => source.accessToken ?? null),
         ),
       );
       createMap<BankDepartmentDirector, UserProfileDTO>(
@@ -277,6 +285,10 @@ export class BankProfile extends AutomapperProfile {
           (destination) => destination.transactions,
           mapFrom((source) => source.transactions),
         ),
+        forMember(
+          (destination) => destination.accessToken,
+          mapFrom((source) => source.accessToken ?? null),
+        ),
       );
       createMap<BankCustomerRepresentative, UserProfileDTO>(
         mapper,
@@ -324,6 +336,10 @@ export class BankProfile extends AutomapperProfile {
         forMember(
           (destination) => destination.customers,
           mapFrom((source) => source.customers),
+        ),
+        forMember(
+          (destination) => destination.accessToken,
+          mapFrom((source) => source.accessToken ?? null),
         ),
       );
     };

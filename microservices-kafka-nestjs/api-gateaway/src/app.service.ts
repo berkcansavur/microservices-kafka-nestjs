@@ -15,10 +15,12 @@ import {
   GetAccountsLastActionsDTO,
   GetCustomersAccountsDTO,
   GetCustomersTransfersDTO,
+  GetEmployeeDTO,
   GetEmployeesCustomerTransactionsDTO,
   GetTransferDTO,
   LoginUserDTO,
   MoneyTransferDTO,
+  SearchTextDTO,
 } from "./dtos/api.dtos";
 import { ACCOUNT_TOPICS, BANK_TOPICS } from "./constants/kafka-constants";
 import { AccountType } from "types/app-types";
@@ -243,6 +245,15 @@ export class AppService implements OnModuleInit {
       getCustomersTransfersDTO,
     );
   }
+  sendSearchCustomerRequest({ searchText }: { searchText: string }) {
+    const { logger } = this;
+    const searchTextDTO: SearchTextDTO = { searchText };
+    logger.debug(
+      "[AppService] sendCreateDirectorRequest customerId: ",
+      searchTextDTO,
+    );
+    return this.bankClient.send(BANK_TOPICS.SEARCH_CUSTOMER, searchText);
+  }
   sendGetUsersProfileRequest({
     userType,
     userId,
@@ -301,6 +312,21 @@ export class AppService implements OnModuleInit {
     return this.bankClient.send(
       BANK_TOPICS.GET_EMPLOYEES_CUSTOMER_RELATED_TRANSACTIONS,
       getEmployeesCustomerTransactionsDTO,
+    );
+  }
+  sendGetEmployeesTransactionsRequest({
+    getEmployeeDTO,
+  }: {
+    getEmployeeDTO: GetEmployeeDTO;
+  }) {
+    const { logger } = this;
+    logger.debug(
+      "[AppService] sendCreateDirectorRequest customerId: ",
+      getEmployeeDTO,
+    );
+    return this.bankClient.send(
+      BANK_TOPICS.GET_EMPLOYEES_TRANSACTIONS,
+      getEmployeeDTO,
     );
   }
   async sendGetAccountRequest(accountId: AccountIdDTO) {

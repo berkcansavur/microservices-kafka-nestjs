@@ -460,6 +460,7 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
     const mappedUserType = utils.getUserType({ userType });
     if (mappedUserType === USER_TYPES.CUSTOMER) {
       const user = await customersService.getCustomer({ customerId: userId });
+      logger.debug("User model: ", user);
       return BankMapper.map<Customer, UserProfileDTO>(
         user,
         Customer,
@@ -472,18 +473,41 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
       USER_TYPES.BANK_CUSTOMER_REPRESENTATIVE
     ) {
       const employeeModelType = utils.getEmployeeModelType(userType);
-      const user = await employeesService.getEmployee({
-        employeeType: employeeModelType,
-        employeeId: userId,
-      });
-      return BankMapper.map<
-        BankDirector | BankDepartmentDirector | BankCustomerRepresentative,
-        UserProfileDTO
-      >(
-        user,
-        BankDirector || BankDepartmentDirector || BankCustomerRepresentative,
-        UserProfileDTO,
-      );
+      if (
+        employeeModelType === EMPLOYEE_MODEL_TYPES.BANK_CUSTOMER_REPRESENTATIVE
+      ) {
+        const user = (await employeesService.getEmployee({
+          employeeType: employeeModelType,
+          employeeId: userId,
+        })) as BankCustomerRepresentative;
+        return BankMapper.map<BankCustomerRepresentative, UserProfileDTO>(
+          user,
+          BankCustomerRepresentative,
+          UserProfileDTO,
+        );
+      }
+      if (employeeModelType === EMPLOYEE_MODEL_TYPES.BANK_DEPARTMENT_DIRECTOR) {
+        const user = (await employeesService.getEmployee({
+          employeeType: employeeModelType,
+          employeeId: userId,
+        })) as BankDepartmentDirector;
+        return BankMapper.map<BankDepartmentDirector, UserProfileDTO>(
+          user,
+          BankDepartmentDirector,
+          UserProfileDTO,
+        );
+      }
+      if (employeeModelType === EMPLOYEE_MODEL_TYPES.BANK_DIRECTOR) {
+        const user = (await employeesService.getEmployee({
+          employeeType: employeeModelType,
+          employeeId: userId,
+        })) as BankDirector;
+        return BankMapper.map<BankDirector, UserProfileDTO>(
+          user,
+          BankDirector,
+          UserProfileDTO,
+        );
+      }
     }
     throw new UserNotFoundException();
   }

@@ -12,6 +12,7 @@ import { AppService } from "src/app.service";
 import {
   AddCustomerToRepresentativeDTO,
   GetCustomersAccountsDTO,
+  GetEmployeeDTO,
   GetEmployeesCustomerTransactionsDTO,
   GetTransferDTO,
   LoginUserDTO,
@@ -81,9 +82,9 @@ export class EmployeesController {
     });
   }
   @Get(
-    "/getEmployeesCustomerRelatedTransactionsRequest/:employeeType/:employeeId/:customerId",
+    "/getEmployeesCustomerRelatedTransactions/:employeeType/:employeeId/:customerId",
   )
-  //@UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   getEmployeesCustomerRelatedTransactionsRequest(
     @Param("employeeType") employeeType: USER_TYPES,
     @Param("employeeId") employeeId: string,
@@ -101,6 +102,41 @@ export class EmployeesController {
     );
     return appService.sendGetEmployeesCustomerRelatedTransactionsRequest({
       getEmployeesCustomerTransactionsDTO,
+    });
+  }
+  @Get("/getEmployeesTransactions/:employeeType/:employeeId")
+  @UseGuards(AuthGuard)
+  getEmployeesTransactionsRequest(
+    @Param("employeeType") employeeType: USER_TYPES,
+    @Param("employeeId") employeeId: string,
+  ) {
+    const { appService, logger } = this;
+
+    const getEmployeeDTO: GetEmployeeDTO = {
+      employeeId,
+      employeeType,
+    };
+    logger.debug(
+      "[getEmployeesCustomerRelatedTransactionsRequest] getEmployeesCustomerTransactionsDTO: ",
+      getEmployeeDTO,
+      "emp id:",
+      employeeId,
+    );
+    return appService.sendGetEmployeesTransactionsRequest({
+      getEmployeeDTO,
+    });
+  }
+  @Get("/searchCustomer/:searchText")
+  @UseGuards(AuthGuard)
+  searchCustomer(@Param("searchText") searchText: string) {
+    const { appService, logger } = this;
+
+    logger.debug(
+      "[getEmployeesCustomerRelatedTransactionsRequest] searchText: ",
+      searchText,
+    );
+    return appService.sendSearchCustomerRequest({
+      searchText,
     });
   }
 }

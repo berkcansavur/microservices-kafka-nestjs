@@ -52,7 +52,7 @@ export class CustomerTransferComponent {
     const isAllowed = this.utilsService.isUserCustomer();
     if (isAllowed === true) {
       this.isUserIsCustomer = true;
-      this.customerId = this.tokenStorage.getUser()._id.toString();
+      this.customerId = this.tokenStorage.getUser().userId.toString();
     } else {
       this.errorMessage = this.utilsService.setErrorMessage(
         "You are not allowed to view this page.",

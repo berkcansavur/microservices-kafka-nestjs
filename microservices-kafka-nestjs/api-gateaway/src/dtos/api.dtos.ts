@@ -596,6 +596,15 @@ export class GetCustomersTransfersDTO {
   @IsMongoId()
   customerId: string;
 }
+export class SearchTextDTO {
+  @ApiProperty({
+    description: "Search text of user",
+    required: true,
+    example: "lebron james, 11272922, testuser@gmail.com",
+  })
+  @IsMongoId()
+  searchText: string;
+}
 export class GetUserProfileDTO {
   @ApiProperty({
     description: "Users Type",
@@ -672,4 +681,22 @@ export class GetEmployeesCustomerTransactionsDTO {
   @IsNotEmpty()
   @IsMongoId()
   customerId: string;
+}
+export class GetEmployeeDTO {
+  @ApiProperty({
+    description: "Employee Type",
+    required: true,
+    example: "BANK_CUSTOMER_REPRESENTATIVE",
+  })
+  @IsNotEmpty()
+  employeeType: USER_TYPES;
+
+  @ApiProperty({
+    description: "Employees id",
+    required: true,
+    example: "6530a356aaf92d72d1f0f367",
+  })
+  @IsNotEmpty()
+  @IsMongoId()
+  employeeId: string;
 }

@@ -164,6 +164,14 @@ export class ParseIncomingRequest implements PipeTransform {
       );
       return formattedData;
     }
+    if (value && value.getEmployeeDTO) {
+      const formattedData = value.getEmployeeDTO;
+      this.logger.debug(
+        "[ParseIncomingRequest Pipe] Formatted request data :",
+        formattedData,
+      );
+      return formattedData;
+    }
     if (value) {
       return value;
     }

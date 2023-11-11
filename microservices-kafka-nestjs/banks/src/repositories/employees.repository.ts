@@ -279,7 +279,7 @@ export class EmployeesRepository {
       .exec();
     return updatedEmployee;
   }
-  async getEmployeesTransactions({
+  async getEmployeesCustomerRelatedTransactions({
     employeeType,
     employeeId,
     userId,
@@ -298,5 +298,20 @@ export class EmployeesRepository {
       (transaction) => transaction.customer === userId,
     );
     return employeeTransactions;
+  }
+  async getEmployeesTransactions({
+    employeeType,
+    employeeId,
+  }: {
+    employeeType: EMPLOYEE_MODEL_TYPES;
+    employeeId: string;
+  }) {
+    const { employeeModelsFactory } = this;
+    const employeeModel =
+      await employeeModelsFactory.getEmployeeModel(employeeType);
+    const employee = await employeeModel.findOne({ _id: employeeId });
+
+    const { transactions } = employee;
+    return transactions;
   }
 }

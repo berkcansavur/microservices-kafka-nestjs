@@ -451,8 +451,21 @@ export class GetEmployeesCustomerTransactionsDTO {
   @IsMongoId()
   customerId: string;
 }
+export class GetEmployeeDTO {
+  @IsNotEmpty()
+  employeeType: USER_TYPES;
+
+  @IsNotEmpty()
+  @IsMongoId()
+  employeeId: string;
+}
 export class AccountIdDTO {
   @IsNotEmpty()
   @IsMongoId()
   accountId: string;
+}
+export class SearchTextDTO {
+  @IsNotEmpty()
+  @IsString()
+  query: string;
 }

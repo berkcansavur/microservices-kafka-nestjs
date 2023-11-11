@@ -37,7 +37,7 @@ export class TransactionsComponent implements OnInit {
   ngOnInit(): void {
     this.setEmployeeProps();
     this.isLoggedIn = this.tokenStorage.getIsLoggedIn();
-    this.handleSendGetEmployeesCustomersRelatedTransactionsRequest();
+    this.handleSendGetEmployeesTransactionsRequest();
   }
   setShowHandleTransaction(transaction: ITransactionItem) {
     this.showHandleTransaction = !this.showHandleTransaction;
@@ -45,19 +45,20 @@ export class TransactionsComponent implements OnInit {
   }
   setEmployeeProps(): void {
     this.employeeType = this.tokenStorage.getUserType() as string;
-    this.employeeId = this.tokenStorage.getUser()._id;
+    this.employeeId = this.tokenStorage.getUser().userId;
   }
-  handleSendGetEmployeesCustomersRelatedTransactionsRequest() {
-    const { employeeId, employeeType, customerId } = this;
+  handleSendGetEmployeesTransactionsRequest(): void {
+    const { employeeId, employeeType } = this;
     this.process = this.utilsService.setProcess(
-      "Retrieving customer related transactions request...",
+      "Retrieving employees transactions request...",
     );
     this.isLoading = this.utilsService.setLoading(true);
+    const employeesTransactions = this.tokenStorage.getUser().transactions;
+    console.log("Transactions: ", employeesTransactions);
     this.employeeService
-      .sendGetEmployeesCustomersTransactionsRequest({
+      .sendGetEmployeesTransactionsRequest({
         employeeType,
-        employeeId: "65419d013be4f99e84946a2e",
-        customerId: "6540ec554e0d15fad56e8f67",
+        employeeId,
       })
       .subscribe({
         next: (data: any) => {

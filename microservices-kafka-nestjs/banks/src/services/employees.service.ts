@@ -4,7 +4,6 @@ import {
   CreateBankCustomerRepresentativeDTO,
   CreateBankDepartmentDirectorDTO,
   CreateBankDirectorDTO,
-  EmployeeDTO,
 } from "../dtos/bank.dto";
 import {
   BankCustomerRepresentative,
@@ -35,7 +34,7 @@ import {
   TRANSACTION_TYPES,
   USER_TYPES,
 } from "src/constants/banks.constants";
-import { AuthenticatedUserDTO } from "src/dtos/auth.dto";
+import { AuthenticatedUserDTO, UserProfileDTO } from "src/dtos/auth.dto";
 
 @Injectable()
 export class EmployeesService implements IEmployeeServiceInterface {
@@ -102,7 +101,7 @@ export class EmployeesService implements IEmployeeServiceInterface {
   }: {
     authenticatedUserDTO: AuthenticatedUserDTO;
     userType: USER_TYPES;
-  }): Promise<EmployeeDTO> {
+  }): Promise<UserProfileDTO> {
     const { logger, employeesRepository, BankMapper, utils } = this;
     logger.debug(
       "[setEmployeesAccessToken] authenticatedUserDTO:",
@@ -120,11 +119,11 @@ export class EmployeesService implements IEmployeeServiceInterface {
     }
     return BankMapper.map<
       BankDirector | BankDepartmentDirector | BankCustomerRepresentative,
-      EmployeeDTO
+      UserProfileDTO
     >(
       updatedEmployee,
       BankDirector || BankDepartmentDirector || BankCustomerRepresentative,
-      EmployeeDTO,
+      UserProfileDTO,
     );
   }
   async getEmployeeByEmail({
@@ -246,7 +245,7 @@ export class EmployeesService implements IEmployeeServiceInterface {
       throw new Error(error);
     }
   }
-  async getEmployeesCustomerTransactions({
+  async getEmployeesCustomerRelatedTransactions({
     employeeType,
     employeeId,
     customerId,
@@ -264,10 +263,32 @@ export class EmployeesService implements IEmployeeServiceInterface {
     );
     const employeeModelType = utils.getEmployeeModelType(employeeType);
     const transactions: Transaction[] =
-      await employeesRepository.getEmployeesTransactions({
+      await employeesRepository.getEmployeesCustomerRelatedTransactions({
         employeeType: employeeModelType,
         employeeId,
         userId: customerId,
+      });
+    logger.debug("[EmployeesService] transactions : ", transactions);
+    return transactions;
+  }
+  async getEmployeesTransactions({
+    employeeType,
+    employeeId,
+  }: {
+    employeeType: USER_TYPES;
+    employeeId: string;
+  }): Promise<Transaction[]> {
+    const { employeesRepository, utils, logger } = this;
+    logger.debug(
+      "[EmployeesService] getEmployeesCustomerTransactions : ",
+      employeeType,
+      employeeId,
+    );
+    const employeeModelType = utils.getEmployeeModelType(employeeType);
+    const transactions: Transaction[] =
+      await employeesRepository.getEmployeesTransactions({
+        employeeType: employeeModelType,
+        employeeId,
       });
     logger.debug("[EmployeesService] transactions : ", transactions);
     return transactions;

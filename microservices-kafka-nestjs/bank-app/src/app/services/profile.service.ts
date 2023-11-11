@@ -34,4 +34,11 @@ export class ProfileService {
     );
     return response;
   }
+  getCustomerRepresentative({ userId }: { userId: string }): Observable<any> {
+    const response = this.httpClient.get(
+      `http://localhost:3000/getUserProfile/BANK_CUSTOMER_REPRESENTATIVE/${userId}`,
+      httpOptions,
+    );
+    return response;
+  }
 }

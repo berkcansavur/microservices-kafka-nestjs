@@ -176,9 +176,14 @@ export class BanksController {
       userType: data.userType,
       userId: data.userId,
     });
-    logger.debug(`[BanksController] User: `, user);
-    const amuser = JSON.stringify(user);
-    return JSON.parse(amuser);
+    const stingifedUser = JSON.stringify(user);
+    logger.debug(
+      `[BanksController] User: `,
+      stingifedUser,
+      "Parsed user:",
+      JSON.parse(stingifedUser),
+    );
+    return JSON.parse(stingifedUser);
   }
   @MessagePattern("get-customers-transfers-event")
   @UsePipes(new ParseIncomingRequest())

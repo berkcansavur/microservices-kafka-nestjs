@@ -35,6 +35,23 @@ export class CustomersRepository {
     const customer = await CustomerModel.findOne({ email: email });
     return customer;
   }
+  async filterCustomersByQuery({
+    query,
+  }: {
+    query: string;
+  }): Promise<CustomerDocument> {
+    const { CustomerModel } = this;
+    const searchQuery = {
+      $or: [
+        { customerName: { $regex: new RegExp(query, "i") } }, // İsimde eşleşme (case insensitive)
+        { customerSurname: { $regex: new RegExp(query, "i") } }, // Soyisimde eşleşme (case insensitive)
+        { email: { $regex: new RegExp(query, "i") } }, // Emailde eşleşme (case insensitive)
+        { customerNumber: parseInt(query) || 0 }, // Müşteri numarasında eşleşme (sayı ise)
+      ],
+    };
+    const customer = await CustomerModel.findOne(searchQuery);
+    return customer;
+  }
   async createCustomer({
     createCustomerDTOWithCustomerNumber,
   }: {

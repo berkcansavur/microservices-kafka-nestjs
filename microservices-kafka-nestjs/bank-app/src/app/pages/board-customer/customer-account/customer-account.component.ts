@@ -30,7 +30,7 @@ export class CustomerAccountComponent {
   isCreateAccountClicked: boolean = false;
 
   ngOnInit(): void {
-    this.customerId = this.tokenStorage.getUser()._id.toString();
+    this.customerId = this.tokenStorage.getUser().userId.toString();
     this.getCustomersAccounts();
     this.isLoggedIn = this.tokenStorage.getIsLoggedIn();
     this.isAllowedToUserType();
