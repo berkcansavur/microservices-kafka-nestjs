@@ -91,7 +91,30 @@ export class CustomersComponent implements OnInit {
       });
   }
   handleAssignCustomer(customerId: string) {
-    console.log("show customers transactions:", customerId);
+    const { customerRepresentativeId, employeeService } = this;
+    this.process = this.utilsService.setProcess(
+      "Assigning customer to the representative...",
+    );
+    this.isLoading = this.utilsService.setLoading(true);
+
+    employeeService
+      .sendAddCustomerToRepresentativeRequest({
+        customerId,
+        customerRepresentativeId,
+      })
+      .subscribe({
+        next: (data: any) => {
+          console.log("data: ", data);
+          this.isLoading = this.utilsService.setLoading(false);
+        },
+        error: (err: any) => {
+          this.errorMessage = this.utilsService.setErrorMessage(
+            "Could assigned customer to bank representative",
+            err.error.message,
+          );
+          this.isLoading = this.utilsService.setLoading(false);
+        },
+      });
   }
   handleUnassignCustomer(customerId: string) {
     console.log("show customers transactions:", customerId);

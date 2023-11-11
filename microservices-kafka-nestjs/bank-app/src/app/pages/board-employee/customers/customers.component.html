@@ -97,8 +97,13 @@
                 </button>
               </li>
               <li class="text-gray-900 relative cursor-pointer select-none py-3 pl-5 pr-9">
-                <button mat-button class="flex items-center" (click)="handleAssignCustomer(customer.userId) ">
+                <button mat-button class="flex items-center" (click)="handleUnassignCustomer(customer.userId) ">
                   <span class="ml-3 block truncate">Unassign Customer</span>
+                </button>
+              </li>
+              <li class="text-gray-900 relative cursor-pointer select-none py-3 pl-5 pr-9">
+                <button mat-button class="flex items-center" (click)="handleAssignCustomer(customer.userId) ">
+                  <span class="ml-3 block truncate">Assign Customer</span>
                 </button>
               </li>
               </ul>
