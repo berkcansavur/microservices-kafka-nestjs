@@ -41,6 +41,7 @@ export class CustomersRepository {
     query: string;
   }): Promise<CustomerDocument> {
     const { CustomerModel } = this;
+    console.log("query: ", query);
     const searchQuery = {
       $or: [
         { customerName: { $regex: new RegExp(query, "i") } }, // İsimde eşleşme (case insensitive)

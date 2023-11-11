@@ -43,8 +43,9 @@ export class CustomersService {
   }: {
     query: SearchTextDTO;
   }): Promise<UserProfileDTO | string> {
-    const { customersRepository, AuthMapper } = this;
-    const queryText: string = query.query;
+    const { customersRepository, AuthMapper, logger } = this;
+    logger.debug("[filterCustomerByQuery] search text:", query);
+    const queryText: string = query as unknown as string;
     const customer: Customer = await customersRepository.filterCustomersByQuery(
       {
         query: queryText,
