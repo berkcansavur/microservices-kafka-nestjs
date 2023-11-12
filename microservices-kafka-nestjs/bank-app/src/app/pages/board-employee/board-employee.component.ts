@@ -1,5 +1,5 @@
 import { Component, OnInit } from "@angular/core";
-import { ProfileService } from "src/app/services/profile.service";
+import { TokenStorageService } from "src/app/services/token-storage.service";
 
 @Component({
   selector: "app-board-employee",
@@ -15,16 +15,17 @@ export class BoardEmployeeComponent implements OnInit {
   accounts: any[] = [];
   userActions: any[] = [];
   open?: boolean = false;
-  constructor(private profileService: ProfileService) {}
+  constructor(private tokenStorage: TokenStorageService) {}
   content?: string;
   ngOnInit(): void {
-    // const _user = this.profileService.getUserBoard();
-    // this.userFullName = _user.customerFullName;
-    // this.userEmail = _user.email;
-    // this.customerNumber = _user.customerNumber;
-    // this.customerSocialSecurityNumber = _user.customerSocialSecurityNumber;
-    // this.userAge = _user.customerAge;
-    // this.accounts = _user.accounts;
-    // this.userActions = _user.customerActions;
+    const _user = this.tokenStorage.getUser();
+    console.log("user: " + _user);
+    this.userFullName = _user.userFullName;
+    this.userEmail = _user.email;
+    this.customerNumber = _user.customerNumber;
+    this.customerSocialSecurityNumber = _user.customerSocialSecurityNumber;
+    this.userAge = _user.customerAge;
+    this.accounts = _user.accounts;
+    this.userActions = _user.customerActions;
   }
 }

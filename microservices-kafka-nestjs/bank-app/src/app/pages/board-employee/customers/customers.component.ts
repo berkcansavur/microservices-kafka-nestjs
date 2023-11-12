@@ -21,6 +21,7 @@ export class CustomersComponent implements OnInit {
   process: string | undefined;
   employeeType: string = "";
   employeeId: string = "";
+  successMessage: string | undefined;
   //conditions
   isLoggedIn: boolean = false;
   isLoading: boolean = false;
@@ -51,6 +52,7 @@ export class CustomersComponent implements OnInit {
     employeeService.sendSearchCustomerRequest({ searchText }).subscribe({
       next: (data: any) => {
         console.log("search text: ", searchText);
+        this.customers = [];
         this.customers.push(data);
         console.log("filtered customer: ", data);
         this.isLoading = utilsService.setLoading(false);
@@ -108,6 +110,7 @@ export class CustomersComponent implements OnInit {
         next: (data: any) => {
           console.log("data: ", data);
           this.isLoading = this.utilsService.setLoading(false);
+          this.successMessage = "Customer assigned successfully.";
         },
         error: (err: any) => {
           this.errorMessage = this.utilsService.setErrorMessage(

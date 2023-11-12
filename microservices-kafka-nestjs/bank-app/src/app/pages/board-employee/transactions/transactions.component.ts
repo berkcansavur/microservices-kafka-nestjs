@@ -53,8 +53,6 @@ export class TransactionsComponent implements OnInit {
       "Retrieving employees transactions request...",
     );
     this.isLoading = this.utilsService.setLoading(true);
-    const employeesTransactions = this.tokenStorage.getUser().transactions;
-    console.log("Transactions: ", employeesTransactions);
     this.employeeService
       .sendGetEmployeesTransactionsRequest({
         employeeType,
@@ -63,7 +61,7 @@ export class TransactionsComponent implements OnInit {
       .subscribe({
         next: (data: any) => {
           this.transactions = data;
-          console.log("Transactions: ", this.transactions);
+          console.log("Transactions: ", data);
           this.isLoading = this.utilsService.setLoading(false);
         },
         error: (err: any) => {

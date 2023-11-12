@@ -156,7 +156,7 @@ export class CustomerTransferComponent {
     this.loading = this.utilsService.setLoading(true);
     this.process = this.utilsService.setProcess("Deleting transfers...");
     const transferIds = this.transferIds;
-    const userId = tokenStorage.getUser()._id;
+    const userId = tokenStorage.getUser().userId;
     transferService
       .sendDeleteTransferRecordRequest({
         transferIds,
@@ -242,7 +242,8 @@ export class CustomerTransferComponent {
   onCreateTransferSubmit(): void {
     const { selectedCurrencyType, tokenStorage, transferService } = this;
     const { fromAccount, toAccount, amount } = this.createTransferForm;
-    const userId = tokenStorage.getUser()._id;
+    const userId = tokenStorage.getUser().userId;
+    console.log("userId: " + userId);
     this.loading = this.utilsService.setLoading(true);
     this.process = this.utilsService.setProcess("Creating transfer...");
     transferService

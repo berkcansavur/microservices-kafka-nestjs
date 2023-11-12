@@ -72,8 +72,10 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
     private readonly employeesService: EmployeesService,
     @InjectMapper() private readonly BankMapper: Mapper,
   ) {}
-
   async onModuleInit() {
+    await this.handleSubscribeTopics();
+  }
+  private async handleSubscribeTopics() {
     const transferTopics: string[] = Object.values(TRANSFER_TOPICS);
     const accountTopics: string[] = Object.values(ACCOUNT_TOPICS);
     try {
@@ -549,7 +551,7 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
     employeeId: string;
   }): Promise<TransferType> {
     const { logger, employeesService } = this;
-    logger.debug("handleApproveTransfer transferId: ", transferId);
+    logger.debug("[handleApproveTransfer] transferId: ", transferId);
     try {
       const transfer: TransferType = (await this.handleKafkaTransferEvents(
         transferId,
@@ -694,7 +696,10 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
     return new Promise((resolve, reject) => {
       this.transferClient.send(topic, data).subscribe({
         next: (response: any) => {
-          this.logger.debug(`[${topic}] Response:`, response);
+          this.logger.debug(
+            `[handleKafkaTransferEvents] [${topic}] Response:`,
+            response,
+          );
           if (!BanksLogic.isObjectValid(response)) {
             throw new Error("Retrieved data is not an object");
           }
@@ -714,7 +719,10 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
     return new Promise((resolve, reject) => {
       this.accountClient.send(topic, data).subscribe({
         next: (response: any) => {
-          this.logger.debug(`[${topic}] Response:`, response);
+          this.logger.debug(
+            `[handleKafkaAccountEvents] [${topic}] Response:`,
+            response,
+          );
           if (!BanksLogic.isObjectValid(response)) {
             throw new Error("Retrieved data is not an object");
           }

@@ -67,7 +67,7 @@ export class CreateTransferComponent implements OnInit {
     const { selectedCurrencyType, tokenStorage, transferService, fromAccount } =
       this;
     const { toAccount, amount } = this.createTransferForm;
-    const userId = tokenStorage.getUser()._id;
+    const userId = tokenStorage.getUser().userId;
     this.setLoading(true);
     this.setProcess("Create transfer");
     const result = this.checkAllFieldsAreFulfilled();

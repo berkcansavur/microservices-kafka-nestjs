@@ -27,6 +27,7 @@ export class HandleTransactionComponent implements OnInit {
   //app logic
   process: string = "";
   errorMessage: string = "";
+  successMessage: string = "";
   //conditions
   isLoading: boolean = false;
   //values
@@ -54,6 +55,7 @@ export class HandleTransactionComponent implements OnInit {
     this.setTransactionProps();
     this.getAccount(this.fromAccountId).subscribe({
       next: (data: any) => {
+        console.log("Data: ", data);
         this.fromAccount = data;
         this.fromAccountName = data.accountName;
         this.fromAccountUserId = data.userId;
@@ -61,6 +63,7 @@ export class HandleTransactionComponent implements OnInit {
         this.getCustomer(this.transaction?.transfer.userId as string).subscribe(
           {
             next: (data: any) => {
+              this.isLoading = this.utilsService.setLoading(false);
               this.fromAccountUserName = data.userFullName;
             },
             error: (err: any) => {
@@ -79,15 +82,19 @@ export class HandleTransactionComponent implements OnInit {
     });
     this.getAccount(this.toAccountId).subscribe({
       next: (data: any) => {
+        console.log(" to account ", data);
         this.toAccount = data;
         this.toAccountName = data.accountName;
         this.toAccountUserId = data.userId;
         this.isLoading = this.utilsService.setLoading(false);
         this.getCustomer(this.toAccountUserId).subscribe({
           next: (data: any) => {
+            this.isLoading = this.utilsService.setLoading(false);
+            console.log("to account data:", data);
             this.toAccountUserName = data.userFullName;
           },
           error: (err: any) => {
+            this.isLoading = this.utilsService.setLoading(false);
             console.log("getCustomer Error", err.error);
           },
         });
@@ -105,7 +112,7 @@ export class HandleTransactionComponent implements OnInit {
   setTransactionProps() {
     this.transactionType = this.transaction?.transactionType as string;
     this.transferId = this.transaction?.transfer?._id as string;
-    this.employeeId = this.tokenStorage.getUser()._id;
+    this.employeeId = this.tokenStorage.getUser().userId;
     this.customerId = this.transaction?.customer as string;
     this.result = this.transaction?.result as string;
     this.currencyType = this.transaction?.transfer?.currencyType as string;
@@ -134,6 +141,10 @@ export class HandleTransactionComponent implements OnInit {
         next: (data: any) => {
           this.processedTransfer = data;
           this.isLoading = this.utilsService.setLoading(false);
+          this.successMessage = this.utilsService.setSuccessMessage(
+            "Transfer Rejected Successfully",
+            data,
+          );
         },
         error: (err: any) => {
           this.errorMessage = this.utilsService.setErrorMessage(
@@ -154,6 +165,10 @@ export class HandleTransactionComponent implements OnInit {
         next: (data: any) => {
           this.processedTransfer = data;
           this.isLoading = this.utilsService.setLoading(false);
+          this.successMessage = this.utilsService.setSuccessMessage(
+            "Transfer Approved Successfully",
+            data,
+          );
         },
         error: (err: any) => {
           this.errorMessage = this.utilsService.setErrorMessage(

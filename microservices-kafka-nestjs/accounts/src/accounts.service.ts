@@ -36,22 +36,22 @@ export class AccountService implements IAccountService {
     private readonly accountStateFactory: AccountStateFactory,
     private readonly accountsRepository: AccountsRepository,
   ) {}
-  async getAccount({ accountId }: { accountId: string }): Promise<AccountDTO> {
+  async getAccount({ accountId }: { accountId: string }) {
     const { accountsRepository, logger } = this;
-    logger.debug("[AccountService getAccount]", { accountId });
+    logger.debug("[getAccount]", { accountId });
 
     const account: Account = await accountsRepository.getAccount({ accountId });
     return account;
   }
   async getAccounts({ accountIds }: { accountIds: string[] }) {
     const { accountsRepository, logger } = this;
-    logger.debug("[AccountService] getAccounts  accountIds: ", { accountIds });
+    logger.debug("[getAccounts] accountIds: ", { accountIds });
     const accountList: Account[] = [];
     for (const accountId of accountIds) {
       const account = await accountsRepository.getAccount({ accountId });
       accountList.push(account);
     }
-    logger.debug("[AccountService] getAccounts  accountIds: ", { accountList });
+    logger.debug("[getAccounts] accountList: ", { accountList });
     return accountList;
   }
   async createAccount({
@@ -60,7 +60,7 @@ export class AccountService implements IAccountService {
     createAccountDTO: CreateAccountDTO;
   }): Promise<AccountDTO> {
     const { accountsRepository, logger, accountStateFactory } = this;
-    logger.debug("[AccountService createAccount]", { createAccountDTO });
+    logger.debug("[createAccount] createAccountDTO: ", { createAccountDTO });
     try {
       const createdAccount: Account = await accountsRepository.createAccount({
         createAccountDTO: createAccountDTO,
@@ -100,7 +100,7 @@ export class AccountService implements IAccountService {
     actionFunc?: () => Promise<void>;
   }): Promise<AccountDTO> {
     const { accountsRepository, logger, accountStateFactory } = this;
-    logger.debug("[AccountService] updateBalanceOfAccount", {
+    logger.debug("[updateBalanceOfAccount] data: ", {
       accountId,
       amount,
       currencyType,
@@ -156,12 +156,12 @@ export class AccountService implements IAccountService {
       currencyType,
     } = createMoneyTransferDTO;
     const { logger, accountActionFactory } = this;
-    logger.debug("[AccountService] handleTransferAcrossAccounts", {
-      toAccountId,
-      fromAccountId,
-      userId,
-      amount,
-      currencyType,
+    logger.debug("[handleTransferAcrossAccounts] data: ", {
+      toAccountId: toAccountId,
+      fromAccountId: fromAccountId,
+      userId: userId,
+      amount: amount,
+      currencyType: currencyType,
     });
     const updatedToAccount = await this.updateBalanceOfAccount({
       accountId: toAccountId,
@@ -224,8 +224,8 @@ export class AccountService implements IAccountService {
     transferDTO: TransferDTO;
   }): Promise<AVAILABILITY_RESULT> {
     const { accountsRepository, logger } = this;
-    logger.debug("[AccountService] handleTransferAcrossAccounts", {
-      transferDTO,
+    logger.debug("[checkTransferApproval] transferDTO: ", {
+      transferDTO: transferDTO,
     });
     const { amount, toAccount, fromAccount, currencyType } = transferDTO;
     const transferFromAccount: Account = await accountsRepository.getAccount({
@@ -261,7 +261,10 @@ export class AccountService implements IAccountService {
   }: {
     accountId: string;
   }): Promise<Balance[]> {
-    const { accountsRepository } = this;
+    const { accountsRepository, logger } = this;
+    logger.debug("[getAccountBalance] accountId: ", {
+      accountId: accountId,
+    });
     try {
       const account = await accountsRepository.getAccount({ accountId });
       if (!account) {
@@ -280,9 +283,13 @@ export class AccountService implements IAccountService {
     accountId: string;
     currencyType: CURRENCY_TYPES;
   }): Promise<Balance> {
-    const { accountsRepository } = this;
+    const { accountsRepository, logger } = this;
     try {
       const account = await accountsRepository.getAccount({ accountId });
+      logger.debug("[getAccountsBalanceOfCurrencyType] data: ", {
+        accountId: accountId,
+        currencyType: currencyType,
+      });
       if (!account) {
         throw new AccountIsNotFoundException({ message: accountId });
       }
@@ -307,7 +314,11 @@ export class AccountService implements IAccountService {
     accountId: string;
     actionCount: number;
   }): Promise<ActionLog[]> {
-    const { accountsRepository } = this;
+    const { accountsRepository, logger } = this;
+    logger.debug("[getAccountsLastBalanceActions] data: ", {
+      accountId: accountId,
+      actionCount: actionCount,
+    });
     try {
       const account = await accountsRepository.getAccount({ accountId });
       if (!account) {

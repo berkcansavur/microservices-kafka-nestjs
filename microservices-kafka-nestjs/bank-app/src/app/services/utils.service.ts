@@ -14,6 +14,13 @@ export class UtilsService {
       return errorMessage;
     }
   }
+  setSuccessMessage(successMessage: string, data: any): string {
+    if (data) {
+      return successMessage + ": " + JSON.stringify(data);
+    } else {
+      return successMessage;
+    }
+  }
   setLoading(state: boolean): boolean {
     return state;
   }

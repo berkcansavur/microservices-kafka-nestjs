@@ -3,7 +3,6 @@ import { AccountService } from "./accounts.service";
 import { MessagePattern } from "@nestjs/microservices";
 import { ParseIncomingRequest } from "src/pipes/serialize-request-data.pipe";
 import {
-  AccountDTO,
   CreateAccountDTO,
   CreateAccountIncomingRequestDTO,
   CreateMoneyTransferDTO,
@@ -28,9 +27,7 @@ export class AccountsController {
   async createAccount(data: CreateAccountIncomingRequestDTO) {
     const { accountsService, logger, AccountIncomingRequestMapper } = this;
     logger.debug(
-      `[AccountsController] creating account incoming request data: ${JSON.stringify(
-        data,
-      )}`,
+      `[createAccount] incoming request data: ${JSON.stringify(data)}`,
     );
     const formattedRequestData: CreateAccountDTO =
       AccountIncomingRequestMapper.map<
@@ -48,7 +45,7 @@ export class AccountsController {
   async checkAccountAvailability(data: TransferDTO) {
     const { accountsService, logger } = this;
     logger.debug(
-      `[AccountsController] checkAccountAvailability incoming request data: ${JSON.stringify(
+      `[checkAccountAvailability] incoming request data: ${JSON.stringify(
         data,
       )}`,
     );
@@ -63,9 +60,7 @@ export class AccountsController {
   async makeMoneyTransfer(data: TransferDTO) {
     const { accountsService, logger, AccountIncomingRequestMapper } = this;
     logger.debug(
-      `[AccountsController] makeMoneyTransfer incoming request data: ${JSON.stringify(
-        data,
-      )}`,
+      `[makeMoneyTransfer]  incoming request data: ${JSON.stringify(data)}`,
     );
     const createMoneyTransferDTO: CreateMoneyTransferDTO =
       AccountIncomingRequestMapper.map<TransferDTO, CreateMoneyTransferDTO>(
@@ -84,11 +79,9 @@ export class AccountsController {
   async getAccount(accountId: string) {
     const { accountsService, logger } = this;
     logger.debug(
-      `[AccountsController] makeMoneyTransfer incoming request data: ${JSON.stringify(
-        accountId,
-      )}`,
+      `[getAccount] incoming request data: ${JSON.stringify(accountId)}`,
     );
-    const account: AccountDTO = await accountsService.getAccount({ accountId });
+    const account = await accountsService.getAccount({ accountId });
     return account;
   }
   @MessagePattern("get_accounts")
@@ -96,9 +89,7 @@ export class AccountsController {
   async getAccounts(accountIds: string[]) {
     const { accountsService, logger } = this;
     logger.debug(
-      `[AccountsController] makeMoneyTransfer incoming request data: ${JSON.stringify(
-        accountIds,
-      )}`,
+      `[getAccounts]  incoming request data: ${JSON.stringify(accountIds)}`,
     );
     const accounts = await accountsService.getAccounts({
       accountIds,
@@ -110,7 +101,7 @@ export class AccountsController {
   async getAccountsBalance(accountId: string): Promise<Balance[]> {
     const { accountsService, logger } = this;
     logger.debug(
-      `[AccountsController] makeMoneyTransfer incoming request data: ${JSON.stringify(
+      `[getAccountsBalance]  incoming request data: ${JSON.stringify(
         accountId,
       )}`,
     );
@@ -125,7 +116,11 @@ export class AccountsController {
     data: GetAccountsLastActionsDTO,
   ): Promise<ActionLog[]> {
     const { accountsService, logger } = this;
-    logger.debug(`[getAccountsLastActions]  data: ${JSON.stringify({ data })}`);
+    logger.debug(
+      `[getAccountsLastActions]  incoming request data: ${JSON.stringify({
+        data,
+      })}`,
+    );
     const accountLogs: ActionLog[] =
       await accountsService.getAccountsLastBalanceActions({
         accountId: data.accountId,
@@ -141,7 +136,7 @@ export class AccountsController {
   }): Promise<Balance> {
     const { accountsService, logger } = this;
     logger.debug(
-      `[AccountsController] makeMoneyTransfer incoming request data: ${JSON.stringify(
+      `[getAccountsBalanceOfCurrencyType]  incoming request data: ${JSON.stringify(
         data,
       )}`,
     );

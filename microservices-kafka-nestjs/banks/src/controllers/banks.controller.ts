@@ -27,11 +27,7 @@ export class BanksController {
   @UsePipes(new ParseIncomingRequest())
   async createAccountEvent(data: CreateAccountDTO) {
     const { logger } = this;
-    logger.debug(
-      `[BanksController] Banks approveTransfer Incoming Data: ${JSON.stringify(
-        data,
-      )}`,
-    );
+    logger.debug(`[createAccountEvent] Data: ${JSON.stringify(data)}`);
     return await this.bankService.handleCreateAccount({
       createAccountDTO: data,
     });

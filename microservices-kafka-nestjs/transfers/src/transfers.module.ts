@@ -33,7 +33,7 @@ import { TransferStateFactory } from "src/factories/transfer-state.factory";
         transport: Transport.KAFKA,
         options: {
           client: {
-            clientId: "bank-accounts",
+            clientId: "accounts",
             brokers: ["kafka:9092"],
           },
           consumer: {

@@ -34,6 +34,9 @@ export class AppService implements OnModuleInit {
     @Inject("ACCOUNT_SERVICE") private readonly accountClient: ClientKafka,
   ) {}
   async onModuleInit() {
+    this.handleSubscribeApplicationTopics();
+  }
+  private async handleSubscribeApplicationTopics() {
     const bankTopics: string[] = Object.values(BANK_TOPICS);
     const accountTopis: string[] = Object.values(ACCOUNT_TOPICS);
     try {
@@ -378,7 +381,7 @@ export class AppService implements OnModuleInit {
     );
     return account;
   }
-  async handleKafkaAccountEvents(
+  private async handleKafkaAccountEvents(
     data: any,
     topic: ACCOUNT_TOPICS,
   ): Promise<AccountType | any> {

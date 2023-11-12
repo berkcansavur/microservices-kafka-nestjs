@@ -93,3 +93,14 @@
     </footer>
   </section>  
 </div>
+<!-- Success Modal-->
+<div *ngIf="successMessage" [successMessage]="successMessage" [process]="process" app-success></div>
+<!-- Success Modal End-->
+<!-- Error Modal-->
+<div *ngIf="errorMessage" app-app-error [errorMessage]="errorMessage" [process]="process"> </div>
+<!-- Error Modal End-->
+<!--Loading Modal-->
+<div *ngIf="isLoading">
+  <div  [process]="process" app-loading></div>
+</div>
+<!--Loading Modal End-->

@@ -46,6 +46,7 @@ import { AuthService } from "./services/auth.service";
 import { CustomersComponent } from "./pages/board-employee/customers/customers.component";
 import { HandleTransactionComponent } from "./pages/board-employee/transactions/handle-transaction/handle-transaction.component";
 import { AssignCustomerToRepresentativeComponent } from './pages/board-employee/customers/assign-customer-to-representative/assign-customer-to-representative.component';
+import { SuccessComponent } from './common/components/success/success.component';
 
 @NgModule({
   declarations: [
@@ -76,6 +77,7 @@ import { AssignCustomerToRepresentativeComponent } from './pages/board-employee/
     CustomersComponent,
     HandleTransactionComponent,
     AssignCustomerToRepresentativeComponent,
+    SuccessComponent,
   ],
   imports: [
     BrowserModule,
