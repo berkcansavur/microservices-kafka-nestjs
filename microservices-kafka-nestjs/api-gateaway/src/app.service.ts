@@ -25,6 +25,7 @@ import {
 import { ACCOUNT_TOPICS, BANK_TOPICS } from "./constants/kafka-constants";
 import { AccountType } from "types/app-types";
 import { GetUserProfileDTO } from "./dtos/api.dtos";
+import { BanksLogic } from "./logic";
 
 @Injectable()
 export class AppService implements OnModuleInit {
@@ -388,9 +389,17 @@ export class AppService implements OnModuleInit {
     return new Promise((resolve, reject) => {
       this.accountClient.send(topic, data).subscribe({
         next: (response: any) => {
+          this.logger.debug(
+            `[handleKafkaAccountEvents] [${topic}] Response:`,
+            response,
+          );
+          if (!BanksLogic.isObjectValid(response)) {
+            throw new Error("Retrieved data is not an object");
+          }
           resolve(response);
         },
         error: (error) => {
+          this.logger.error(`[${topic}] Error:`, error);
           reject(error);
         },
       });
