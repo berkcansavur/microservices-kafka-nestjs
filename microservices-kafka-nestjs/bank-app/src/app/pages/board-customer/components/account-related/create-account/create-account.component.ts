@@ -40,7 +40,7 @@ export class CreateAccountComponent {
     const { selectedAccountType, selectedBankBranchCode, accountService } =
       this;
     const { accountName, interest } = this.createAccountForm;
-    const userId = this.tokenStorage.getUser()._id;
+    const userId = this.tokenStorage.getUser().userId;
     this.setLoading(true);
     this.setProcess("Creating account...");
     accountService

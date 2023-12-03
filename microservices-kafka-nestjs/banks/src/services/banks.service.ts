@@ -128,6 +128,9 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
         createAccountDTOWithAccountNumber,
         ACCOUNT_TOPICS.HANDLE_CREATE_ACCOUNT,
       )) as AccountType;
+      if (!createdAccount) {
+        throw new AccountCouldNotCreatedException();
+      }
       const accountId: string = createdAccount._id;
       const updatedCustomerAccounts =
         await customersService.addAccountToCustomer({

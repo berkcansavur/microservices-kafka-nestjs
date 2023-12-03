@@ -61,27 +61,23 @@ export class AccountService implements IAccountService {
   }): Promise<AccountDTO> {
     const { accountsRepository, logger, accountStateFactory } = this;
     logger.debug("[createAccount] createAccountDTO: ", { createAccountDTO });
-    try {
-      const createdAccount: Account = await accountsRepository.createAccount({
-        createAccountDTO: createAccountDTO,
-      });
-      if (!createdAccount) {
-        throw new AccountCouldNotCreatedException(createAccountDTO);
-      }
-      const statusUpdatedCreatedAccount = await (
-        await accountStateFactory.getAccountState(ACCOUNT_STATUS.CREATED)
-      ).created(createdAccount);
-      if (statusUpdatedCreatedAccount) {
-        return (
-          await accountStateFactory.getAccountState(ACCOUNT_STATUS.AVAILABLE)
-        ).available(statusUpdatedCreatedAccount);
-      } else {
-        throw new AccountStatusCouldNotUpdatedException(
-          statusUpdatedCreatedAccount._id,
-        );
-      }
-    } catch (error) {
-      throw new Error("Account is could not created");
+    const createdAccount: Account = await accountsRepository.createAccount({
+      createAccountDTO: createAccountDTO,
+    });
+    if (!createdAccount) {
+      throw new AccountCouldNotCreatedException(createAccountDTO);
+    }
+    const statusUpdatedCreatedAccount = await (
+      await accountStateFactory.getAccountState(ACCOUNT_STATUS.CREATED)
+    ).created(createdAccount);
+    if (statusUpdatedCreatedAccount) {
+      return (
+        await accountStateFactory.getAccountState(ACCOUNT_STATUS.AVAILABLE)
+      ).available(statusUpdatedCreatedAccount);
+    } else {
+      throw new AccountStatusCouldNotUpdatedException(
+        statusUpdatedCreatedAccount._id,
+      );
     }
   }
   private async updateBalanceOfAccount({
