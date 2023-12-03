@@ -31,6 +31,7 @@ import { AuthService } from "./services/auth.service";
 import { AuthProfile } from "./mapper/auth-profile";
 import { JwtModule } from "@nestjs/jwt";
 import { JWT_SECRET } from "./constants/private.constants";
+import { CustomerRepresentativeService } from "./services/customer-representative.service";
 
 @Module({
   imports: [
@@ -94,6 +95,7 @@ import { JWT_SECRET } from "./constants/private.constants";
     BanksService,
     AuthService,
     EmployeesService,
+    CustomerRepresentativeService,
     CustomersService,
     BanksRepository,
     EmployeesRepository,

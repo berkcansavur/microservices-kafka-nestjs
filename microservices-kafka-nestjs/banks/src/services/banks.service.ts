@@ -60,6 +60,7 @@ import { InjectMapper } from "@automapper/nestjs";
 import { CustomersLogic } from "src/logic/customers.logic";
 import { CustomerHasNotRepresentativeException } from "src/exceptions/customer-exception";
 import { UserProfileDTO } from "src/dtos/auth.dto";
+import { CustomerRepresentativeService } from "./customer-representative.service";
 @Injectable()
 export class BanksService implements OnModuleInit, IBankServiceInterface {
   private readonly logger = new Logger(BanksService.name);
@@ -70,6 +71,7 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
     private readonly banksRepository: BanksRepository,
     private readonly customersService: CustomersService,
     private readonly employeesService: EmployeesService,
+    private readonly customerRepresentativeService: CustomerRepresentativeService,
     @InjectMapper() private readonly BankMapper: Mapper,
   ) {}
   async onModuleInit() {
@@ -343,7 +345,12 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
     customerId: string;
     customerRepresentativeId: string;
   }): Promise<BankCustomerRepresentative> {
-    const { logger, customersService, employeesService, BankMapper } = this;
+    const {
+      logger,
+      customersService,
+      customerRepresentativeService,
+      BankMapper,
+    } = this;
     logger.debug(
       "[BanksService] handleAddCustomerToCustomerRepresentative DTO: ",
       customerId,
@@ -353,7 +360,7 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
       customerId,
     });
     const updatedCustomerRepresentative =
-      await employeesService.addCustomerToCustomerRepresentative({
+      await customerRepresentativeService.addCustomer({
         customerRepresentativeId,
         customer,
       });
