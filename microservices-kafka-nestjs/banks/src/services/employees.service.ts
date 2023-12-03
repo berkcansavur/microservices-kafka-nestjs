@@ -9,7 +9,6 @@ import {
   BankCustomerRepresentative,
   BankDepartmentDirector,
   BankDirector,
-  PrivateCustomer,
   PrivateTransfer,
   Transaction,
 } from "../schemas/employee-schema";
@@ -21,11 +20,9 @@ import {
 import { IEmployeeServiceInterface } from "../interfaces/employee-service.interface";
 import {
   EmployeeCouldNotCreatedException,
-  EmployeeCouldNotUpdatedException,
   EmployeeIsNotFoundException,
   UserCouldNotValidatedException,
 } from "../exceptions";
-import { Customer } from "../schemas/customers.schema";
 import { InjectMapper } from "@automapper/nestjs";
 import { Mapper } from "@automapper/core";
 import { Utils } from "src/utils/utils";
@@ -35,6 +32,7 @@ import {
   USER_TYPES,
 } from "src/constants/banks.constants";
 import { AuthenticatedUserDTO, UserProfileDTO } from "src/dtos/auth.dto";
+import { CustomerRepresentativeService } from "./customer-representative.service";
 
 @Injectable()
 export class EmployeesService implements IEmployeeServiceInterface {
@@ -42,6 +40,7 @@ export class EmployeesService implements IEmployeeServiceInterface {
   private readonly utils = new Utils();
   constructor(
     private readonly employeesRepository: EmployeesRepository,
+    private readonly customerRepresentativeService: CustomerRepresentativeService,
     @InjectMapper() private readonly BankMapper: Mapper,
   ) {}
   async createEmployee({
@@ -147,37 +146,6 @@ export class EmployeesService implements IEmployeeServiceInterface {
       });
     }
     return employee;
-  }
-  async addCustomerToCustomerRepresentative({
-    customerRepresentativeId,
-    customer,
-  }: {
-    customerRepresentativeId: string;
-    customer: Customer;
-  }): Promise<BankCustomerRepresentative> {
-    const { logger, employeesRepository, BankMapper } = this;
-    const mappedCustomer = BankMapper.map<Customer, PrivateCustomer>(
-      customer,
-      Customer,
-      PrivateCustomer,
-    );
-    logger.debug(
-      "[EmployeesService] addCustomerToCustomerRepresentative : ",
-      customerRepresentativeId,
-      customer,
-    );
-    const updatedCustomerRepresentative =
-      await employeesRepository.addCustomerToCustomerRepresentative({
-        customerRepresentativeId,
-        customer: mappedCustomer,
-        action: EMPLOYEE_ACTIONS.CUSTOMER_ASSIGNMENT,
-      });
-    if (!BanksLogic.isObjectValid(updatedCustomerRepresentative)) {
-      throw new EmployeeCouldNotUpdatedException({
-        data: { customerRepresentativeId },
-      });
-    }
-    return updatedCustomerRepresentative;
   }
   async createBankRegistrationToUser({
     employeeType,
