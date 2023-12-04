@@ -27,6 +27,11 @@ export enum USER_TYPES {
   CUSTOMER = "CUSTOMER",
   ADMIN = "ADMIN",
 }
+export enum EMPLOYEE_MODEL_TYPES {
+  BANK_DIRECTOR = "getBankDirectorModel",
+  BANK_DEPARTMENT_DIRECTOR = "getBankDepartmentDirectorModel",
+  BANK_CUSTOMER_REPRESENTATIVE = "getBankCustomerRepresentativeModel",
+}
 export enum ACCOUNT_TYPES {
   INVESTMENT_ACCOUNT = "Investment Account",
   DEPOSIT_ACCOUNT = "Deposit Account",
@@ -55,4 +60,23 @@ export enum TRANSFER_STATUSES {
   CANCEL_PENDING = 690,
   CANCELLED = 700,
   FAILED = 800,
+}
+export type TransferType = {
+  _id: string;
+  currencyType: string;
+  status: number;
+  userId: string;
+  fromAccount?: string;
+  toAccount: string;
+  amount: number;
+};
+export enum TRANSACTION_TYPES {
+  ATM = "ATM",
+  CASH = "CASH",
+  CHEQUE = "CHEQUE",
+  CARD = "CARD",
+  ELECTRONIC_CHEQUE = "ELECTRONIC_CHEQUE",
+  INTER_BANK_TRANSFER = "INTER_BANK_TRANSFER",
+  SAME_BANK_TRANSFER = "SAME_BANK_TRANSFER",
+  OTHERS = "OTHERS",
 }

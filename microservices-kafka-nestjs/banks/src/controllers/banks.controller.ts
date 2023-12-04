@@ -7,7 +7,6 @@ import {
   AddCustomerToRepresentativeDTO,
   CreateAccountDTO,
   CreateBankDTO,
-  CreateCustomerDTO,
   CreateEmployeeRegistrationToBankDTO,
   CreateTransferDTO,
   DeleteTransfersDTO,
@@ -31,20 +30,6 @@ export class BanksController {
     return await this.bankService.handleCreateAccount({
       createAccountDTO: data,
     });
-  }
-  @MessagePattern("create-customer-event")
-  @UsePipes(new ParseIncomingRequest())
-  async createCustomerEvent(data: CreateCustomerDTO) {
-    const { logger, bankService } = this;
-    logger.debug(
-      `[BanksController] Banks approveTransfer Incoming Data: ${JSON.stringify(
-        data,
-      )}`,
-    );
-    const customer = await bankService.handleCreateCustomer({
-      createCustomerDTO: data,
-    });
-    return customer;
   }
   @MessagePattern("approve-transfer-event")
   @UsePipes(new ParseIncomingRequest())

@@ -1,7 +1,7 @@
 import { Body, Controller, Logger, UsePipes } from "@nestjs/common";
 import { MessagePattern } from "@nestjs/microservices";
 import { LoginUserDTO } from "src/dtos/auth.dto";
-import { SearchTextDTO } from "src/dtos/bank.dto";
+import { CreateCustomerDTO, SearchTextDTO } from "src/dtos/bank.dto";
 import { ParseIncomingRequest } from "src/pipes/serialize-request-data.pipe";
 import { AuthService } from "src/services/auth.service";
 import { CustomersService } from "src/services/customers.service";
@@ -39,6 +39,20 @@ export class CustomersController {
     );
     return JSON.stringify(authenticatedUser);
   }
+  @MessagePattern("create-customer-event")
+  @UsePipes(new ParseIncomingRequest())
+  async createCustomerEvent(data: CreateCustomerDTO) {
+    const { logger, customerService } = this;
+    logger.debug(
+      `[BanksController] Banks approveTransfer Incoming Data: ${JSON.stringify(
+        data,
+      )}`,
+    );
+    const customer = await customerService.create({
+      createCustomerDTO: data,
+    });
+    return customer;
+  }
   @MessagePattern("search-customer")
   @UsePipes(new ParseIncomingRequest())
   async findCustomer(@Body() query: SearchTextDTO) {
@@ -47,5 +61,23 @@ export class CustomersController {
     const searchResult = await customerService.filterCustomerByQuery({ query });
     logger.debug("[login] searchResult: ", searchResult);
     return JSON.stringify(searchResult);
+  }
+  @MessagePattern("get-customer")
+  @UsePipes(new ParseIncomingRequest())
+  async get(@Body() customerId: string) {
+    const { logger, customerService } = this;
+    logger.debug("[login] user: LoginUserDTO: ", customerId);
+    const customer = await customerService.getCustomer({ customerId });
+    logger.debug("[login] searchResult: ", customer);
+    return JSON.stringify(customer);
+  }
+  @MessagePattern("add-transaction")
+  @UsePipes(new ParseIncomingRequest())
+  async addTransaction(@Body() customerId: string) {
+    const { logger, customerService } = this;
+    logger.debug("[login] user: LoginUserDTO: ", customerId);
+    const customer = await customerService.getCustomer({ customerId });
+    logger.debug("[login] searchResult: ", customer);
+    return JSON.stringify(customer);
   }
 }

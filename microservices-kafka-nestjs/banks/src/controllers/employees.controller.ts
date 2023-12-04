@@ -8,6 +8,7 @@ import {
   GetEmployeeDTO,
   GetEmployeesCustomerTransactionsDTO,
 } from "src/dtos/bank.dto";
+import { AddTransactionToEmployeeDTO } from "src/dtos/employee.dto";
 import { ParseIncomingRequest } from "src/pipes/serialize-request-data.pipe";
 import { AuthService } from "src/services/auth.service";
 import { EmployeesService } from "src/services/employees.service";
@@ -49,7 +50,7 @@ export class EmployeesController {
   }
   @MessagePattern("create-bank-director-event")
   @UsePipes(new ParseIncomingRequest())
-  async createBankDirectorEvent(data: CreateBankDirectorDTO) {
+  async createBankDirector(data: CreateBankDirectorDTO) {
     const { logger } = this;
     logger.debug(
       `[BanksController] Banks createBankDirectorEvent Incoming Data: ${JSON.stringify(
@@ -63,9 +64,7 @@ export class EmployeesController {
   }
   @MessagePattern("create-bank-department-director-event")
   @UsePipes(new ParseIncomingRequest())
-  async createBankDepartmentDirectorEvent(
-    data: CreateBankDepartmentDirectorDTO,
-  ) {
+  async createBankDepartmentDirector(data: CreateBankDepartmentDirectorDTO) {
     const { logger } = this;
     logger.debug(
       `[BanksController] Banks createBankDirectorEvent Incoming Data: ${JSON.stringify(
@@ -79,7 +78,7 @@ export class EmployeesController {
   }
   @MessagePattern("create-bank-customer-representative-event")
   @UsePipes(new ParseIncomingRequest())
-  async createBankCustomerRepresentativeEvent(
+  async createBankCustomerRepresentative(
     data: CreateBankCustomerRepresentativeDTO,
   ) {
     const { logger } = this;
@@ -95,12 +94,12 @@ export class EmployeesController {
   }
   @MessagePattern("get-employees-customer-related-transactions")
   @UsePipes(new ParseIncomingRequest())
-  async getEmployeesCustomerRelatedTransactions(
+  async getCustomerRelatedTransactions(
     data: GetEmployeesCustomerTransactionsDTO,
   ) {
     const { logger, employeeService } = this;
     logger.debug(
-      `[BanksController] Banks createBankCustomerRepresentativeEvent Incoming Data: ${JSON.stringify(
+      `[getEmployeesCustomerRelatedTransactions] Banks createBankCustomerRepresentativeEvent Incoming Data: ${JSON.stringify(
         data,
       )}`,
     );
@@ -112,16 +111,34 @@ export class EmployeesController {
   }
   @MessagePattern("get-employees-transactions")
   @UsePipes(new ParseIncomingRequest())
-  async getEmployeesTransactions(data: GetEmployeeDTO) {
+  async getTransactions(data: GetEmployeeDTO) {
     const { logger, employeeService } = this;
     logger.debug(
-      `[BanksController] Banks createBankCustomerRepresentativeEvent Incoming Data: ${JSON.stringify(
+      `[getEmployeesTransactions] Banks createBankCustomerRepresentativeEvent Incoming Data: ${JSON.stringify(
         data,
       )}`,
     );
     return await employeeService.getEmployeesTransactions({
       employeeType: data.employeeType,
       employeeId: data.employeeId,
+    });
+  }
+  @MessagePattern("add-transaction-to-employee")
+  async addTransaction(data: AddTransactionToEmployeeDTO) {
+    const { logger, employeeService } = this;
+    logger.debug(
+      `[addTransaction] Banks createBankCustomerRepresentativeEvent Incoming Data: ${JSON.stringify(
+        data,
+      )}`,
+    );
+    const { employeeType, employeeId, customerId, transactionType, transfer } =
+      data;
+    return await employeeService.addTransaction({
+      employeeType: employeeType,
+      employeeId: employeeId,
+      customerId: customerId,
+      transactionType: transactionType,
+      transfer: transfer,
     });
   }
 }

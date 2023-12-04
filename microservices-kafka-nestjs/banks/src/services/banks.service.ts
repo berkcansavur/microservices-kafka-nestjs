@@ -3,11 +3,9 @@ import {
   CreateAccountDTO,
   CreateTransferDTO,
   MoneyTransferDTO,
-  CreateCustomerDTO,
   CreateBankDTO,
   PrivateAccountDTO,
   AccountDTO,
-  CustomerDTO,
   TransferDTO,
 } from "src/dtos/bank.dto";
 import { BanksRepository } from "../repositories/banks.repository";
@@ -64,7 +62,6 @@ import { CustomerRepresentativeService } from "./customer-representative.service
 @Injectable()
 export class BanksService implements OnModuleInit, IBankServiceInterface {
   private readonly logger = new Logger(BanksService.name);
-  private readonly utils = new Utils();
   constructor(
     @Inject("ACCOUNT_SERVICE") private readonly accountClient: ClientKafka,
     @Inject("TRANSFER_SERVICE") private readonly transferClient: ClientKafka,
@@ -98,9 +95,9 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
   }: {
     createAccountDTO: CreateAccountDTO;
   }): Promise<AccountType> {
-    const { logger, utils, customersService } = this;
+    const { logger, customersService } = this;
     logger.debug("[BanksService] create account DTO: ", createAccountDTO);
-    let accountNumber = utils.generateRandomNumber();
+    let accountNumber = Utils.generateRandomNumber();
     if (!BanksLogic.isAccountTypeIsValid({ accountDTO: createAccountDTO })) {
       throw new InvalidAccountTypeException({
         data: createAccountDTO.accountType,
@@ -111,12 +108,12 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
         data: createAccountDTO.bankBranchCode,
       });
     }
-    const branchCode = utils.getBanksBranchCode(
+    const branchCode = Utils.getBanksBranchCode(
       createAccountDTO.bankBranchCode,
     );
-    const accountType = utils.getAccountType(createAccountDTO.accountType);
+    const accountType = Utils.getAccountType(createAccountDTO.accountType);
     createAccountDTO.accountType = accountType;
-    accountNumber = utils.combineNumbers({ branchCode, accountNumber });
+    accountNumber = Utils.combineNumbers({ branchCode, accountNumber });
     const createAccountDTOWithAccountNumber = {
       ...createAccountDTO,
       accountNumber: accountNumber,
@@ -164,30 +161,6 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
       throw new AccountCouldNotCreatedException({ errorData: error });
     }
   }
-  async handleCreateCustomer({
-    createCustomerDTO,
-  }: {
-    createCustomerDTO: CreateCustomerDTO;
-  }): Promise<CustomerDTO> {
-    const { logger, utils, customersService } = this;
-    logger.debug(
-      "[handleCreateCustomer] createCustomerDTO: ",
-      createCustomerDTO,
-    );
-    const customerNumber = utils.generateRandomNumber();
-    const hashedPassword = await utils.hashPassword({
-      password: createCustomerDTO.password,
-    });
-    createCustomerDTO.password = hashedPassword;
-    const createCustomerDTOWithCustomerNumber = {
-      ...createCustomerDTO,
-      customerNumber,
-    };
-    const customer: CustomerDTO = await customersService.createCustomer({
-      createCustomerDTOWithCustomerNumber,
-    });
-    return customer;
-  }
   async handleCreateTransferAcrossAccounts({
     createTransferDTO,
   }: {
@@ -218,7 +191,7 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
         if (!CustomersLogic.isCustomerHasCustomerRepresentative(customer)) {
           throw new CustomerHasNotRepresentativeException();
         }
-        await employeesService.addTransactionToEmployee({
+        await employeesService.addTransaction({
           employeeType: EMPLOYEE_MODEL_TYPES.BANK_CUSTOMER_REPRESENTATIVE,
           employeeId: customer.customerRepresentative._id,
           customerId: createTransferDTO.userId,
@@ -466,10 +439,9 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
     userType: USER_TYPES;
     userId: string;
   }): Promise<UserProfileDTO> {
-    const { logger, customersService, employeesService, utils, BankMapper } =
-      this;
+    const { logger, customersService, employeesService, BankMapper } = this;
     logger.debug("[getUserProfile] userId: ", userId, " userType: ", userType);
-    const mappedUserType = utils.getUserType({ userType });
+    const mappedUserType = Utils.getUserType({ userType });
     if (mappedUserType === USER_TYPES.CUSTOMER) {
       const user = await customersService.getCustomer({ customerId: userId });
       logger.debug("User model: ", user);
@@ -484,7 +456,7 @@ export class BanksService implements OnModuleInit, IBankServiceInterface {
       USER_TYPES.BANK_DEPARTMENT_DIRECTOR ||
       USER_TYPES.BANK_CUSTOMER_REPRESENTATIVE
     ) {
-      const employeeModelType = utils.getEmployeeModelType(userType);
+      const employeeModelType = Utils.getEmployeeModelType(userType);
       if (
         employeeModelType === EMPLOYEE_MODEL_TYPES.BANK_CUSTOMER_REPRESENTATIVE
       ) {

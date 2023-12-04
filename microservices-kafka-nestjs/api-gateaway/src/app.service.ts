@@ -22,10 +22,23 @@ import {
   MoneyTransferDTO,
   SearchTextDTO,
 } from "./dtos/api.dtos";
-import { ACCOUNT_TOPICS, BANK_TOPICS } from "./constants/kafka-constants";
-import { AccountType } from "types/app-types";
+import {
+  ACCOUNT_TOPICS,
+  BANK_TOPICS,
+  TRANSFER_TOPICS,
+} from "./constants/kafka-constants";
+import {
+  AccountType,
+  EMPLOYEE_MODEL_TYPES,
+  EVENT_RESULTS,
+  TRANSACTION_TYPES,
+  TransferType,
+} from "types/app-types";
 import { GetUserProfileDTO } from "./dtos/api.dtos";
-import { BanksLogic } from "./logic";
+import { BanksLogic, CustomersLogic } from "./logic";
+import { AddTransactionToEmployeeDTO, TransferDTO } from "./dtos/transfer.dto";
+import { CustomerHasNotRepresentativeException } from "./exceptions/customer-exception";
+import { MoneyTransferCouldNotSucceedException } from "./exceptions";
 
 @Injectable()
 export class AppService implements OnModuleInit {
@@ -33,6 +46,7 @@ export class AppService implements OnModuleInit {
   constructor(
     @Inject("BANK_SERVICE") private readonly bankClient: ClientKafka,
     @Inject("ACCOUNT_SERVICE") private readonly accountClient: ClientKafka,
+    @Inject("TRANSFER_SERVICE") private readonly transferClient: ClientKafka,
   ) {}
   async onModuleInit() {
     this.handleSubscribeApplicationTopics();
@@ -40,6 +54,7 @@ export class AppService implements OnModuleInit {
   private async handleSubscribeApplicationTopics() {
     const bankTopics: string[] = Object.values(BANK_TOPICS);
     const accountTopis: string[] = Object.values(ACCOUNT_TOPICS);
+    const transferTopics: string[] = Object.values(TRANSFER_TOPICS);
     try {
       bankTopics.forEach((topic) => {
         this.bankClient.subscribeToResponseOf(topic);
@@ -47,6 +62,10 @@ export class AppService implements OnModuleInit {
       });
       accountTopis.forEach((topic) => {
         this.accountClient.subscribeToResponseOf(topic);
+        this.logger.debug(`${topic} topic is subscribed`);
+      });
+      transferTopics.forEach((topic) => {
+        this.transferClient.subscribeToResponseOf(topic);
         this.logger.debug(`${topic} topic is subscribed`);
       });
       this.logger.debug(
@@ -63,9 +82,7 @@ export class AppService implements OnModuleInit {
         loginUserDTO,
       )}`,
     );
-    return this.bankClient.send(BANK_TOPICS.LOGIN_CUSTOMER, {
-      loginUserDTO,
-    });
+    return this.handleKafkaBankEvents(loginUserDTO, BANK_TOPICS.LOGIN_CUSTOMER);
   }
   sendLoginEmployeeRequest(loginUserDTO: LoginUserDTO) {
     const { logger } = this;
@@ -74,54 +91,146 @@ export class AppService implements OnModuleInit {
         loginUserDTO,
       )}`,
     );
-    return this.bankClient.send(BANK_TOPICS.LOGIN_EMPLOYEE, {
-      loginUserDTO,
-    });
+    return this.handleKafkaBankEvents(loginUserDTO, BANK_TOPICS.LOGIN_EMPLOYEE);
   }
-  sendCreateMoneyTransferRequest(createTransferRequestDTO: CreateTransferDTO) {
+  async sendCreateMoneyTransferAccrossAccounts({
+    createTransferDTO,
+  }: {
+    createTransferDTO: CreateTransferDTO;
+  }) {
+    const { logger } = this;
+    if (
+      BanksLogic.isAmountGreaterThanDesignatedAmount({
+        designatedAmount: 5000,
+        amount: createTransferDTO.amount,
+      })
+    ) {
+      try {
+        const createdTransfer: TransferType =
+          (await this.handleKafkaTransferEvents(
+            createTransferDTO,
+            TRANSFER_TOPICS.HANDLE_CREATE_TRANSFER_ACROSS_ACCOUNTS,
+          )) as TransferType;
+        const approvePendingTransfer: TransferType =
+          (await this.handleKafkaTransferEvents(
+            createdTransfer,
+            TRANSFER_TOPICS.HANDLE_APPROVE_PENDING_TRANSFER,
+          )) as TransferType;
+        const customerId = createTransferDTO.userId;
+        const customer = await this.handleKafkaBankEvents(
+          customerId,
+          BANK_TOPICS.GET_CUSTOMER,
+        );
+        logger.debug("[BanksService] create customer DTO: ", customer);
+        if (!CustomersLogic.isCustomerHasCustomerRepresentative(customer)) {
+          throw new CustomerHasNotRepresentativeException();
+        }
+        const addTransactionDTO = new AddTransactionToEmployeeDTO();
+        (addTransactionDTO.customerId = createTransferDTO.userId),
+          (addTransactionDTO.employeeType =
+            EMPLOYEE_MODEL_TYPES.BANK_CUSTOMER_REPRESENTATIVE),
+          (addTransactionDTO.customerId = createTransferDTO.userId),
+          (addTransactionDTO.transactionType =
+            TRANSACTION_TYPES.SAME_BANK_TRANSFER),
+          (addTransactionDTO.transfer = approvePendingTransfer);
+        await this.handleKafkaBankEvents(
+          addTransactionDTO,
+          BANK_TOPICS.ADD_TRANSACTION_TO_EMPLOYEE,
+        );
+        return approvePendingTransfer;
+      } catch (error) {
+        if (error instanceof CustomerHasNotRepresentativeException) {
+          throw new CustomerHasNotRepresentativeException();
+        }
+        throw new MoneyTransferCouldNotSucceedException({ errorData: error });
+      }
+    }
+    try {
+      const createdTransfer: TransferType =
+        (await this.handleKafkaTransferEvents(
+          createTransferDTO,
+          TRANSFER_TOPICS.HANDLE_CREATE_TRANSFER_ACROSS_ACCOUNTS,
+        )) as TransferType;
+      const approvedTransfer: TransferType =
+        (await this.handleKafkaTransferEvents(
+          createdTransfer,
+          TRANSFER_TOPICS.HANDLE_APPROVE_TRANSFER,
+        )) as TransferType;
+      const startedTransfer: TransferType =
+        (await this.handleKafkaTransferEvents(
+          approvedTransfer,
+          TRANSFER_TOPICS.HANDLE_START_TRANSFER,
+        )) as TransferType;
+      const eventResult = (await this.handleKafkaAccountEvents(
+        startedTransfer,
+        ACCOUNT_TOPICS.MONEY_TRANSFER_ACROSS_ACCOUNTS_RESULT,
+      )) as EVENT_RESULTS;
+      if (BanksLogic.isTransferSucceed(eventResult)) {
+        const completedTransfer: TransferType =
+          (await this.handleKafkaTransferEvents(
+            startedTransfer,
+            TRANSFER_TOPICS.HANDLE_COMPLETE_TRANSFER,
+          )) as TransferType;
+        return completedTransfer;
+      } else {
+        const failedTransfer: TransferType =
+          (await this.handleKafkaTransferEvents(
+            startedTransfer,
+            TRANSFER_TOPICS.HANDLE_FAILURE_TRANSFER,
+          )) as TransferType;
+        return failedTransfer;
+      }
+    } catch (error) {
+      throw new MoneyTransferCouldNotSucceedException({ errorData: error });
+    }
+  }
+  async sendCreateMoneyTransferRequest(
+    createTransferRequestDTO: CreateTransferDTO,
+  ) {
     const { logger } = this;
     logger.debug(
       `[AppService] createMoneyTransferRequest: ${JSON.stringify(
         createTransferRequestDTO,
       )}`,
     );
-    return this.bankClient.send(
+    return this.handleKafkaBankEvents(
+      createTransferRequestDTO,
       BANK_TOPICS.CREATE_TRANSFER_ACROSS_ACCOUNTS_EVENT,
-      {
-        createTransferRequestDTO,
-      },
     );
   }
-  sendApproveTransferRequest(approveTransferDTO: GetTransferDTO) {
+  async sendApproveTransferRequest(approveTransferDTO: GetTransferDTO) {
     const { logger } = this;
     logger.debug(
       `[AppService] approveTransfer: ${JSON.stringify(approveTransferDTO)}`,
     );
-    return this.bankClient.send(BANK_TOPICS.APPROVE_TRANSFER_EVENT, {
+    return this.handleKafkaBankEvents(
       approveTransferDTO,
-    });
+      BANK_TOPICS.APPROVE_TRANSFER_EVENT,
+    );
   }
-  sendRejectTransferRequest(rejectTransferDTO: GetTransferDTO) {
+  async sendRejectTransferRequest(rejectTransferDTO: GetTransferDTO) {
     const { logger } = this;
     logger.debug(
       `[AppService] approveTransfer: ${JSON.stringify(rejectTransferDTO)}`,
     );
-    return this.bankClient.send(BANK_TOPICS.REJECT_TRANSFER_EVENT, {
+    return this.handleKafkaBankEvents(
       rejectTransferDTO,
-    });
+      BANK_TOPICS.REJECT_TRANSFER_EVENT,
+    );
   }
-  sendCreateAccountRequest(createAccountRequestDTO: CreateAccountDTO) {
+  async sendCreateAccountRequest(createAccountRequestDTO: CreateAccountDTO) {
     const { logger } = this;
     logger.debug(
       `[AppService] createAccountRequest: ${JSON.stringify(
         createAccountRequestDTO,
       )}`,
     );
-    return this.bankClient.send(BANK_TOPICS.CREATE_ACCOUNT_EVENT, {
+    return this.handleKafkaBankEvents(
       createAccountRequestDTO,
-    });
+      BANK_TOPICS.CREATE_ACCOUNT_EVENT,
+    );
   }
-  sendTransferMoneyToAccountRequest(
+  async sendTransferMoneyToAccountRequest(
     transferMoneyToAccountDTO: MoneyTransferDTO,
   ) {
     const { logger } = this;
@@ -130,22 +239,23 @@ export class AppService implements OnModuleInit {
         transferMoneyToAccountDTO,
       )}`,
     );
-    return this.bankClient.send(BANK_TOPICS.TRANSFER_MONEY_TO_ACCOUNT_EVENT, {
+    return this.handleKafkaBankEvents(
       transferMoneyToAccountDTO,
-    });
+      BANK_TOPICS.TRANSFER_MONEY_TO_ACCOUNT_EVENT,
+    );
   }
-  sendCreateCustomerRequest(createCustomerRequestDTO: CreateCustomerDTO) {
+  async sendCreateCustomerRequest(createCustomerRequestDTO: CreateCustomerDTO) {
     const { logger } = this;
     logger.debug(
       "[AppService] sendCreateCustomerRequest DTO: ",
       createCustomerRequestDTO,
     );
-    return this.bankClient.send(
-      BANK_TOPICS.CREATE_CUSTOMER_EVENT,
+    return this.handleKafkaBankEvents(
       createCustomerRequestDTO,
+      BANK_TOPICS.CREATE_CUSTOMER_EVENT,
     );
   }
-  sendDeleteTransferRecordsRequest(
+  async sendDeleteTransferRecordsRequest(
     deleteTransferRecordsDTO: DeleteTransferDTO,
   ) {
     const { logger } = this;
@@ -153,34 +263,36 @@ export class AppService implements OnModuleInit {
       "[AppService] deleteTransferRecordsDTO: ",
       deleteTransferRecordsDTO,
     );
-    return this.bankClient.send(
-      BANK_TOPICS.DELETE_TRANSFER_RECORDS_EVENT,
+    return this.handleKafkaBankEvents(
       deleteTransferRecordsDTO,
+      BANK_TOPICS.DELETE_TRANSFER_RECORDS_EVENT,
     );
   }
-  sendCreateBankRequest(createBankRequestDTO: CreateBankDTO) {
+  async sendCreateBankRequest(createBankRequestDTO: CreateBankDTO) {
     const { logger } = this;
     logger.debug(
       "[AppService] sendCreateBankRequest DTO: ",
       createBankRequestDTO,
     );
-    return this.bankClient.send(
-      BANK_TOPICS.CREATE_BANK_EVENT,
+    return this.handleKafkaBankEvents(
       createBankRequestDTO,
+      BANK_TOPICS.CREATE_BANK_EVENT,
     );
   }
-  sendCreateDirectorRequest(createBankDirectorRequestDTO: CreateDirectorDTO) {
+  async sendCreateDirectorRequest(
+    createBankDirectorRequestDTO: CreateDirectorDTO,
+  ) {
     const { logger } = this;
     logger.debug(
       "[AppService] sendCreateDirectorRequest DTO: ",
       createBankDirectorRequestDTO,
     );
-    return this.bankClient.send(
-      BANK_TOPICS.CREATE_BANK_DIRECTOR_EVENT,
+    return this.handleKafkaBankEvents(
       createBankDirectorRequestDTO,
+      BANK_TOPICS.CREATE_BANK_DIRECTOR_EVENT,
     );
   }
-  sendCreateCustomerRepresentativeRequest(
+  async sendCreateCustomerRepresentativeRequest(
     createCustomerRepresentativeRequestDTO: CreateCustomerRepresentativeDTO,
   ) {
     const { logger } = this;
@@ -188,12 +300,12 @@ export class AppService implements OnModuleInit {
       "[AppService] sendCreateCustomerRepresentativeRequest DTO: ",
       createCustomerRepresentativeRequestDTO,
     );
-    return this.bankClient.send(
-      BANK_TOPICS.CREATE_BANK_CUSTOMER_REPRESENTATIVE_EVENT,
+    return this.handleKafkaBankEvents(
       createCustomerRepresentativeRequestDTO,
+      BANK_TOPICS.CREATE_BANK_CUSTOMER_REPRESENTATIVE_EVENT,
     );
   }
-  sendAddCustomerToRepresentativeRequest({
+  async sendAddCustomerToRepresentativeRequest({
     addCustomerToRepresentativeDTO,
   }: {
     addCustomerToRepresentativeDTO: AddCustomerToRepresentativeDTO;
@@ -203,12 +315,12 @@ export class AppService implements OnModuleInit {
       "[AppService] sendAddCustomerToRepresentativeRequest data: ",
       addCustomerToRepresentativeDTO,
     );
-    return this.bankClient.send(
-      BANK_TOPICS.ADD_CUSTOMER_TO_BANKS_CUSTOMER_REPRESENTATIVE_EVENT,
+    return this.handleKafkaBankEvents(
       addCustomerToRepresentativeDTO,
+      BANK_TOPICS.ADD_CUSTOMER_TO_BANKS_CUSTOMER_REPRESENTATIVE_EVENT,
     );
   }
-  sendCreateDepartmentDirectorRequest(
+  async sendCreateDepartmentDirectorRequest(
     createDepartmentDirectorRequestDTO: CreateDepartmentDirectorDTO,
   ) {
     const { logger } = this;
@@ -216,12 +328,12 @@ export class AppService implements OnModuleInit {
       "[AppService] sendCreateDirectorRequest DTO: ",
       createDepartmentDirectorRequestDTO,
     );
-    return this.bankClient.send(
-      BANK_TOPICS.CREATE_BANK_DEPARTMENT_DIRECTOR_EVENT,
+    return this.handleKafkaBankEvents(
       createDepartmentDirectorRequestDTO,
+      BANK_TOPICS.CREATE_BANK_DEPARTMENT_DIRECTOR_EVENT,
     );
   }
-  sendCreateEmployeeRegistrationToBankRequest(
+  async sendCreateEmployeeRegistrationToBankRequest(
     createEmployeeRegistrationToBankDTO: CreateEmployeeRegistrationToBankDTO,
   ) {
     const { logger } = this;
@@ -229,12 +341,12 @@ export class AppService implements OnModuleInit {
       "[AppService] sendCreateDirectorRequest DTO: ",
       createEmployeeRegistrationToBankDTO,
     );
-    return this.bankClient.send(
-      BANK_TOPICS.CREATE_EMPLOYEE_REGISTRATION_TO_BANK_EVENT,
+    return this.handleKafkaBankEvents(
       createEmployeeRegistrationToBankDTO,
+      BANK_TOPICS.CREATE_EMPLOYEE_REGISTRATION_TO_BANK_EVENT,
     );
   }
-  sendGetCustomersTransfersRequest({
+  async sendGetCustomersTransfersRequest({
     getCustomersTransfersDTO,
   }: {
     getCustomersTransfersDTO: GetCustomersTransfersDTO;
@@ -244,21 +356,21 @@ export class AppService implements OnModuleInit {
       "[sendGetCustomersTransfersRequest] getCustomersTransfersDTO: ",
       getCustomersTransfersDTO,
     );
-    return this.bankClient.send(
-      BANK_TOPICS.GET_CUSTOMERS_TRANSFERS_EVENT,
+    return this.handleKafkaBankEvents(
       getCustomersTransfersDTO,
+      BANK_TOPICS.GET_CUSTOMERS_TRANSFERS_EVENT,
     );
   }
-  sendSearchCustomerRequest({ searchText }: { searchText: string }) {
+  async sendSearchCustomerRequest({ searchText }: { searchText: string }) {
     const { logger } = this;
     const searchTextDTO: SearchTextDTO = { searchText };
     logger.debug(
       "[AppService] sendCreateDirectorRequest customerId: ",
       searchTextDTO,
     );
-    return this.bankClient.send(BANK_TOPICS.SEARCH_CUSTOMER, searchText);
+    return this.handleKafkaBankEvents(searchText, BANK_TOPICS.SEARCH_CUSTOMER);
   }
-  sendGetUsersProfileRequest({
+  async sendGetUsersProfileRequest({
     userType,
     userId,
   }: {
@@ -271,9 +383,9 @@ export class AppService implements OnModuleInit {
       "[AppService] sendCreateDirectorRequest customerId: ",
       getUserProfileDTO,
     );
-    return this.bankClient.send(
-      BANK_TOPICS.GET_USER_PROFILE_EVENT,
+    return this.handleKafkaBankEvents(
       getUserProfileDTO,
+      BANK_TOPICS.GET_USER_PROFILE_EVENT,
     );
   }
   sendGetCustomersAccountsRequest({
@@ -286,24 +398,24 @@ export class AppService implements OnModuleInit {
       "[AppService] sendCreateDirectorRequest customerId: ",
       getCustomersAccountsDTO,
     );
-    return this.bankClient.send(
-      BANK_TOPICS.GET_CUSTOMER_ACCOUNTS_EVENT,
+    return this.handleKafkaBankEvents(
       getCustomersAccountsDTO,
+      BANK_TOPICS.GET_CUSTOMER_ACCOUNTS_EVENT,
     );
   }
-  sendGetAccountsTransfersRequest({ accountId }: { accountId: string }) {
+  async sendGetAccountsTransfersRequest({ accountId }: { accountId: string }) {
     const { logger } = this;
     const accountIdDTO: AccountIdDTO = { accountId };
     logger.debug(
       "[AppService] sendCreateDirectorRequest customerId: ",
       accountIdDTO,
     );
-    return this.bankClient.send(
-      BANK_TOPICS.GET_ACCOUNTS_TRANSFERS_EVENT,
+    return this.handleKafkaBankEvents(
       accountIdDTO,
+      BANK_TOPICS.GET_ACCOUNTS_TRANSFERS_EVENT,
     );
   }
-  sendGetEmployeesCustomerRelatedTransactionsRequest({
+  async sendGetEmployeesCustomerRelatedTransactionsRequest({
     getEmployeesCustomerTransactionsDTO,
   }: {
     getEmployeesCustomerTransactionsDTO: GetEmployeesCustomerTransactionsDTO;
@@ -313,12 +425,12 @@ export class AppService implements OnModuleInit {
       "[AppService] sendCreateDirectorRequest customerId: ",
       getEmployeesCustomerTransactionsDTO,
     );
-    return this.bankClient.send(
-      BANK_TOPICS.GET_EMPLOYEES_CUSTOMER_RELATED_TRANSACTIONS,
+    return this.handleKafkaBankEvents(
       getEmployeesCustomerTransactionsDTO,
+      BANK_TOPICS.GET_EMPLOYEES_CUSTOMER_RELATED_TRANSACTIONS,
     );
   }
-  sendGetEmployeesTransactionsRequest({
+  async sendGetEmployeesTransactionsRequest({
     getEmployeeDTO,
   }: {
     getEmployeeDTO: GetEmployeeDTO;
@@ -328,19 +440,15 @@ export class AppService implements OnModuleInit {
       "[AppService] sendCreateDirectorRequest customerId: ",
       getEmployeeDTO,
     );
-    return this.bankClient.send(
-      BANK_TOPICS.GET_EMPLOYEES_TRANSACTIONS,
+    return this.handleKafkaBankEvents(
       getEmployeeDTO,
+      BANK_TOPICS.GET_EMPLOYEES_TRANSACTIONS,
     );
   }
   async sendGetAccountRequest(accountId: AccountIdDTO) {
     const { logger } = this;
     logger.debug("[AppService] getAccounts DTO: ", accountId);
-    const account = await this.handleKafkaAccountEvents(
-      accountId,
-      ACCOUNT_TOPICS.GET_ACCOUNT,
-    );
-    return account;
+    return this.handleKafkaAccountEvents(accountId, ACCOUNT_TOPICS.GET_ACCOUNT);
   }
   async sendGetAccountsLastActionsRequest({
     getAccountsLastActionsDTO,
@@ -352,20 +460,18 @@ export class AppService implements OnModuleInit {
       "[AppService] GetAccountsLastActions DTO: ",
       getAccountsLastActionsDTO,
     );
-    const account = await this.handleKafkaAccountEvents(
+    return await this.handleKafkaAccountEvents(
       getAccountsLastActionsDTO,
       ACCOUNT_TOPICS.GET_ACCOUNTS_LAST_ACTIONS,
     );
-    return account;
   }
   async sendGetAccountsBalanceRequest(accountId: string) {
     const { logger } = this;
     logger.debug("[AppService] getAccountsBalance DTO: ", accountId);
-    const account = await this.handleKafkaAccountEvents(
+    return this.handleKafkaAccountEvents(
       accountId,
       ACCOUNT_TOPICS.GET_ACCOUNTS_BALANCE,
     );
-    return account;
   }
   async sendGetAccountsCurrencyBalanceRequest(data: {
     accountId: string;
@@ -376,11 +482,10 @@ export class AppService implements OnModuleInit {
       "[AppService] sendGetAccountsCurrencyBalanceRequest data: ",
       data,
     );
-    const account = await this.handleKafkaAccountEvents(
+    return this.handleKafkaAccountEvents(
       data,
       ACCOUNT_TOPICS.GET_ACCOUNTS_CURRENCY_BALANCE,
     );
-    return account;
   }
   private async handleKafkaAccountEvents(
     data: any,
@@ -391,6 +496,52 @@ export class AppService implements OnModuleInit {
         next: (response: any) => {
           this.logger.debug(
             `[handleKafkaAccountEvents] [${topic}] Response:`,
+            response,
+          );
+          if (!BanksLogic.isObjectValid(response)) {
+            throw new Error("Retrieved data is not an object");
+          }
+          resolve(response);
+        },
+        error: (error) => {
+          this.logger.error(`[${topic}] Error:`, error);
+          reject(error);
+        },
+      });
+    });
+  }
+  private async handleKafkaTransferEvents(
+    data: any,
+    topic: TRANSFER_TOPICS,
+  ): Promise<TransferType | TransferDTO[]> {
+    return new Promise((resolve, reject) => {
+      this.transferClient.send(topic, data).subscribe({
+        next: (response: any) => {
+          this.logger.debug(
+            `[handleKafkaTransferEvents] [${topic}] Response:`,
+            response,
+          );
+          if (!BanksLogic.isObjectValid(response)) {
+            throw new Error("Retrieved data is not an object");
+          }
+          resolve(response);
+        },
+        error: (error) => {
+          this.logger.error(`[${topic}] Error:`, error);
+          reject(error);
+        },
+      });
+    });
+  }
+  private async handleKafkaBankEvents(
+    data: any,
+    topic: BANK_TOPICS,
+  ): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.bankClient.send(topic, data).subscribe({
+        next: (response: any) => {
+          this.logger.debug(
+            `[handleKafkaBankEvents] [${topic}] Response:`,
             response,
           );
           if (!BanksLogic.isObjectValid(response)) {
