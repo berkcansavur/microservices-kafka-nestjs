@@ -137,6 +137,19 @@ export class TransferCouldNotRejectedException extends BankAppException {
     Object.setPrototypeOf(this, TransferCouldNotRejectedException.prototype);
   }
 }
+export class TransfersCouldNotDeletedException extends BankAppException {
+  constructor(data?: string | object) {
+    super(
+      "Transfers could not deleted",
+      4050,
+      HttpStatus.BAD_REQUEST,
+      JSON.stringify(data),
+      "TransfersCouldNotDeletedException",
+    );
+    this.name = "TransfersCouldNotDeletedException";
+    Object.setPrototypeOf(this, TransfersCouldNotDeletedException.prototype);
+  }
+}
 export class TransferNotFoundException extends BankAppException {
   constructor(data?: string | object) {
     super(

@@ -48,6 +48,8 @@ import {
   InvalidTransferStatusException,
   MoneyTransferCouldNotSucceedException,
   TransferCouldNotRejectedException,
+  TransferNotFoundException,
+  TransfersCouldNotDeletedException,
 } from "./exceptions";
 import { Utils } from "./utils/utils";
 import {
@@ -480,10 +482,14 @@ export class AppService implements OnModuleInit {
       "[AppService] deleteTransferRecordsDTO: ",
       deleteTransferRecordsDTO,
     );
-    return this.handleKafkaBankEvents(
-      deleteTransferRecordsDTO,
-      BANK_TOPICS.DELETE_TRANSFER_RECORDS_EVENT,
-    );
+    try {
+      return this.handleKafkaTransferEvents(
+        deleteTransferRecordsDTO.transferIds,
+        TRANSFER_TOPICS.HANDLE_DELETE_TRANSFER_RECORDS,
+      );
+    } catch (error) {
+      throw new TransfersCouldNotDeletedException(error.message);
+    }
   }
   //OK
   async sendCreateBankRequest(createBankRequestDTO: CreateBankDTO) {
@@ -579,10 +585,14 @@ export class AppService implements OnModuleInit {
       "[sendGetCustomersTransfersRequest] getCustomersTransfersDTO: ",
       getCustomersTransfersDTO,
     );
-    return this.handleKafkaTransferEvents(
-      getCustomersTransfersDTO.customerId,
-      TRANSFER_TOPICS.HANDLE_GET_CUSTOMERS_TRANSFERS,
-    );
+    try {
+      return this.handleKafkaTransferEvents(
+        getCustomersTransfersDTO.customerId,
+        TRANSFER_TOPICS.HANDLE_GET_CUSTOMERS_TRANSFERS,
+      );
+    } catch (error) {
+      throw new TransferNotFoundException();
+    }
   }
   async sendSearchCustomerRequest({ searchText }: { searchText: string }) {
     const { logger } = this;
@@ -628,14 +638,14 @@ export class AppService implements OnModuleInit {
   }
   async sendGetAccountsTransfersRequest({ accountId }: { accountId: string }) {
     const { logger } = this;
-    const accountIdDTO: AccountIdDTO = { accountId };
+    //const accountIdDTO: AccountIdDTO = { accountId };
     logger.debug(
       "[AppService] sendCreateDirectorRequest customerId: ",
-      accountIdDTO,
+      accountId,
     );
-    return this.handleKafkaBankEvents(
-      accountIdDTO,
-      BANK_TOPICS.GET_ACCOUNTS_TRANSFERS_EVENT,
+    return this.handleKafkaTransferEvents(
+      accountId,
+      TRANSFER_TOPICS.HANDLE_GET_ACCOUNTS_TRANSFERS,
     );
   }
   async sendGetEmployeesCustomerRelatedTransactionsRequest({
