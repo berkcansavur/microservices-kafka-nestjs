@@ -129,3 +129,13 @@ export enum USER_TYPES {
   CUSTOMER = "CUSTOMER",
   ADMIN = "ADMIN",
 }
+export enum ACCOUNT_TOPICS {
+  GET_ACCOUNT = "get_account",
+  GET_ACCOUNTS_LAST_ACTIONS = "get_accounts_last_actions",
+  GET_ACCOUNTS_BALANCE = "get_accounts_balance",
+  GET_ACCOUNTS_CURRENCY_BALANCE = "get_accounts_currency_balance",
+  MONEY_TRANSFER_ACROSS_ACCOUNTS_RESULT = "money_transfer_across_accounts_result",
+  HANDLE_CREATE_ACCOUNT = "handle_create_account",
+  ACCOUNT_AVAILABILITY_RESULT = "account_availability_result",
+  GET_ACCOUNTS = "get_accounts",
+}

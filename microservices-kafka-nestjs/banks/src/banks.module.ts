@@ -31,6 +31,7 @@ import { AuthProfile } from "./mapper/auth-profile";
 import { JwtModule } from "@nestjs/jwt";
 import { JWT_SECRET } from "./constants/private.constants";
 import { CustomerRepresentativeService } from "./services/customer-representative.service";
+import { ClientsModule, Transport } from "@nestjs/microservices";
 
 @Module({
   imports: [
@@ -38,6 +39,21 @@ import { CustomerRepresentativeService } from "./services/customer-representativ
       secret: JWT_SECRET,
       signOptions: { expiresIn: "300s" },
     }),
+    ClientsModule.register([
+      {
+        name: "ACCOUNT_SERVICE",
+        transport: Transport.KAFKA,
+        options: {
+          client: {
+            clientId: "bank-accounts",
+            brokers: ["kafka:9092"],
+          },
+          consumer: {
+            groupId: "accounts-consumer",
+          },
+        },
+      },
+    ]),
     ConfigModule.forRoot({}),
     MongooseModule.forRoot(
       `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.duok4hv.mongodb.net/?retryWrites=true&w=majority`,

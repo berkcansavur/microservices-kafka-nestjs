@@ -6,6 +6,7 @@ import {
   AddCustomerToRepresentativeDTO,
   CreateBankDTO,
   CreateEmployeeRegistrationToBankDTO,
+  GetUserProfileDTO,
 } from "../dtos/bank.dto";
 
 @Controller("/banks")
@@ -113,41 +114,27 @@ export class BanksController {
       bankId: data.bankId,
     });
   }
-  // @MessagePattern("get-customer-accounts-event")
-  // @UsePipes(new ParseIncomingRequest())
-  // async getCustomersAccounts(data: GetCustomersAccountsDTO) {
-  //   const { logger, bankService } = this;
-  //   logger.debug(
-  //     `[BanksController] Banks getCustomersAccounts Incoming Data: ${JSON.stringify(
-  //       data,
-  //     )}`,
-  //   );
-  //   const customer = await bankService.getCustomersAccounts({
-  //     customerId: data.customerId,
-  //   });
-  //   return customer;
-  // }
-  // @MessagePattern("get-user-profile-event")
-  // @UsePipes(new ParseIncomingRequest())
-  // async getUserProfile(data: GetUserProfileDTO) {
-  //   const { logger, bankService } = this;
-  //   logger.debug(
-  //     `[BanksController] Banks getUserProfile Incoming Data: `,
-  //     data,
-  //   );
-  //   const user = await bankService.getUserProfile({
-  //     userType: data.userType,
-  //     userId: data.userId,
-  //   });
-  //   const stingifedUser = JSON.stringify(user);
-  //   logger.debug(
-  //     `[BanksController] User: `,
-  //     stingifedUser,
-  //     "Parsed user:",
-  //     JSON.parse(stingifedUser),
-  //   );
-  //   return JSON.parse(stingifedUser);
-  // }
+  @MessagePattern("get-user-profile-event")
+  @UsePipes(new ParseIncomingRequest())
+  async getUserProfile(data: GetUserProfileDTO) {
+    const { logger, bankService } = this;
+    logger.debug(
+      `[BanksController] Banks getUserProfile Incoming Data: `,
+      data,
+    );
+    const user = await bankService.getUserProfile({
+      userType: data.userType,
+      userId: data.userId,
+    });
+    const stingifedUser = JSON.stringify(user);
+    logger.debug(
+      `[BanksController] User: `,
+      stingifedUser,
+      "Parsed user:",
+      JSON.parse(stingifedUser),
+    );
+    return JSON.parse(stingifedUser);
+  }
   // @MessagePattern("get-customers-transfers-event")
   // @UsePipes(new ParseIncomingRequest())
   // async getCustomersTransfers(data: CustomerIdDTO) {

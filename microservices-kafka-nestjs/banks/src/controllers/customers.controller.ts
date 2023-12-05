@@ -1,10 +1,11 @@
 import { Body, Controller, Logger, UsePipes } from "@nestjs/common";
 import { MessagePattern } from "@nestjs/microservices";
 import { LoginUserDTO } from "src/dtos/auth.dto";
-import { CreateCustomerDTO } from "src/dtos/bank.dto";
+import { CreateCustomerDTO, GetCustomersAccountsDTO } from "src/dtos/bank.dto";
 import { AddAccountDTO, SearchTextDTO } from "src/dtos/customer.dto";
 import { ParseIncomingRequest } from "src/pipes/serialize-request-data.pipe";
 import { AuthService } from "src/services/auth.service";
+import { BanksService } from "src/services/banks.service";
 import { CustomersService } from "src/services/customers.service";
 
 @Controller("/customers")
@@ -12,6 +13,7 @@ export class CustomersController {
   private readonly logger = new Logger(CustomersController.name);
   constructor(
     private readonly customerService: CustomersService,
+    private readonly bankService: BanksService,
     private readonly authService: AuthService,
   ) {}
 
@@ -93,5 +95,19 @@ export class CustomersController {
     });
     logger.debug("[login] searchResult: ", customer);
     return JSON.stringify(customer);
+  }
+  @MessagePattern("get-customer-accounts-event")
+  @UsePipes(new ParseIncomingRequest())
+  async getCustomersAccounts(data: GetCustomersAccountsDTO) {
+    const { logger, bankService } = this;
+    logger.debug(
+      `[BanksController] Banks getCustomersAccounts Incoming Data: ${JSON.stringify(
+        data,
+      )}`,
+    );
+    const customer = await bankService.getCustomersAccounts({
+      customerId: data.customerId,
+    });
+    return customer;
   }
 }
