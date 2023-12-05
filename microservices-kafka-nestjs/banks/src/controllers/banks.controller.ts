@@ -3,7 +3,6 @@ import { BanksService } from "../services/banks.service";
 import { MessagePattern } from "@nestjs/microservices";
 import { ParseIncomingRequest } from "src/pipes/serialize-request-data.pipe";
 import {
-  AddCustomerToRepresentativeDTO,
   CreateBankDTO,
   CreateEmployeeRegistrationToBankDTO,
   GetUserProfileDTO,
@@ -81,22 +80,6 @@ export class BanksController {
   //     createTransferDTO: data,
   //   });
   // }
-  @MessagePattern("add-customer-to-banks-customer-representative-event")
-  @UsePipes(new ParseIncomingRequest())
-  async AddCustomerToCustomerRepresentative(
-    data: AddCustomerToRepresentativeDTO,
-  ) {
-    const { logger } = this;
-    logger.debug(
-      `[BanksController] Banks AddCustomerToCustomerRepresentative Incoming Data: ${JSON.stringify(
-        data,
-      )}`,
-    );
-    return await this.bankService.handleAddCustomerToCustomerRepresentative({
-      customerId: data.customerId,
-      customerRepresentativeId: data.customerRepresentativeId,
-    });
-  }
   @MessagePattern("create-employee-registration-to-bank-event")
   @UsePipes(new ParseIncomingRequest())
   async createEmployeeRegistrationToBank(

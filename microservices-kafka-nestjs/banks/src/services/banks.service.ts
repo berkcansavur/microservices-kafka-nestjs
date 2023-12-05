@@ -5,7 +5,6 @@ import {
   PrivateAccountDTO,
 } from "src/dtos/bank.dto";
 import { BanksRepository } from "../repositories/banks.repository";
-import { PrivateCustomerRepresentative } from "../schemas/customers.schema";
 import { CustomersService } from "./customers.service";
 import { BanksLogic } from "../logic/banks.logic";
 import { Bank } from "../schemas/banks.schema";
@@ -21,11 +20,9 @@ import {
   BankCouldNotUpdatedException,
   UserNotFoundException,
 } from "../exceptions";
-import { BankCustomerRepresentative } from "../schemas/employee-schema";
 import { EmployeesService } from "./employees.service";
 import { Mapper } from "@automapper/core";
 import { InjectMapper } from "@automapper/nestjs";
-import { CustomerRepresentativeService } from "./customer-representative.service";
 import { AccountType } from "src/types/bank.types";
 import { ClientKafka } from "@nestjs/microservices";
 import { Utils } from "src/utils/utils";
@@ -42,7 +39,6 @@ export class BanksService implements IBankServiceInterface, OnModuleInit {
     private readonly banksRepository: BanksRepository,
     private readonly customersService: CustomersService,
     private readonly employeesService: EmployeesService,
-    private readonly customerRepresentativeService: CustomerRepresentativeService,
     @InjectMapper() private readonly BankMapper: Mapper,
   ) {}
   async onModuleInit() {
@@ -80,50 +76,6 @@ export class BanksService implements IBankServiceInterface, OnModuleInit {
       throw new BankCouldNotCreatedException({ data: createBankDTO });
     }
     return bank;
-  }
-  async handleAddCustomerToCustomerRepresentative({
-    customerId,
-    customerRepresentativeId,
-  }: {
-    customerId: string;
-    customerRepresentativeId: string;
-  }): Promise<BankCustomerRepresentative> {
-    const {
-      logger,
-      customersService,
-      customerRepresentativeService,
-      BankMapper,
-    } = this;
-    logger.debug(
-      "[BanksService] handleAddCustomerToCustomerRepresentative DTO: ",
-      customerId,
-      customerRepresentativeId,
-    );
-    const customer = await customersService.getCustomer({
-      customerId,
-    });
-    const updatedCustomerRepresentative =
-      await customerRepresentativeService.addCustomer({
-        customerRepresentativeId,
-        customer,
-      });
-    const formattedCustomerRepresentative = BankMapper.map<
-      BankCustomerRepresentative,
-      PrivateCustomerRepresentative
-    >(
-      updatedCustomerRepresentative,
-      BankCustomerRepresentative,
-      PrivateCustomerRepresentative,
-    );
-    logger.debug(
-      "[BanksService] formattedCustomerRepresentative: ",
-      formattedCustomerRepresentative,
-    );
-    await customersService.registerCustomerRepresentativeToCustomer({
-      customerId,
-      customerRepresentative: formattedCustomerRepresentative,
-    });
-    return updatedCustomerRepresentative;
   }
   //Ok
   async handleCreateEmployeeRegistrationToBank({

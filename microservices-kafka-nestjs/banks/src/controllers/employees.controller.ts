@@ -2,6 +2,7 @@ import { Body, Controller, Logger, UsePipes } from "@nestjs/common";
 import { MessagePattern } from "@nestjs/microservices";
 import { LoginUserDTO } from "src/dtos/auth.dto";
 import {
+  AddCustomerToRepresentativeDTO,
   CreateBankCustomerRepresentativeDTO,
   CreateBankDepartmentDirectorDTO,
   CreateBankDirectorDTO,
@@ -11,6 +12,7 @@ import {
 import { AddTransactionToEmployeeDTO } from "src/dtos/employee.dto";
 import { ParseIncomingRequest } from "src/pipes/serialize-request-data.pipe";
 import { AuthService } from "src/services/auth.service";
+import { CustomerRepresentativeService } from "src/services/customer-representative.service";
 import { EmployeesService } from "src/services/employees.service";
 import { EMPLOYEE_MODEL_TYPES } from "src/types/employee.types";
 
@@ -19,6 +21,7 @@ export class EmployeesController {
   private readonly logger = new Logger(EmployeesController.name);
   constructor(
     private readonly employeeService: EmployeesService,
+    private readonly customerRepresentativeService: CustomerRepresentativeService,
     private readonly authService: AuthService,
   ) {}
 
@@ -158,5 +161,21 @@ export class EmployeesController {
     });
     logger.debug("[login] searchResult: ", customer);
     return JSON.stringify(customer);
+  }
+  @MessagePattern("add-customer-to-banks-customer-representative-event")
+  @UsePipes(new ParseIncomingRequest())
+  async AddCustomerToCustomerRepresentative(
+    data: AddCustomerToRepresentativeDTO,
+  ) {
+    const { logger, customerRepresentativeService } = this;
+    logger.debug(
+      `[BanksController] Banks AddCustomerToCustomerRepresentative Incoming Data: ${JSON.stringify(
+        data,
+      )}`,
+    );
+    return await customerRepresentativeService.addCustomer({
+      customerId: data.customerId,
+      customerRepresentativeId: data.customerRepresentativeId,
+    });
   }
 }

@@ -6,26 +6,32 @@ import {
 import { InjectMapper } from "@automapper/nestjs";
 import { Mapper } from "@automapper/core";
 import { EmployeesRepository } from "src/repositories/employees.repository";
-import { Customer } from "src/schemas/customers.schema";
+import {
+  Customer,
+  PrivateCustomerRepresentative,
+} from "src/schemas/customers.schema";
 import { EMPLOYEE_ACTIONS } from "src/types/employee.types";
 import { BanksLogic } from "src/logic/banks.logic";
 import { EmployeeCouldNotUpdatedException } from "src/exceptions";
+import { CustomersService } from "./customers.service";
 
 @Injectable()
 export class CustomerRepresentativeService {
   private readonly logger = new Logger(CustomerRepresentativeService.name);
   constructor(
     private readonly employeesRepository: EmployeesRepository,
+    private readonly customerService: CustomersService,
     @InjectMapper() private readonly BankMapper: Mapper,
   ) {}
   async addCustomer({
     customerRepresentativeId,
-    customer,
+    customerId,
   }: {
     customerRepresentativeId: string;
-    customer: Customer;
+    customerId: string;
   }): Promise<BankCustomerRepresentative> {
-    const { logger, employeesRepository, BankMapper } = this;
+    const { logger, employeesRepository, customerService, BankMapper } = this;
+    const customer = await customerService.getCustomer({ customerId });
     const mappedCustomer = BankMapper.map<Customer, PrivateCustomer>(
       customer,
       Customer,
@@ -47,6 +53,22 @@ export class CustomerRepresentativeService {
         data: { customerRepresentativeId },
       });
     }
+    const formattedCustomerRepresentative = BankMapper.map<
+      BankCustomerRepresentative,
+      PrivateCustomerRepresentative
+    >(
+      updatedCustomerRepresentative,
+      BankCustomerRepresentative,
+      PrivateCustomerRepresentative,
+    );
+    logger.debug(
+      "[BanksService] formattedCustomerRepresentative: ",
+      formattedCustomerRepresentative,
+    );
+    await customerService.registerCustomerRepresentativeToCustomer({
+      customerId,
+      customerRepresentative: formattedCustomerRepresentative,
+    });
     return updatedCustomerRepresentative;
   }
 }
