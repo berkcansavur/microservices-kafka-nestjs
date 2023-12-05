@@ -141,4 +141,22 @@ export class EmployeesController {
       transfer: transfer,
     });
   }
+  @MessagePattern("update-customer-transaction-result")
+  @UsePipes(new ParseIncomingRequest())
+  async updateCustomerTransactionResult(@Body() data: any) {
+    const { logger, employeeService } = this;
+    const { employeeType, transferId, employeeId, transfer, result, action } =
+      data;
+    logger.debug("[updateCustomerTransactionResult] data: ", data);
+    const customer = await employeeService.updateCustomerTransactionsResult({
+      employeeType,
+      transferId,
+      employeeId,
+      transfer,
+      result,
+      action,
+    });
+    logger.debug("[login] searchResult: ", customer);
+    return JSON.stringify(customer);
+  }
 }

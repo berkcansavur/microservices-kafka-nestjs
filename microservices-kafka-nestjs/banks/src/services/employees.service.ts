@@ -260,7 +260,7 @@ export class EmployeesService implements IEmployeeServiceInterface {
     logger.debug("[EmployeesService] transactions : ", transactions);
     return transactions;
   }
-  async updateEmployeesCustomerTransactionsResult({
+  async updateCustomerTransactionsResult({
     employeeType,
     transferId,
     employeeId,

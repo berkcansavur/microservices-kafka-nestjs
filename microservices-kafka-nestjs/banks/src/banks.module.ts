@@ -10,7 +10,6 @@ import { CustomersController } from "./controllers/customers.controller";
 import { ConfigModule } from "@nestjs/config";
 import { AutomapperModule } from "@automapper/nestjs";
 import { classes } from "@automapper/classes";
-import { ClientsModule, Transport } from "@nestjs/microservices";
 import { CustomerAuth, CustomerAuthSchema } from "./schemas/auth.schema";
 import {
   BankCustomerRepresentativeSchema,
@@ -39,34 +38,6 @@ import { CustomerRepresentativeService } from "./services/customer-representativ
       secret: JWT_SECRET,
       signOptions: { expiresIn: "300s" },
     }),
-    ClientsModule.register([
-      {
-        name: "TRANSFER_SERVICE",
-        transport: Transport.KAFKA,
-        options: {
-          client: {
-            clientId: "bank-transfers",
-            brokers: ["kafka:9092"],
-          },
-          consumer: {
-            groupId: "transfers-consumer",
-          },
-        },
-      },
-      {
-        name: "ACCOUNT_SERVICE",
-        transport: Transport.KAFKA,
-        options: {
-          client: {
-            clientId: "bank-accounts",
-            brokers: ["kafka:9092"],
-          },
-          consumer: {
-            groupId: "accounts-consumer",
-          },
-        },
-      },
-    ]),
     ConfigModule.forRoot({}),
     MongooseModule.forRoot(
       `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.duok4hv.mongodb.net/?retryWrites=true&w=majority`,

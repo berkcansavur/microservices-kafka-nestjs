@@ -18,7 +18,6 @@ import {
   GetCustomersAccountsDTO,
   GetCustomersTransfersDTO,
   LoginUserDTO,
-  MoneyTransferDTO,
 } from "src/dtos/api.dtos";
 import { AuthGuard } from "src/guards/auth.guard";
 
@@ -119,18 +118,18 @@ export class CustomersController {
       currencyType,
     });
   }
-  @Post("/transferMoneyToAccount")
-  //@UseGuards(AuthGuard)
-  transferMoneyToAccount(@Body() transferMoneyToAccountDTO: MoneyTransferDTO) {
-    const { appService, logger } = this;
-    logger.debug(
-      "[transferMoneyToAccount] transferMoneyToAccountDTO: ",
-      transferMoneyToAccountDTO,
-    );
-    return appService.sendTransferMoneyToAccountRequest(
-      transferMoneyToAccountDTO,
-    );
-  }
+  // @Post("/transferMoneyToAccount")
+  // //@UseGuards(AuthGuard)
+  // transferMoneyToAccount(@Body() transferMoneyToAccountDTO: MoneyTransferDTO) {
+  //   const { appService, logger } = this;
+  //   logger.debug(
+  //     "[transferMoneyToAccount] transferMoneyToAccountDTO: ",
+  //     transferMoneyToAccountDTO,
+  //   );
+  //   return appService.sendTransferMoneyToAccountRequest(
+  //     transferMoneyToAccountDTO,
+  //   );
+  // }
   @Post("/createTransfer")
   //@UseGuards(AuthGuard)
   createTransfer(@Body() createTransferRequestDTO: CreateTransferDTO) {

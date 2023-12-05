@@ -10,7 +10,6 @@ import { ConfigModule } from "@nestjs/config";
 
 @Module({
   imports: [
-    ConfigModule.forRoot({}),
     JwtModule.register({}),
     ClientsModule.register([
       {
@@ -53,6 +52,7 @@ import { ConfigModule } from "@nestjs/config";
         },
       },
     ]),
+    ConfigModule.forRoot({}),
   ],
   controllers: [
     AppController,

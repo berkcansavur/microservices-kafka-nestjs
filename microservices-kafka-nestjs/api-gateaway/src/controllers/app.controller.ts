@@ -11,7 +11,6 @@ import { AppService } from "../app.service";
 import {
   CreateTransferDTO,
   CreateAccountDTO,
-  MoneyTransferDTO,
   CreateCustomerDTO,
   CreateBankDTO,
   CreateDirectorDTO,
@@ -81,13 +80,13 @@ export class AppController {
     const { appService } = this;
     return appService.sendRejectTransferRequest(rejectTransferRequestDTO);
   }
-  @Post("/transferMoneyToAccount")
-  transferMoneyToAccount(@Body() transferMoneyToAccountDTO: MoneyTransferDTO) {
-    const { appService } = this;
-    return appService.sendTransferMoneyToAccountRequest(
-      transferMoneyToAccountDTO,
-    );
-  }
+  // @Post("/transferMoneyToAccount")
+  // transferMoneyToAccount(@Body() transferMoneyToAccountDTO: MoneyTransferDTO) {
+  //   const { appService } = this;
+  //   return appService.sendTransferMoneyToAccountRequest(
+  //     transferMoneyToAccountDTO,
+  //   );
+  // }
   @Post("/createBank")
   createBank(@Body() createBankDTO: CreateBankDTO) {
     const { appService } = this;

@@ -3,11 +3,8 @@ import { InjectMapper } from "@automapper/nestjs";
 import { Injectable, Logger } from "@nestjs/common";
 import { ACCOUNT_ACTIONS } from "src/constants/banks.constants";
 import { AuthenticatedUserDTO, UserProfileDTO } from "src/dtos/auth.dto";
-import {
-  CreateCustomerDTO,
-  CustomerDTO,
-  SearchTextDTO,
-} from "src/dtos/bank.dto";
+import { CreateCustomerDTO, CustomerDTO } from "src/dtos/bank.dto";
+import { SearchTextDTO } from "src/dtos/customer.dto";
 import { UserCouldNotValidatedException } from "src/exceptions";
 import { BanksLogic } from "src/logic/banks.logic";
 import { CustomersRepository } from "src/repositories/customer.repository";
@@ -148,7 +145,7 @@ export class CustomersService {
     });
     return stringAccountIds;
   }
-  async addAccountToCustomer({
+  async addAccount({
     customerId,
     accountId,
   }: {

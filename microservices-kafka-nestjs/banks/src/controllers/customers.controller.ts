@@ -1,7 +1,8 @@
 import { Body, Controller, Logger, UsePipes } from "@nestjs/common";
 import { MessagePattern } from "@nestjs/microservices";
 import { LoginUserDTO } from "src/dtos/auth.dto";
-import { CreateCustomerDTO, SearchTextDTO } from "src/dtos/bank.dto";
+import { CreateCustomerDTO } from "src/dtos/bank.dto";
+import { AddAccountDTO, SearchTextDTO } from "src/dtos/customer.dto";
 import { ParseIncomingRequest } from "src/pipes/serialize-request-data.pipe";
 import { AuthService } from "src/services/auth.service";
 import { CustomersService } from "src/services/customers.service";
@@ -41,7 +42,7 @@ export class CustomersController {
   }
   @MessagePattern("create-customer-event")
   @UsePipes(new ParseIncomingRequest())
-  async createCustomerEvent(data: CreateCustomerDTO) {
+  async create(data: CreateCustomerDTO) {
     const { logger, customerService } = this;
     logger.debug(
       `[BanksController] Banks approveTransfer Incoming Data: ${JSON.stringify(
@@ -55,7 +56,7 @@ export class CustomersController {
   }
   @MessagePattern("search-customer")
   @UsePipes(new ParseIncomingRequest())
-  async findCustomer(@Body() query: SearchTextDTO) {
+  async find(@Body() query: SearchTextDTO) {
     const { logger, customerService } = this;
     logger.debug("[login] user: LoginUserDTO: ", query);
     const searchResult = await customerService.filterCustomerByQuery({ query });
@@ -71,12 +72,25 @@ export class CustomersController {
     logger.debug("[login] searchResult: ", customer);
     return JSON.stringify(customer);
   }
-  @MessagePattern("add-transaction")
+  @MessagePattern("add-transaction-to-customer")
   @UsePipes(new ParseIncomingRequest())
   async addTransaction(@Body() customerId: string) {
     const { logger, customerService } = this;
-    logger.debug("[login] user: LoginUserDTO: ", customerId);
+    logger.debug("[addTransaction] customerId: ", customerId);
     const customer = await customerService.getCustomer({ customerId });
+    logger.debug("[addTransaction] customer: ", customer);
+    return JSON.stringify(customer);
+  }
+  @MessagePattern("add-account-to-customer")
+  @UsePipes(new ParseIncomingRequest())
+  async addAccount(@Body() data: AddAccountDTO) {
+    const { logger, customerService } = this;
+    const { customerId, accountId } = data;
+    logger.debug("[addAccount] user: LoginUserDTO: ", customerId);
+    const customer = await customerService.addAccount({
+      customerId,
+      accountId,
+    });
     logger.debug("[login] searchResult: ", customer);
     return JSON.stringify(customer);
   }

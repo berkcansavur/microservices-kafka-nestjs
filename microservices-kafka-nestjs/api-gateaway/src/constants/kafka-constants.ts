@@ -23,6 +23,8 @@ export enum BANK_TOPICS {
   GET_ACCOUNTS_TRANSFERS_EVENT = "get-accounts-transfers-event",
   ADD_TRANSACTION_TO_EMPLOYEE = "add-transaction-to-employee",
   SEARCH_CUSTOMER = "search-customer",
+  ADD_ACCOUNT_TO_CUSTOMER = "add-account-to-customer",
+  UPDATE_CUSTOMER_TRANSACTION_RESULT = "update-customer-transaction-result",
 }
 export enum ACCOUNT_TOPICS {
   GET_ACCOUNT = "get_account",

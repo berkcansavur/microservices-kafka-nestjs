@@ -32,13 +32,28 @@ import {
   EMPLOYEE_MODEL_TYPES,
   EVENT_RESULTS,
   TRANSACTION_TYPES,
+  TRANSFER_STATUSES,
   TransferType,
+  USER_TYPES,
 } from "types/app-types";
 import { GetUserProfileDTO } from "./dtos/api.dtos";
 import { BanksLogic, CustomersLogic } from "./logic";
 import { AddTransactionToEmployeeDTO, TransferDTO } from "./dtos/transfer.dto";
 import { CustomerHasNotRepresentativeException } from "./exceptions/customer-exception";
-import { MoneyTransferCouldNotSucceedException } from "./exceptions";
+import {
+  AccountCouldNotAddedToCustomerException,
+  AccountCouldNotCreatedException,
+  InvalidAccountTypeException,
+  InvalidBankBranchCodeException,
+  InvalidTransferStatusException,
+  MoneyTransferCouldNotSucceedException,
+  TransferCouldNotRejectedException,
+} from "./exceptions";
+import { Utils } from "./utils/utils";
+import {
+  EMPLOYEE_ACTIONS,
+  TRANSACTION_RESULTS,
+} from "./constants/bank.constants";
 
 @Injectable()
 export class AppService implements OnModuleInit {
@@ -93,7 +108,7 @@ export class AppService implements OnModuleInit {
     );
     return this.handleKafkaBankEvents(loginUserDTO, BANK_TOPICS.LOGIN_EMPLOYEE);
   }
-  async sendCreateMoneyTransferAccrossAccounts({
+  async sendCreateTransferAcrossAccounts({
     createTransferDTO,
   }: {
     createTransferDTO: CreateTransferDTO;
@@ -184,65 +199,267 @@ export class AppService implements OnModuleInit {
       throw new MoneyTransferCouldNotSucceedException({ errorData: error });
     }
   }
-  async sendCreateMoneyTransferRequest(
-    createTransferRequestDTO: CreateTransferDTO,
-  ) {
+  async sendCreateMoneyTransferRequest(createTransferDTO: CreateTransferDTO) {
     const { logger } = this;
     logger.debug(
       `[AppService] createMoneyTransferRequest: ${JSON.stringify(
-        createTransferRequestDTO,
+        createTransferDTO,
       )}`,
     );
     return this.handleKafkaBankEvents(
-      createTransferRequestDTO,
+      createTransferDTO,
       BANK_TOPICS.CREATE_TRANSFER_ACROSS_ACCOUNTS_EVENT,
     );
   }
-  async sendApproveTransferRequest(approveTransferDTO: GetTransferDTO) {
+  async sendApproveTransferRequest(
+    approveTransferDTO: GetTransferDTO,
+  ): Promise<TransferType> {
     const { logger } = this;
-    logger.debug(
-      `[AppService] approveTransfer: ${JSON.stringify(approveTransferDTO)}`,
-    );
-    return this.handleKafkaBankEvents(
-      approveTransferDTO,
-      BANK_TOPICS.APPROVE_TRANSFER_EVENT,
-    );
+    const { transferId, employeeId } = approveTransferDTO;
+    logger.debug("[handleApproveTransfer] transferId: ", transferId);
+    try {
+      const transfer: TransferType = (await this.handleKafkaTransferEvents(
+        transferId,
+        TRANSFER_TOPICS.HANDLE_GET_TRANSFER,
+      )) as TransferType;
+      if (
+        !BanksLogic.isTransferStatusEqualToExpectedStatus({
+          status: transfer.status,
+          expectedStatus: TRANSFER_STATUSES.APPROVE_PENDING,
+        })
+      ) {
+        throw new InvalidTransferStatusException({
+          data: `Invalid transfer status ${transfer.status}`,
+        });
+      }
+      const approvedTransfer: TransferType =
+        (await this.handleKafkaTransferEvents(
+          transfer,
+          TRANSFER_TOPICS.HANDLE_APPROVE_TRANSFER,
+        )) as TransferType;
+      const startedTransfer: TransferType =
+        (await this.handleKafkaTransferEvents(
+          approvedTransfer,
+          TRANSFER_TOPICS.HANDLE_START_TRANSFER,
+        )) as TransferType;
+      const eventResult = (await this.handleKafkaAccountEvents(
+        startedTransfer,
+        ACCOUNT_TOPICS.MONEY_TRANSFER_ACROSS_ACCOUNTS_RESULT,
+      )) as EVENT_RESULTS;
+      if (BanksLogic.isTransferSucceed(eventResult)) {
+        const completedTransfer: TransferType =
+          (await this.handleKafkaTransferEvents(
+            startedTransfer,
+            TRANSFER_TOPICS.HANDLE_COMPLETE_TRANSFER,
+          )) as TransferType;
+        await this.handleKafkaBankEvents(
+          {
+            employeeType: USER_TYPES.BANK_CUSTOMER_REPRESENTATIVE,
+            transferId,
+            employeeId,
+            transfer: completedTransfer,
+            result: TRANSACTION_RESULTS.SUCCESS,
+            action: EMPLOYEE_ACTIONS.TRANSFER_APPROVAL_SUCCESS,
+          },
+          BANK_TOPICS.UPDATE_CUSTOMER_TRANSACTION_RESULT,
+        );
+        return completedTransfer;
+      } else {
+        const failedTransfer: TransferType =
+          (await this.handleKafkaTransferEvents(
+            startedTransfer,
+            TRANSFER_TOPICS.HANDLE_FAILURE_TRANSFER,
+          )) as TransferType;
+        await this.handleKafkaBankEvents(
+          {
+            employeeType: USER_TYPES.BANK_CUSTOMER_REPRESENTATIVE,
+            transferId,
+            employeeId,
+            transfer: failedTransfer,
+            result: TRANSACTION_RESULTS.FAILED,
+            action: EMPLOYEE_ACTIONS.TRANSFER_APPROVAL_FAIL,
+          },
+          BANK_TOPICS.UPDATE_CUSTOMER_TRANSACTION_RESULT,
+        );
+        return failedTransfer;
+      }
+    } catch (error) {
+      if (error instanceof InvalidTransferStatusException) {
+        throw new InvalidTransferStatusException({
+          data: `Invalid transfer status ${error.data}`,
+        });
+      }
+      throw new MoneyTransferCouldNotSucceedException({ errorData: error });
+    }
   }
-  async sendRejectTransferRequest(rejectTransferDTO: GetTransferDTO) {
+  async sendRejectTransferRequest(
+    rejectTransferDTO: GetTransferDTO,
+  ): Promise<TransferType> {
     const { logger } = this;
-    logger.debug(
-      `[AppService] approveTransfer: ${JSON.stringify(rejectTransferDTO)}`,
-    );
-    return this.handleKafkaBankEvents(
-      rejectTransferDTO,
-      BANK_TOPICS.REJECT_TRANSFER_EVENT,
-    );
+    const { transferId, employeeId } = rejectTransferDTO;
+    logger.debug("handleApproveTransfer transferId: ", transferId);
+    try {
+      const transfer: TransferType = (await this.handleKafkaTransferEvents(
+        transferId,
+        TRANSFER_TOPICS.HANDLE_GET_TRANSFER,
+      )) as TransferType;
+      if (
+        !BanksLogic.isTransferStatusEqualToExpectedStatus({
+          status: transfer.status,
+          expectedStatus: TRANSFER_STATUSES.APPROVE_PENDING,
+        })
+      ) {
+        throw new InvalidTransferStatusException({
+          data: `Invalid transfer status ${transfer.status}`,
+        });
+      }
+      const rejectedTransfer: TransferType =
+        (await this.handleKafkaTransferEvents(
+          transfer,
+          TRANSFER_TOPICS.HANDLE_REJECT_TRANSFER,
+        )) as TransferType;
+      if (!BanksLogic.isObjectValid(rejectedTransfer)) {
+        throw new TransferCouldNotRejectedException();
+      }
+      await this.handleKafkaBankEvents(
+        {
+          employeeType: USER_TYPES.BANK_CUSTOMER_REPRESENTATIVE,
+          transferId,
+          employeeId,
+          transfer: rejectedTransfer,
+          result: TRANSACTION_RESULTS.REJECTED,
+          action: EMPLOYEE_ACTIONS.TRANSFER_APPROVAL_SUCCESS,
+        },
+        BANK_TOPICS.UPDATE_CUSTOMER_TRANSACTION_RESULT,
+      );
+      return rejectedTransfer;
+    } catch (error) {
+      if (error instanceof InvalidTransferStatusException) {
+        throw new InvalidTransferStatusException({
+          data: `Invalid transfer status ${error.data}`,
+        });
+      }
+      if (error instanceof TransferCouldNotRejectedException) {
+        throw new TransferCouldNotRejectedException({
+          data: `Invalid transfer status ${error.data}`,
+        });
+      }
+      throw new MoneyTransferCouldNotSucceedException({ errorData: error });
+    }
   }
-  async sendCreateAccountRequest(createAccountRequestDTO: CreateAccountDTO) {
+  async sendCreateAccountRequest(createAccountDTO: CreateAccountDTO) {
     const { logger } = this;
+    logger.debug("[BanksService] create account DTO: ", createAccountDTO);
+    let accountNumber = Utils.generateRandomNumber();
+    if (!BanksLogic.isAccountTypeIsValid({ accountDTO: createAccountDTO })) {
+      throw new InvalidAccountTypeException({
+        data: createAccountDTO.accountType,
+      });
+    }
+    if (!BanksLogic.isValidBankBranchCode(createAccountDTO.bankBranchCode)) {
+      throw new InvalidBankBranchCodeException({
+        data: createAccountDTO.bankBranchCode,
+      });
+    }
+    const branchCode = Utils.getBanksBranchCode(
+      createAccountDTO.bankBranchCode,
+    );
+    const accountType = Utils.getAccountType(createAccountDTO.accountType);
+    createAccountDTO.accountType = accountType;
+    accountNumber = Utils.combineNumbers({ branchCode, accountNumber });
+    const createAccountDTOWithAccountNumber = {
+      ...createAccountDTO,
+      accountNumber: accountNumber,
+    };
     logger.debug(
-      `[AppService] createAccountRequest: ${JSON.stringify(
-        createAccountRequestDTO,
-      )}`,
+      "[BanksService] createAccountDTOWithAccountNumber: ",
+      createAccountDTO,
     );
-    return this.handleKafkaBankEvents(
-      createAccountRequestDTO,
-      BANK_TOPICS.CREATE_ACCOUNT_EVENT,
-    );
+    try {
+      const createdAccount: AccountType = (await this.handleKafkaAccountEvents(
+        createAccountDTOWithAccountNumber,
+        ACCOUNT_TOPICS.HANDLE_CREATE_ACCOUNT,
+      )) as AccountType;
+      if (!createdAccount) {
+        throw new AccountCouldNotCreatedException();
+      }
+      const accountId: string = createdAccount._id;
+      const updatedCustomerAccounts = await this.handleKafkaBankEvents(
+        {
+          customerId: createAccountDTO.userId,
+          accountId: accountId,
+        },
+        BANK_TOPICS.ADD_ACCOUNT_TO_CUSTOMER,
+      );
+
+      if (!BanksLogic.isObjectValid(updatedCustomerAccounts)) {
+        throw new AccountCouldNotAddedToCustomerException({
+          data: createAccountDTO.userId,
+        });
+      }
+      return createdAccount;
+    } catch (error) {
+      if (error instanceof AccountCouldNotAddedToCustomerException) {
+        throw new AccountCouldNotAddedToCustomerException({
+          data: createAccountDTO.userId,
+        });
+      }
+      if (error instanceof InvalidBankBranchCodeException) {
+        throw new InvalidBankBranchCodeException({
+          data: createAccountDTO.bankBranchCode,
+        });
+      }
+      if (error instanceof InvalidAccountTypeException) {
+        throw new InvalidAccountTypeException({
+          data: createAccountDTO.accountType,
+        });
+      }
+      throw new AccountCouldNotCreatedException({ errorData: error });
+    }
   }
-  async sendTransferMoneyToAccountRequest(
-    transferMoneyToAccountDTO: MoneyTransferDTO,
-  ) {
-    const { logger } = this;
-    logger.debug(
-      `[AppService] transferMoneyToAccountRequest: ${JSON.stringify(
-        transferMoneyToAccountDTO,
-      )}`,
-    );
-    return this.handleKafkaBankEvents(
-      transferMoneyToAccountDTO,
-      BANK_TOPICS.TRANSFER_MONEY_TO_ACCOUNT_EVENT,
-    );
+  async sendTransferMoneyToAccountRequest({
+    createTransferDTO,
+  }: {
+    createTransferDTO: MoneyTransferDTO;
+  }): Promise<TransferType> {
+    if (!BanksLogic.isIncomingMoneyIsValid(createTransferDTO.serials)) {
+      throw new Error("Invalid money serial numbers");
+    }
+    try {
+      const createdTransfer: TransferType =
+        (await this.handleKafkaTransferEvents(
+          createTransferDTO,
+          TRANSFER_TOPICS.HANDLE_CREATE_TRANSFER_TO_ACCOUNT,
+        )) as TransferType;
+      const approvedTransfer: TransferType =
+        (await this.handleKafkaTransferEvents(
+          createdTransfer,
+          TRANSFER_TOPICS.HANDLE_APPROVE_TRANSFER,
+        )) as TransferType;
+      const startedTransfer: TransferType =
+        (await this.handleKafkaTransferEvents(
+          approvedTransfer,
+          TRANSFER_TOPICS.HANDLE_START_TRANSFER,
+        )) as TransferType;
+      const eventResult = EVENT_RESULTS.SUCCESS;
+      if (BanksLogic.isTransferSucceed(eventResult)) {
+        const completedTransfer: TransferType =
+          (await this.handleKafkaTransferEvents(
+            startedTransfer,
+            TRANSFER_TOPICS.HANDLE_COMPLETE_TRANSFER,
+          )) as TransferType;
+        return completedTransfer;
+      } else {
+        const failedTransfer: TransferType =
+          (await this.handleKafkaTransferEvents(
+            startedTransfer,
+            TRANSFER_TOPICS.HANDLE_FAILURE_TRANSFER,
+          )) as TransferType;
+        return failedTransfer;
+      }
+    } catch (error) {
+      throw new MoneyTransferCouldNotSucceedException({ errorData: error });
+    }
   }
   async sendCreateCustomerRequest(createCustomerRequestDTO: CreateCustomerDTO) {
     const { logger } = this;
@@ -268,6 +485,7 @@ export class AppService implements OnModuleInit {
       BANK_TOPICS.DELETE_TRANSFER_RECORDS_EVENT,
     );
   }
+  //OK
   async sendCreateBankRequest(createBankRequestDTO: CreateBankDTO) {
     const { logger } = this;
     logger.debug(
@@ -279,6 +497,7 @@ export class AppService implements OnModuleInit {
       BANK_TOPICS.CREATE_BANK_EVENT,
     );
   }
+  //OK
   async sendCreateDirectorRequest(
     createBankDirectorRequestDTO: CreateDirectorDTO,
   ) {
@@ -292,6 +511,7 @@ export class AppService implements OnModuleInit {
       BANK_TOPICS.CREATE_BANK_DIRECTOR_EVENT,
     );
   }
+  //OK
   async sendCreateCustomerRepresentativeRequest(
     createCustomerRepresentativeRequestDTO: CreateCustomerRepresentativeDTO,
   ) {
@@ -305,6 +525,7 @@ export class AppService implements OnModuleInit {
       BANK_TOPICS.CREATE_BANK_CUSTOMER_REPRESENTATIVE_EVENT,
     );
   }
+  //OK
   async sendAddCustomerToRepresentativeRequest({
     addCustomerToRepresentativeDTO,
   }: {
@@ -320,6 +541,7 @@ export class AppService implements OnModuleInit {
       BANK_TOPICS.ADD_CUSTOMER_TO_BANKS_CUSTOMER_REPRESENTATIVE_EVENT,
     );
   }
+  //OK
   async sendCreateDepartmentDirectorRequest(
     createDepartmentDirectorRequestDTO: CreateDepartmentDirectorDTO,
   ) {
@@ -333,6 +555,7 @@ export class AppService implements OnModuleInit {
       BANK_TOPICS.CREATE_BANK_DEPARTMENT_DIRECTOR_EVENT,
     );
   }
+  //OK
   async sendCreateEmployeeRegistrationToBankRequest(
     createEmployeeRegistrationToBankDTO: CreateEmployeeRegistrationToBankDTO,
   ) {
@@ -356,9 +579,9 @@ export class AppService implements OnModuleInit {
       "[sendGetCustomersTransfersRequest] getCustomersTransfersDTO: ",
       getCustomersTransfersDTO,
     );
-    return this.handleKafkaBankEvents(
-      getCustomersTransfersDTO,
-      BANK_TOPICS.GET_CUSTOMERS_TRANSFERS_EVENT,
+    return this.handleKafkaTransferEvents(
+      getCustomersTransfersDTO.customerId,
+      TRANSFER_TOPICS.HANDLE_GET_CUSTOMERS_TRANSFERS,
     );
   }
   async sendSearchCustomerRequest({ searchText }: { searchText: string }) {
