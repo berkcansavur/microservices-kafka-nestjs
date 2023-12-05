@@ -21,7 +21,7 @@ import {
 } from "./schemas/employee-schema";
 import { CustomersService } from "./services/customers.service";
 import { CustomersRepository } from "./repositories/customer.repository";
-import { EmployeeModelMap } from "./employee-models/employee-model.map";
+import { EmployeeModelMap } from "./models/employee-models/employee-model.map";
 import { EmployeeModelFactory } from "src/factories/employee-model.factory";
 import { EmployeesService } from "./services/employees.service";
 import { EmployeesRepository } from "./repositories/employees.repository";
@@ -32,6 +32,8 @@ import { JwtModule } from "@nestjs/jwt";
 import { JWT_SECRET } from "./constants/private.constants";
 import { CustomerRepresentativeService } from "./services/customer-representative.service";
 import { ClientsModule, Transport } from "@nestjs/microservices";
+import { UserProfileMap } from "./profiles/user-profile.map";
+import { UserProfileFactory } from "./factories/user-profile.factory";
 
 @Module({
   imports: [
@@ -88,9 +90,14 @@ import { ClientsModule, Transport } from "@nestjs/microservices";
     EmployeesRepository,
     CustomersRepository,
     EmployeeModelMap,
+    UserProfileMap,
     {
       provide: "EMPLOYEE_MODEL_FACTORY",
       useClass: EmployeeModelFactory,
+    },
+    {
+      provide: "USER_PROFILE_FACTORY",
+      useClass: UserProfileFactory,
     },
     AuthProfile,
     BankProfile,

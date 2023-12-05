@@ -19,6 +19,7 @@ import {
   BankCouldNotCreatedException,
   EmployeeCouldNotUpdatedException,
   BankCouldNotUpdatedException,
+  UserNotFoundException,
 } from "../exceptions";
 import { BankCustomerRepresentative } from "../schemas/employee-schema";
 import { EmployeesService } from "./employees.service";
@@ -27,11 +28,17 @@ import { InjectMapper } from "@automapper/nestjs";
 import { CustomerRepresentativeService } from "./customer-representative.service";
 import { AccountType } from "src/types/bank.types";
 import { ClientKafka } from "@nestjs/microservices";
+import { Utils } from "src/utils/utils";
+import { UserProfileDTO } from "src/dtos/auth.dto";
+import { UserProfileFactory } from "src/factories/user-profile.factory";
+import { EMPLOYEE_MODEL_TYPES } from "src/types/employee.types";
 @Injectable()
 export class BanksService implements IBankServiceInterface, OnModuleInit {
   private readonly logger = new Logger(BanksService.name);
   constructor(
     @Inject("ACCOUNT_SERVICE") private readonly accountClient: ClientKafka,
+    @Inject("USER_PROFILE_FACTORY")
+    private readonly userProfileFactory: UserProfileFactory,
     private readonly banksRepository: BanksRepository,
     private readonly customersService: CustomersService,
     private readonly employeesService: EmployeesService,
@@ -172,10 +179,6 @@ export class BanksService implements IBankServiceInterface, OnModuleInit {
         PrivateAccountDTO,
       );
     });
-    logger.debug(
-      "getAccountFromAccountsMicroService privateAccount: ",
-      JSON.stringify(privateAccounts),
-    );
     return privateAccounts;
   }
   async getCustomersAccounts({
@@ -203,59 +206,31 @@ export class BanksService implements IBankServiceInterface, OnModuleInit {
     userType: USER_TYPES;
     userId: string;
   }): Promise<UserProfileDTO> {
-    const { logger, customersService, employeesService, BankMapper } = this;
+    const { logger, userProfileFactory } = this;
     logger.debug("[getUserProfile] userId: ", userId, " userType: ", userType);
     const mappedUserType = Utils.getUserType({ userType });
     if (mappedUserType === USER_TYPES.CUSTOMER) {
-      const user = await customersService.getCustomer({ customerId: userId });
-      logger.debug("User model: ", user);
-      return BankMapper.map<Customer, UserProfileDTO>(
-        user,
-        Customer,
-        UserProfileDTO,
-      );
+      return (
+        await userProfileFactory.getUserProfile(mappedUserType)
+      ).getCustomerProfile(userId);
     }
+    const employeeModelType = Utils.getEmployeeModelType(userType);
     if (
-      mappedUserType === USER_TYPES.BANK_DIRECTOR ||
-      USER_TYPES.BANK_DEPARTMENT_DIRECTOR ||
-      USER_TYPES.BANK_CUSTOMER_REPRESENTATIVE
+      employeeModelType === EMPLOYEE_MODEL_TYPES.BANK_CUSTOMER_REPRESENTATIVE
     ) {
-      const employeeModelType = Utils.getEmployeeModelType(userType);
-      if (
-        employeeModelType === EMPLOYEE_MODEL_TYPES.BANK_CUSTOMER_REPRESENTATIVE
-      ) {
-        const user = (await employeesService.getEmployee({
-          employeeType: employeeModelType,
-          employeeId: userId,
-        })) as BankCustomerRepresentative;
-        return BankMapper.map<BankCustomerRepresentative, UserProfileDTO>(
-          user,
-          BankCustomerRepresentative,
-          UserProfileDTO,
-        );
-      }
-      if (employeeModelType === EMPLOYEE_MODEL_TYPES.BANK_DEPARTMENT_DIRECTOR) {
-        const user = (await employeesService.getEmployee({
-          employeeType: employeeModelType,
-          employeeId: userId,
-        })) as BankDepartmentDirector;
-        return BankMapper.map<BankDepartmentDirector, UserProfileDTO>(
-          user,
-          BankDepartmentDirector,
-          UserProfileDTO,
-        );
-      }
-      if (employeeModelType === EMPLOYEE_MODEL_TYPES.BANK_DIRECTOR) {
-        const user = (await employeesService.getEmployee({
-          employeeType: employeeModelType,
-          employeeId: userId,
-        })) as BankDirector;
-        return BankMapper.map<BankDirector, UserProfileDTO>(
-          user,
-          BankDirector,
-          UserProfileDTO,
-        );
-      }
+      return (
+        await userProfileFactory.getUserProfile(mappedUserType)
+      ).getBankCustomerRepresentativeProfile(employeeModelType, userId);
+    }
+    if (employeeModelType === EMPLOYEE_MODEL_TYPES.BANK_DEPARTMENT_DIRECTOR) {
+      return (
+        await userProfileFactory.getUserProfile(mappedUserType)
+      ).getBankDepartmentDirectorProfile(employeeModelType, userId);
+    }
+    if (employeeModelType === EMPLOYEE_MODEL_TYPES.BANK_DIRECTOR) {
+      return (
+        await userProfileFactory.getUserProfile(mappedUserType)
+      ).getBankDirectorProfile(employeeModelType, userId);
     }
     throw new UserNotFoundException();
   }
