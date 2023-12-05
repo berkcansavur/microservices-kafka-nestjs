@@ -464,8 +464,3 @@ export class AccountIdDTO {
   @IsMongoId()
   accountId: string;
 }
-export class SearchTextDTO {
-  @IsNotEmpty()
-  @IsString()
-  query: string;
-}

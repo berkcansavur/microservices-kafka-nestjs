@@ -1,6 +1,7 @@
 export enum BANK_TOPICS {
   LOGIN_CUSTOMER = "login-customer",
   LOGIN_EMPLOYEE = "login-employee",
+  GET_CUSTOMER = "get-customer",
   GET_USER_PROFILE_EVENT = "get-user-profile-event",
   CREATE_TRANSFER_ACROSS_ACCOUNTS_EVENT = "create-transfer-across-accounts-event",
   APPROVE_TRANSFER_EVENT = "approve-transfer-event",
@@ -20,11 +21,33 @@ export enum BANK_TOPICS {
   GET_CUSTOMERS_TRANSFERS_EVENT = "get-customers-transfers-event",
   DELETE_TRANSFER_RECORDS_EVENT = "delete-transfer-records-event",
   GET_ACCOUNTS_TRANSFERS_EVENT = "get-accounts-transfers-event",
+  ADD_TRANSACTION_TO_EMPLOYEE = "add-transaction-to-employee",
   SEARCH_CUSTOMER = "search-customer",
+  ADD_ACCOUNT_TO_CUSTOMER = "add-account-to-customer",
+  UPDATE_CUSTOMER_TRANSACTION_RESULT = "update-customer-transaction-result",
 }
 export enum ACCOUNT_TOPICS {
   GET_ACCOUNT = "get_account",
   GET_ACCOUNTS_LAST_ACTIONS = "get_accounts_last_actions",
   GET_ACCOUNTS_BALANCE = "get_accounts_balance",
   GET_ACCOUNTS_CURRENCY_BALANCE = "get_accounts_currency_balance",
+  MONEY_TRANSFER_ACROSS_ACCOUNTS_RESULT = "money_transfer_across_accounts_result",
+  HANDLE_CREATE_ACCOUNT = "handle_create_account",
+  ACCOUNT_AVAILABILITY_RESULT = "account_availability_result",
+}
+export enum TRANSFER_TOPICS {
+  ACCOUNT_AVAILABILITY_RESULT = "account_availability_result",
+  HANDLE_CREATE_ACCOUNT = "handle_create_account",
+  HANDLE_CREATE_TRANSFER_ACROSS_ACCOUNTS = "handle_create_transfer_across_accounts",
+  HANDLE_CREATE_TRANSFER_TO_ACCOUNT = "handle_create_transfer_to_account",
+  HANDLE_FAILURE_TRANSFER = "handle_failure_transfer",
+  HANDLE_COMPLETE_TRANSFER = "handle_complete_transfer",
+  HANDLE_START_TRANSFER = "handle_start_transfer",
+  HANDLE_APPROVE_TRANSFER = "handle_approve_transfer",
+  HANDLE_APPROVE_PENDING_TRANSFER = "handle_approve_pending_transfer",
+  HANDLE_REJECT_TRANSFER = "handle_reject_transfer",
+  HANDLE_GET_TRANSFER = "handle_get_transfer",
+  HANDLE_GET_CUSTOMERS_TRANSFERS = "handle_get_customers_transfers",
+  HANDLE_DELETE_TRANSFER_RECORDS = "handle_delete_transfer_records",
+  HANDLE_GET_ACCOUNTS_TRANSFERS = "handle_get_accounts_transfers",
 }

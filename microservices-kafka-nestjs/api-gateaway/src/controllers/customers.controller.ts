@@ -66,7 +66,7 @@ export class CustomersController {
     });
   }
   @Get("/getCustomersAccounts/:customerId")
-  @UseGuards(AuthGuard)
+  //@UseGuards(AuthGuard)
   getCustomersAccounts(@Param("customerId") customerId: string) {
     const getCustomersAccountsDTO: GetCustomersAccountsDTO = { customerId };
     const { appService, logger } = this;
@@ -121,15 +121,13 @@ export class CustomersController {
   }
   @Post("/transferMoneyToAccount")
   //@UseGuards(AuthGuard)
-  transferMoneyToAccount(@Body() transferMoneyToAccountDTO: MoneyTransferDTO) {
+  transferMoneyToAccount(@Body() createTransferDTO: MoneyTransferDTO) {
     const { appService, logger } = this;
     logger.debug(
       "[transferMoneyToAccount] transferMoneyToAccountDTO: ",
-      transferMoneyToAccountDTO,
+      createTransferDTO,
     );
-    return appService.sendTransferMoneyToAccountRequest(
-      transferMoneyToAccountDTO,
-    );
+    return appService.sendTransferMoneyToAccountRequest({ createTransferDTO });
   }
   @Post("/createTransfer")
   //@UseGuards(AuthGuard)

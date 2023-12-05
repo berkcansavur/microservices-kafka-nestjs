@@ -37,7 +37,6 @@ import { CustomerRepresentativeService } from "./customer-representative.service
 @Injectable()
 export class EmployeesService implements IEmployeeServiceInterface {
   private readonly logger = new Logger(EmployeesService.name);
-  private readonly utils = new Utils();
   constructor(
     private readonly employeesRepository: EmployeesRepository,
     private readonly customerRepresentativeService: CustomerRepresentativeService,
@@ -55,9 +54,9 @@ export class EmployeesService implements IEmployeeServiceInterface {
   }): Promise<
     BankDirector | BankDepartmentDirector | BankCustomerRepresentative
   > {
-    const { logger, employeesRepository, utils } = this;
+    const { logger, employeesRepository } = this;
     logger.debug("[EmployeesService] createEmployee DTO: ", createEmployeeDTO);
-    const hashedPassword = await utils.hashPassword({
+    const hashedPassword = await Utils.hashPassword({
       password: createEmployeeDTO.password,
     });
     createEmployeeDTO.password = hashedPassword;
@@ -101,12 +100,12 @@ export class EmployeesService implements IEmployeeServiceInterface {
     authenticatedUserDTO: AuthenticatedUserDTO;
     userType: USER_TYPES;
   }): Promise<UserProfileDTO> {
-    const { logger, employeesRepository, BankMapper, utils } = this;
+    const { logger, employeesRepository, BankMapper } = this;
     logger.debug(
       "[setEmployeesAccessToken] authenticatedUserDTO:",
       authenticatedUserDTO,
     );
-    const employeeModelType = utils.getEmployeeModelType(userType);
+    const employeeModelType = Utils.getEmployeeModelType(userType);
     const { userId, access_token } = authenticatedUserDTO;
     const updatedEmployee = await employeesRepository.setEmployeesAccessToken({
       employeeModelType,
@@ -158,8 +157,8 @@ export class EmployeesService implements IEmployeeServiceInterface {
   }): Promise<
     BankDirector | BankDepartmentDirector | BankCustomerRepresentative
   > {
-    const { logger, employeesRepository, utils } = this;
-    const employeeModelType = utils.getEmployeeModelType(employeeType);
+    const { logger, employeesRepository } = this;
+    const employeeModelType = Utils.getEmployeeModelType(employeeType);
     logger.debug(
       "[EmployeesService] createBankRegistrationToUser : ",
       employeeType,
@@ -174,7 +173,7 @@ export class EmployeesService implements IEmployeeServiceInterface {
     });
     return updatedEmployee;
   }
-  async addTransactionToEmployee({
+  async addTransaction({
     employeeType,
     employeeId,
     customerId,
@@ -222,14 +221,14 @@ export class EmployeesService implements IEmployeeServiceInterface {
     employeeId: string;
     customerId: string;
   }): Promise<Transaction[]> {
-    const { employeesRepository, utils, logger } = this;
+    const { employeesRepository, logger } = this;
     logger.debug(
       "[EmployeesService] getEmployeesCustomerTransactions : ",
       employeeType,
       employeeId,
       customerId,
     );
-    const employeeModelType = utils.getEmployeeModelType(employeeType);
+    const employeeModelType = Utils.getEmployeeModelType(employeeType);
     const transactions: Transaction[] =
       await employeesRepository.getEmployeesCustomerRelatedTransactions({
         employeeType: employeeModelType,
@@ -246,13 +245,13 @@ export class EmployeesService implements IEmployeeServiceInterface {
     employeeType: USER_TYPES;
     employeeId: string;
   }): Promise<Transaction[]> {
-    const { employeesRepository, utils, logger } = this;
+    const { employeesRepository, logger } = this;
     logger.debug(
       "[EmployeesService] getEmployeesCustomerTransactions : ",
       employeeType,
       employeeId,
     );
-    const employeeModelType = utils.getEmployeeModelType(employeeType);
+    const employeeModelType = Utils.getEmployeeModelType(employeeType);
     const transactions: Transaction[] =
       await employeesRepository.getEmployeesTransactions({
         employeeType: employeeModelType,
@@ -261,7 +260,7 @@ export class EmployeesService implements IEmployeeServiceInterface {
     logger.debug("[EmployeesService] transactions : ", transactions);
     return transactions;
   }
-  async updateEmployeesCustomerTransactionsResult({
+  async updateCustomerTransactionsResult({
     employeeType,
     transferId,
     employeeId,
@@ -276,8 +275,8 @@ export class EmployeesService implements IEmployeeServiceInterface {
     result?: TRANSACTION_RESULTS;
     action?: EMPLOYEE_ACTIONS;
   }): Promise<Transaction> {
-    const { employeesRepository, utils, logger } = this;
-    const employeeModelType = utils.getEmployeeModelType(employeeType);
+    const { employeesRepository, logger } = this;
+    const employeeModelType = Utils.getEmployeeModelType(employeeType);
     const updatedEmployee =
       await employeesRepository.updateEmployeesTransactionResult({
         employeeType: employeeModelType,

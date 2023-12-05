@@ -1,12 +1,13 @@
+import { InvalidUserTypeException } from "src/exceptions";
+import { scrypt as _scrypt, randomBytes } from "crypto";
+import { promisify } from "util";
 import {
   ACCOUNT_TYPES,
   BANK_BRANCH_CODE,
+  EMPLOYEE_MODEL_TYPES,
   USER_TYPES,
-} from "src/constants/banks.constants";
-import { InvalidUserTypeException } from "src/exceptions";
-import { EMPLOYEE_MODEL_TYPES } from "src/types/employee.types";
-import { scrypt as _scrypt, randomBytes } from "crypto";
-import { promisify } from "util";
+} from "types/app-types";
+
 const scrypt = promisify(_scrypt);
 export class Utils {
   static generateRandomNumber(): number {

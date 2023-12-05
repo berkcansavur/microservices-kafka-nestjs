@@ -1,5 +1,5 @@
 // src/transfers/transfers.service.ts
-import { Inject, Injectable, Logger, OnModuleInit } from "@nestjs/common";
+import { Inject, Injectable, Logger } from "@nestjs/common";
 import { TransfersRepository } from "./repositories/transfers.repository";
 import {
   CreateMoneyTransferDTO,
@@ -10,25 +10,20 @@ import { Transfer } from "./schemas/transfer.schema";
 import { InjectMapper } from "@automapper/nestjs";
 import { Mapper } from "@automapper/core";
 import { TransferIsNotFoundException } from "./exceptions";
-import { ClientKafka } from "@nestjs/microservices";
 import { TransferCouldNotCreatedException } from "./exceptions/index";
 import { TRANSFER_STATUSES } from "./constants/transfer.constants";
 import { ITransferService } from "./interfaces/transfer-service.intrerface";
 import { TransferStateFactory } from "src/factories/transfer-state.factory";
 
 @Injectable()
-export class TransfersService implements ITransferService, OnModuleInit {
+export class TransfersService implements ITransferService {
   private readonly logger = new Logger(TransfersService.name);
   constructor(
     @Inject("TRANSFER_STATE_FACTORY")
     private readonly transferStateFactory: TransferStateFactory,
-    @Inject("BANK_SERVICE") private readonly bankClient: ClientKafka,
     private readonly transfersRepository: TransfersRepository,
     @InjectMapper() private readonly TransferMapper: Mapper,
   ) {}
-  async onModuleInit() {
-    this.bankClient.subscribeToResponseOf("transfer_approval");
-  }
 
   async getTransfer({
     transferId,

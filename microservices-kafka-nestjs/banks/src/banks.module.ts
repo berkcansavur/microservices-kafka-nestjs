@@ -10,7 +10,6 @@ import { CustomersController } from "./controllers/customers.controller";
 import { ConfigModule } from "@nestjs/config";
 import { AutomapperModule } from "@automapper/nestjs";
 import { classes } from "@automapper/classes";
-import { ClientsModule, Transport } from "@nestjs/microservices";
 import { CustomerAuth, CustomerAuthSchema } from "./schemas/auth.schema";
 import {
   BankCustomerRepresentativeSchema,
@@ -22,7 +21,7 @@ import {
 } from "./schemas/employee-schema";
 import { CustomersService } from "./services/customers.service";
 import { CustomersRepository } from "./repositories/customer.repository";
-import { EmployeeModelMap } from "./employee-models/employee-model.map";
+import { EmployeeModelMap } from "./models/employee-models/employee-model.map";
 import { EmployeeModelFactory } from "src/factories/employee-model.factory";
 import { EmployeesService } from "./services/employees.service";
 import { EmployeesRepository } from "./repositories/employees.repository";
@@ -32,6 +31,9 @@ import { AuthProfile } from "./mapper/auth-profile";
 import { JwtModule } from "@nestjs/jwt";
 import { JWT_SECRET } from "./constants/private.constants";
 import { CustomerRepresentativeService } from "./services/customer-representative.service";
+import { ClientsModule, Transport } from "@nestjs/microservices";
+import { UserProfileMap } from "./profiles/user-profile.map";
+import { UserProfileFactory } from "./factories/user-profile.factory";
 
 @Module({
   imports: [
@@ -40,19 +42,6 @@ import { CustomerRepresentativeService } from "./services/customer-representativ
       signOptions: { expiresIn: "300s" },
     }),
     ClientsModule.register([
-      {
-        name: "TRANSFER_SERVICE",
-        transport: Transport.KAFKA,
-        options: {
-          client: {
-            clientId: "bank-transfers",
-            brokers: ["kafka:9092"],
-          },
-          consumer: {
-            groupId: "transfers-consumer",
-          },
-        },
-      },
       {
         name: "ACCOUNT_SERVICE",
         transport: Transport.KAFKA,
@@ -101,9 +90,14 @@ import { CustomerRepresentativeService } from "./services/customer-representativ
     EmployeesRepository,
     CustomersRepository,
     EmployeeModelMap,
+    UserProfileMap,
     {
       provide: "EMPLOYEE_MODEL_FACTORY",
       useClass: EmployeeModelFactory,
+    },
+    {
+      provide: "USER_PROFILE_FACTORY",
+      useClass: UserProfileFactory,
     },
     AuthProfile,
     BankProfile,

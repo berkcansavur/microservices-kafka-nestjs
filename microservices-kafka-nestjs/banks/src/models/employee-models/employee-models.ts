@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
-import { IEmployeeModel } from "src/interfaces/employee-model.interface";
+import { IEmployeeModel } from "src/interfaces/employee-modal/employee-model.interface";
 import {
   BankCustomerRepresentative,
   BankCustomerRepresentativeDocument,

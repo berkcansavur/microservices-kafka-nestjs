@@ -10,7 +10,6 @@ import { ConfigModule } from "@nestjs/config";
 
 @Module({
   imports: [
-    ConfigModule.forRoot({}),
     JwtModule.register({}),
     ClientsModule.register([
       {
@@ -26,7 +25,34 @@ import { ConfigModule } from "@nestjs/config";
           },
         },
       },
+      {
+        name: "ACCOUNT_SERVICE",
+        transport: Transport.KAFKA,
+        options: {
+          client: {
+            clientId: "app-accounts",
+            brokers: ["kafka:9092"],
+          },
+          consumer: {
+            groupId: "accounts-consumer",
+          },
+        },
+      },
+      {
+        name: "TRANSFER_SERVICE",
+        transport: Transport.KAFKA,
+        options: {
+          client: {
+            clientId: "app-transfers",
+            brokers: ["kafka:9092"],
+          },
+          consumer: {
+            groupId: "transfers-consumer",
+          },
+        },
+      },
     ]),
+    ConfigModule.forRoot({}),
   ],
   controllers: [
     AppController,

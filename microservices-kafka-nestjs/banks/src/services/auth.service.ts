@@ -27,7 +27,6 @@ const scrypt = promisify(_scrypt);
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
-  private readonly utils = new Utils();
   constructor(
     @InjectMapper() private readonly AuthMapper: Mapper,
     private readonly customerService: CustomersService,
@@ -46,12 +45,12 @@ export class AuthService {
     | BankDirector
     | BankCustomerRepresentative
   > {
-    const { utils, employeeService, customerService, logger } = this;
+    const { employeeService, customerService, logger } = this;
     logger.debug("[getUserToValidate] userType:", userType, "email:", email);
     if (userType === USER_TYPES.CUSTOMER) {
       return await customerService.getCustomerByEmail({ email });
     }
-    const employeeType = utils.getEmployeeModelType(userType);
+    const employeeType = Utils.getEmployeeModelType(userType);
     logger.debug("[getUserToValidate] employeeType:", employeeType);
     return await employeeService.getEmployeeByEmail({
       employeeType,

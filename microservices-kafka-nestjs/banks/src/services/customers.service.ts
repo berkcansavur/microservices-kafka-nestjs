@@ -3,11 +3,8 @@ import { InjectMapper } from "@automapper/nestjs";
 import { Injectable, Logger } from "@nestjs/common";
 import { ACCOUNT_ACTIONS } from "src/constants/banks.constants";
 import { AuthenticatedUserDTO, UserProfileDTO } from "src/dtos/auth.dto";
-import {
-  CustomerDTO,
-  SearchTextDTO,
-  createCustomerDTOWithCustomerNumber,
-} from "src/dtos/bank.dto";
+import { CreateCustomerDTO, CustomerDTO } from "src/dtos/bank.dto";
+import { SearchTextDTO } from "src/dtos/customer.dto";
 import { UserCouldNotValidatedException } from "src/exceptions";
 import { BanksLogic } from "src/logic/banks.logic";
 import { CustomersRepository } from "src/repositories/customer.repository";
@@ -15,6 +12,7 @@ import {
   Customer,
   PrivateCustomerRepresentative,
 } from "src/schemas/customers.schema";
+import { Utils } from "src/utils/utils";
 
 @Injectable()
 export class CustomersService {
@@ -102,13 +100,25 @@ export class CustomersService {
     }
     return customerAuth;
   }
-  async createCustomer({
-    createCustomerDTOWithCustomerNumber,
+  async create({
+    createCustomerDTO,
   }: {
-    createCustomerDTOWithCustomerNumber: createCustomerDTOWithCustomerNumber;
+    createCustomerDTO: CreateCustomerDTO;
   }): Promise<CustomerDTO> {
     const { logger, customersRepository, AuthMapper } = this;
-    logger.debug("create customer DTO: ", createCustomerDTOWithCustomerNumber);
+    logger.debug(
+      "[handleCreateCustomer] createCustomerDTO: ",
+      createCustomerDTO,
+    );
+    const customerNumber = Utils.generateRandomNumber();
+    const hashedPassword = await Utils.hashPassword({
+      password: createCustomerDTO.password,
+    });
+    createCustomerDTO.password = hashedPassword;
+    const createCustomerDTOWithCustomerNumber = {
+      ...createCustomerDTO,
+      customerNumber,
+    };
     const customer: Customer = await customersRepository.createCustomer({
       createCustomerDTOWithCustomerNumber,
     });
@@ -135,7 +145,7 @@ export class CustomersService {
     });
     return stringAccountIds;
   }
-  async addAccountToCustomer({
+  async addAccount({
     customerId,
     accountId,
   }: {

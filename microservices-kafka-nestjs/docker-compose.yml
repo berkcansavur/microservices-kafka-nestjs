@@ -30,6 +30,7 @@ services:
   accounts:
     depends_on: 
       - kafka
+      - zookeeper
     build:
       context: ./accounts
     restart: unless-stopped
@@ -37,6 +38,7 @@ services:
   banks:
     depends_on: 
       - kafka
+      - zookeeper
     build:
       context: ./banks
     restart: unless-stopped
@@ -44,6 +46,7 @@ services:
   transfers:
     depends_on: 
       - kafka
+      - zookeeper
     build:
       context: ./transfers
     restart: unless-stopped
@@ -51,6 +54,10 @@ services:
   api-gateaway:
     depends_on: 
       - kafka
+      - zookeeper
+      - transfers
+      - banks
+      - accounts
     build:
       context: ./api-gateaway
     ports:
